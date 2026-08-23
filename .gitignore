@@ -1,0 +1,16 @@
+﻿# OS & Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.qodo/
+
+# Local Qodo / Gemini temporary files
+.qodo/
+.system_generated/
+*.log
+
+# Environment files
+.env
+.env.local
