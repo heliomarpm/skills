@@ -22,15 +22,23 @@ Esta skill orienta a exploração metódica e a engenharia de contexto de bases 
 
 ## 1. Processo de Execução Estruturado (Workflow)
 
-### 1.1. Inspeção Prévia e Preservação de Memória
+### 1.1. Inspeção Prévia, Preservação e Resolução de Destino
 
 Antes de iniciar qualquer varredura ou escrita:
-1. **Verificação de Documentos Existentes**: Inspecione na raiz (`./`) e nas pastas de agentes (`./agents/` ou `./.agents/`) se já existem:
+1. **Verificação de Documentos Existentes**: Inspecione na raiz (`./`), nas pastas de agentes (`./.agents/`, `./agents/`) e de documentação (`./docs/`) se já existem:
    - `PROJECT.md` ou `CONTEXT.md`
    - `AGENTS.md` ou `GEMINI.md`
    - `DATA.md` ou `DATABASE.md`
    - `TASKS.md` (ou legado `TASK.md`)
-2. **Preservação Obrigatória**: Jamais execute sobrescrita cega. Se os arquivos já existirem, leia-os primeiro para preservar anotações manuais, decisões de negócio e restrições já documentadas pelo time.
+2. **Resolução de Destino e Pergunta Obrigatória**:
+   - **Cenário A (Arquivos Encontrados)**: Preserve o local onde já se encontram. Jamais crie arquivos duplicados em outro diretório nem execute sobrescrita cega. Leia-os primeiro para preservar anotações manuais e decisões de negócio já registradas.
+   - **Cenário B (Nenhum Arquivo Localizado)**: O agente **NÃO DEVE** criar arquivos em local arbitrário por presunção. **Deve obrigatoriamente perguntar ao usuário** o local de destino desejado antes de criar os arquivos:
+     > *"Não identifiquei arquivos de contexto existentes no repositório. Onde você prefere que eu crie os novos artefatos de memória (`CONTEXT.md`, `AGENTS.md`, `DATA.md`)?*
+     > *1. Na raiz do projeto (`./`)*
+     > *2. Na pasta oculta de configuração (`./.agents/`)*
+     > *3. Na pasta de agentes (`./agents/`)*
+     > *4. Na pasta de documentação (`./docs/`)*
+     > *(ou informe outro caminho de sua preferência)*"*
 
 ---
 
@@ -58,7 +66,7 @@ A exploração deve ser cirúrgica e orientada a metadados para não sobrecarreg
 
 ### 1.3. Geração e Sincronização dos Artefatos de Memória
 
-A skill estrutura ou atualiza os artefatos nos locais padronizados (priorizando `./.agents/` ou `./agents/` se já adotados pelo projeto, ou diretamente na raiz `./`):
+A skill estrutura ou atualiza os artefatos no caminho confirmado com o usuário (ou no local preexistente já adotado pelo repositório):
 
 #### 📄 A. `CONTEXT.md` (ou `PROJECT.md`) — Visão Executiva do Projeto
 - **Missão/Propósito**: Resumo de 1 a 2 parágrafos do que o software faz e seu valor de negócio.
@@ -170,8 +178,9 @@ Instruções mandatórias que qualquer agente deve obedecer ao propor código ne
 
 ## 4. Padrão Rigoroso de Entrega
 
-Ao finalizar o discovery:
+Ao conduzir o discovery:
 1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: _discovery`.
-2. **Transparência**: Listar claramente os arquivos criados ou atualizados (`CONTEXT.md`, `AGENTS.md`, `DATA.md`).
-3. **Resumo Executivo**: Apresentar um resumo condensado da stack e da arquitetura identificada na resposta do chat.
-4. **Integração com Backlog**: Perguntar se o usuário deseja registrar os débitos ou lacunas encontradas em `TASKS.md` via `_task-management`.
+2. **Confirmação de Destino**: Caso nenhum artefato exista, perguntar obrigatoriamente onde criá-los antes de gravar qualquer arquivo.
+3. **Transparência**: Listar claramente os arquivos criados ou atualizados com links markdown navegáveis (`[arquivo.md](file:///...)`).
+4. **Resumo Executivo**: Apresentar um resumo condensado da stack e da arquitetura identificada na resposta do chat.
+5. **Integração com Backlog**: Perguntar se o usuário deseja registrar os débitos ou lacunas encontradas em `TASKS.md` via `_task-management`.
