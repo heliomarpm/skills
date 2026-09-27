@@ -73,3 +73,21 @@ Ao entregar testes automatizados:
 1. Siga a estrutura AAA com convenções descritivas de nomenclatura.
 2. Utilize o framework e bibliotecas de asserção oficiais da linguagem do projeto.
 3. Garanta que testes unitários executem em milissegundos sem depender de rede ou disco real.
+
+---
+
+## 6. 📝 Acompanhamento de Cobertura com `task-management` (Sempre ao Final)
+
+Sempre ao término do planejamento, escrita ou auditoria da estratégia de testes, se houver cenários críticos, testes de integração ou gaps da pirâmide de testes não implementados na sessão, **pergunte obrigatoriamente ao usuário ao final da resposta**:
+
+> *"Identifiquei cenários e lacunas de teste que ainda precisam ser cobertos. Deseja que eu registre essas tarefas de teste no arquivo `TASKS.md` do projeto?"*
+
+Ao receber a confirmação do usuário (ou se instruído a registrar automaticamente):
+1. **Ativação da Skill**: Acione a skill **`task-management`** para atualizar o backlog de testes.
+2. **Localização em Cascata**: A skill `task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`).
+3. **Mapeamento de Prioridades de Teste**:
+   - `🚨 1. Bloqueadores / Alta Prioridade`: Testes unitários para regras financeiras e testes de regressão para bugs críticos descobertos em produção.
+   - `⚠️ 2. Média Prioridade`: Testes de integração com banco de dados/filas efêmeras e validação de contratos de API.
+   - `💡 3. Baixa Prioridade / Otimização`: Testes de carga, testes de mutação e refatoração de fixtures antigas.
+   - `✅ 4. Concluído recentemente`: Suítes de teste criadas, executadas e validadas com sucesso na sessão com `- [x]`.
+4. **Navegabilidade**: Toda tarefa deve indicar o arquivo de teste correspondente ou o componente a ser testado com links `[arquivo.ext](file:///...)`.

@@ -92,3 +92,21 @@ Ao conduzir refatorações:
 1. Preserve 100% da API pública e contratos observáveis existentes (a menos que a quebra tenha sido solicitada explicitamente).
 2. Adote as convenções e paradigmas idiomáticos da linguagem ativa no projeto do usuário.
 3. Entregue o código refatorado acompanhado dos testes automatizados de caracterização correspondentes.
+
+---
+
+## 6. 📝 Gestão de Débitos e Próximos Passos com `task-management` (Sempre ao Final)
+
+Sempre ao término de uma sessão, proposta ou análise de refatoração, se houver etapas adicionais em aberto, testes de caracterização pendentes ou novos débitos técnicos identificados, **pergunte obrigatoriamente ao usuário ao final da resposta**:
+
+> *"Identifiquei etapas e débitos técnicos decorrentes da refatoração. Deseja que eu registre ou atualize essas atividades no arquivo `TASKS.md` do projeto?"*
+
+Ao receber a confirmação do usuário (ou se instruído a atualizar automaticamente):
+1. **Ativação da Skill**: Acione a skill **`task-management`** para realizar a escrita ou atualização estruturada.
+2. **Localização em Cascata**: A skill `task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`), preservando o histórico existente.
+3. **Mapeamento de Ações**:
+   - `🚨 1. Bloqueadores / Alta Prioridade`: Testes de caracterização prévios obrigatórios antes de refatorar fluxos críticos ou financeiros.
+   - `⚠️ 2. Média Prioridade`: Quebra de acoplamento, extração de classes de parâmetro e eliminação de duplicações estruturais.
+   - `💡 3. Baixa Prioridade / Otimização`: Renomeações semânticas, limpeza de métodos obsoletos e simplificação cosmética.
+   - `✅ 4. Concluído recentemente`: Transformações atômicas já executadas e validadas com sucesso na sessão com `- [x]`.
+4. **Navegabilidade**: Cada tarefa cadastrada deve apontar para os arquivos ou trechos exatos via link `[arquivo.ext](file:///...)`.

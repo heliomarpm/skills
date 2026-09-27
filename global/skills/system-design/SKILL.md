@@ -95,3 +95,21 @@ Ao propor designs de sistemas ou integrações distribuídas:
 1. Apresente diagramas textuais claros de fluxo entre componentes.
 2. Identifique explicitamente a garantia de entrega da mensageria (*At-least-once*, *At-most-once*).
 3. Inclua sempre mecanismos de deduplicação e tratamento de falhas com Dead Letter Queues (DLQ).
+
+---
+
+## 5. 📝 Decomposição do Roadmap com `task-management` (Sempre ao Final)
+
+Sempre ao término de uma proposta ou desenho de arquitetura de sistemas distribuídos, **pergunte obrigatoriamente ao usuário ao final da resposta**:
+
+> *"Concluí o desenho da arquitetura. Deseja que eu decomponha a implementação em etapas e tarefas no arquivo `TASKS.md` do projeto?"*
+
+Ao receber a confirmação do usuário (ou se instruído a decompor automaticamente):
+1. **Ativação da Skill**: Acione a skill **`task-management`** para realizar a criação ou atualização do backlog da arquitetura.
+2. **Localização em Cascata**: A skill `task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`).
+3. **Mapeamento das Etapas da Arquitetura**:
+   - `🚨 1. Bloqueadores / Alta Prioridade`: Provisionamento da infraestrutura base (tabelas Outbox, tópicos/filas principais, migrações de banco com zero downtime).
+   - `⚠️ 2. Média Prioridade`: Implementação de producers, consumers idempotentes com deduplicação, Dead Letter Queues (DLQ) e workers assíncronos.
+   - `💡 3. Baixa Prioridade / Otimização`: Camada de caching com TTL, métricas de observabilidade distribuída e dashboards de monitoramento.
+   - `✅ 4. Concluído recentemente`: Marcos e contratos já finalizados e validados na sessão com `- [x]`.
+4. **Navegabilidade**: Cada tarefa cadastrada deve manter referências diretas com links navegáveis aos arquivos ou schemas propostos (`[arquivo.ext](file:///...)`).

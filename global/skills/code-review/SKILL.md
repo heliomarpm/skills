@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Realiza revisão técnica bidimensional de código e Pull Requests (especificação/escopo vs qualidade/segurança) executada em subagentes paralelos, com severidades e diffs acionáveis.
+description: Realiza revisão técnica bidimensional de código e Pull Requests (especificação/escopo vs qualidade/segurança) executada em subagentes paralelos, com severidades, diffs acionáveis e geração automática de TASKS.md.
 ---
 
 # Code Review Skill: Bidimensional & Rigorous Engineering Review
@@ -103,3 +103,21 @@ O relatório final deve consolidar os resultados de ambos os eixos sem misturá-
 ### 💡 Destaques Positivos
 - [Reconheça boas práticas aplicadas e soluções elegantes adotadas no PR]
 ```
+
+---
+
+## 5. 📝 Geração e Atualização de `TASKS.md` via `task-management` (Sempre ao Final)
+
+Sempre ao término da revisão técnica, se houver qualquer apontamento (bloqueadores, requisitos faltantes, *code smells* ou débitos técnicos), **pergunte obrigatoriamente ao usuário ao final do relatório**:
+
+> *"Foram identificados apontamentos na revisão. Deseja que eu registre ou atualize essas pendências no arquivo `TASKS.md` do projeto?"*
+
+Ao receber a confirmação do usuário (ou caso tenha sido solicitado o registro automático):
+1. **Ativação da Skill**: Acione a skill **`task-management`** para conduzir o processo de escrita/atualização.
+2. **Localização em Cascata**: A skill `task-management` buscará automaticamente por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`), evitando criação de arquivos concorrentes.
+3. **Mapeamento de Severidades**:
+   - `🚨 1. Bloqueadores / Alta Prioridade`: Itens do Eixo 2 marcados como `[Bloqueador/Crítico]` (vulnerabilidades, falhas de segurança, quebra de contratos públicos).
+   - `⚠️ 2. Média Prioridade`: Itens do Eixo 1 (`[Requisitos Faltantes]`) e Eixo 2 marcados como `[Importante/Major]`.
+   - `💡 3. Baixa Prioridade / Otimização`: *Code smells*, refatorações de legibilidade e apontamentos `[Melhoria/Minor]`.
+   - `✅ 4. Concluído recentemente`: Itens já resolvidos durante o review marcados com `- [x]`.
+4. **Navegabilidade e Rastreabilidade**: Todas as tarefas cadastradas devem conter link markdown navegável (`[arquivo.ext](file:///...)`) e critérios claros de ação corretiva.

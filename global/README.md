@@ -22,6 +22,7 @@ skills/
 ├── refactoring/       # Regra dos Dois Chapéus, Testes de Caracterização e Padrões GoF
 ├── security-appsec/   # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC, Proteção contra IDOR e CSP
 ├── system-design/     # Transactional Outbox, Mensageria, Consumidores Idempotentes e Cache
+├── task-management/   # Gestão Dinâmica de Backlog, Decomposição e Atualização de TASKS.md
 ├── testing/           # Pirâmide de Testes, Padrão AAA, Test Data Builders e waitFor
 ├── tech-angular/      # Angular 18/19+, Signals, Resource API, Deferrable Views e OnPush
 ├── tech-csharp/       # C# 13 Lock, .NET 9 HybridCache, IAsyncEnumerable e Minimal APIs
@@ -40,6 +41,7 @@ skills/
 | Skill | Escopo | Propósito Principal |
 | :--- | :--- | :--- |
 | [`core-tech`](./core-tech/SKILL.md) | Global | Princípios de engenharia limpa, SOLID, contratos de erro RFC 7807 e observabilidade. |
+| [`task-management`](./task-management/SKILL.md) | Global | Gerenciamento dinâmico de backlog, decomposição e atualização contínua de `TASKS.md`. |
 | [`code-review`](./code-review/SKILL.md) | Global | Revisão técnica bidimensional (requisitos vs qualidade) em subagentes paralelos com diffs. |
 | [`refactoring`](./refactoring/SKILL.md) | Global | Refatoração disciplinada com testes de caracterização prévios e transformações atômicas. |
 | [`testing`](./testing/SKILL.md) | Global | Estratégia de testes determinísticos, padrão AAA, builders e esperas ativas. |

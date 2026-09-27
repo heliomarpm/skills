@@ -95,3 +95,21 @@ Ao entregar soluções de segurança ou autenticação:
 1. Nunca insira credenciais, certificados ou salts fixados no código.
 2. Forneça configurações seguras de cookies (`httpOnly: true`, `secure: true`, `sameSite: 'lax'`).
 3. Adicione sempre verificações de autorização de escopo e propriedade de recurso antes de qualquer mutação.
+
+---
+
+## 5. 📝 Gestão do Plano de Remediação com `task-management` (Sempre ao Final)
+
+Sempre ao término de qualquer análise, auditoria de segurança ou identificação de vulnerabilidades (OWASP, autenticação, headers, criptografia), se houver apontamentos pendentes de remediação ou hardening, **pergunte obrigatoriamente ao usuário ao final da resposta**:
+
+> *"Identifiquei vulnerabilidades e oportunidades de hardening. Deseja que eu registre o plano de remediação no arquivo `TASKS.md` do projeto?"*
+
+Ao receber a confirmação do usuário (ou se instruído a registrar automaticamente):
+1. **Ativação da Skill**: Acione a skill **`task-management`** para realizar a escrita ou atualização estruturada do backlog.
+2. **Localização em Cascata**: A skill `task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`).
+3. **Mapeamento de Severidades**:
+   - `🚨 1. Bloqueadores / Alta Prioridade`: Injeções (SQL, NoSQL, Comandos), quebra de autenticação, segredos expostos e falhas de IDOR.
+   - `⚠️ 2. Média Prioridade`: Ausência de proteção CSRF, configurações fracas de CSP/CORS, falta de rotação de Refresh Tokens e Rate Limiting.
+   - `💡 3. Baixa Prioridade / Otimização`: Remoção de cabeçalhos de fingerprint (`X-Powered-By`), ajustes de TTL de cache e auditoria periódica de dependências.
+   - `✅ 4. Concluído recentemente`: Vulnerabilidades já corrigidas e validadas com testes na sessão ativa com `- [x]`.
+4. **Navegabilidade**: Todo apontamento deve conter link markdown (`[arquivo.ext](file:///...)`) indicando a linha e o arquivo exato da vulnerabilidade.

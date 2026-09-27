@@ -1,6 +1,6 @@
-﻿# 🧠 Antigravity & Agent Skills: Engineering Toolbox
+# 🧠 Antigravity & Agent Skills: Engineering Toolbox
 
-[![Skills](https://img.shields.io/badge/Skills-18%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./global/skills/)
+[![Skills](https://img.shields.io/badge/Skills-19%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./global/skills/)
 [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
@@ -27,6 +27,7 @@ skills/
 │       ├── refactoring/            # Testes de Caracterização e Padrões de Refatoração
 │       ├── security-appsec/        # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
 │       ├── system-design/          # Transactional Outbox, Mensageria e Cache
+│       ├── task-management/        # Gestão, Decomposição e Atualização de TASKS.md
 │       ├── testing/                # Pirâmide de Testes, Padrão AAA e Data Builders
 │       ├── tech-angular/           # Angular 18/19+, Signals, Resource API e @defer
 │       ├── tech-csharp/            # C# 13, .NET 9, HybridCache e Lock nativo
@@ -53,6 +54,7 @@ skills/
 | Skill | Gatilho / Foco | Documentação |
 | :--- | :--- | :---: |
 | **Core Engineering** | SOLID, Clean Code, contratos de erro RFC 7807 e observabilidade | [`global/skills/core-tech`](./global/skills/core-tech/SKILL.md) |
+| **Task Management** | Planejamento, rastreamento e atualização contínua de `TASKS.md` | [`global/skills/task-management`](./global/skills/task-management/SKILL.md) |
 | **Code Review** | Revisão bidimensional (especificação vs qualidade) e análise de diffs | [`global/skills/code-review`](./global/skills/code-review/SKILL.md) |
 | **Refactoring** | Regra dos dois chapéus, testes de caracterização prévios e transformações | [`global/skills/refactoring`](./global/skills/refactoring/SKILL.md) |
 | **Testing** | Pirâmide de testes, determinismo, padrão AAA e builders | [`global/skills/testing`](./global/skills/testing/SKILL.md) |

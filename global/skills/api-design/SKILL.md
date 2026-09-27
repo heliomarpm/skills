@@ -109,3 +109,21 @@ Ao entregar designs ou implementações de API:
 1. Especifique os métodos HTTP, rotas, cabeçalhos obrigatórios e códigos de status esperados.
 2. Defina contratos de entrada e saída completos no formato JSON Schema / OpenAPI.
 3. Inclua sempre suporte a paginação por cursor em endpoints de listagem.
+
+---
+
+## 5. 📝 Planejamento de Endpoints com `task-management` (Sempre ao Final)
+
+Sempre ao término do design, modelagem ou especificação de contratos de APIs (OpenAPI, endpoints, webhooks), **pergunte obrigatoriamente ao usuário ao final da resposta**:
+
+> *"Concluí o design dos contratos da API. Deseja que eu registre as tarefas de implementação e testes no arquivo `TASKS.md` do projeto?"*
+
+Ao receber a confirmação do usuário (ou se instruído a planejar automaticamente):
+1. **Ativação da Skill**: Acione a skill **`task-management`** para estruturar o backlog dos endpoints.
+2. **Localização em Cascata**: A skill `task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`).
+3. **Mapeamento de Tarefas de API**:
+   - `🚨 1. Bloqueadores / Alta Prioridade`: Middleware de autenticação/autorização (OAuth 2.1 / PKCE), validação de schemas de entrada e idempotência (`Idempotency-Key`).
+   - `⚠️ 2. Média Prioridade`: Implementação dos endpoints CRUD, controllers, rotas e tratamento de erros RFC 7807.
+   - `💡 3. Baixa Prioridade / Otimização`: Paginação por cursor (Keyset), rate limiting e documentação Swagger UI interativa.
+   - `✅ 4. Concluído recentemente`: Especificações OpenAPI e contratos JSON Schemas finalizados na sessão com `- [x]`.
+4. **Navegabilidade**: Toda tarefa deve indicar as rotas e os arquivos de contrato ou controllers correspondentes (`[arquivo.ext](file:///...)`).
