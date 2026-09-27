@@ -1,6 +1,6 @@
 # 🧠 Antigravity & Agent Skills: Engineering Toolbox
 
-[![Skills](https://img.shields.io/badge/Skills-20%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-25%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
 [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
@@ -21,18 +21,21 @@ Para garantir total transparência e permitir auditar imediatamente se a skill c
 
 ## 🏛️ Arquitetura do Repositório
 
-Todas as 20 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `_` para evitar colisões de namespace e facilitar a identificação visual:
+Todas as 25 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `_` para evitar colisões de namespace e facilitar a identificação visual:
 
 ```text
 skills/
 ├── skills/
+│   ├── _ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
 │   ├── _api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
+│   ├── _architecture-adr/      # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
 │   ├── _code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
 │   ├── _core-tech/             # Mindset Sênior, SOLID, RFC 7807 e Observabilidade
 │   ├── _database-sql/          # Modelagem Relacional, Keyset Pagination e EXPLAIN
 │   ├── _devops/                # Docker Multi-stage, CI/CD GitHub Actions e OIDC
 │   ├── _discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
 │   ├── _git-workflow/          # Trunk-Based, Rebase Interativo e Conventional Commits
+│   ├── _observability-sre/     # OpenTelemetry, SLI/SLO, Graceful Shutdown e Debug de Heap
 │   ├── _refactoring/           # Testes de Caracterização e Padrões de Refatoração
 │   ├── _security-appsec/       # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
 │   ├── _system-design/         # Transactional Outbox, Mensageria e Cache
@@ -41,6 +44,8 @@ skills/
 │   ├── _tech-angular/          # Angular 18/19+, Signals, Resource API e @defer
 │   ├── _tech-csharp/           # C# 13, .NET 9, HybridCache e Lock nativo
 │   ├── _tech-flutter/          # Dart 3+, Riverpod 2.x, Isolates e RepaintBoundary
+│   ├── _tech-golang/           # Go 1.22+, Goroutines/Channels, sync.ErrGroup e log/slog
+│   ├── _tech-java/             # Java 21+ LTS, Virtual Threads/Loom, Spring Boot 3.x e JPA
 │   ├── _tech-nodejs/           # Node 20+ LTS, ESM, Streams e AbortController
 │   ├── _tech-php/              # PHP 8.4 Property Hooks, Asymmetric Visibility e PDO
 │   ├── _tech-python/           # Python 3.12/3.13, PEP 695 Generics e Pydantic v2
@@ -69,6 +74,9 @@ skills/
 | **`_api-design`** | Contratos OpenAPI 3.1, middleware de idempotência e Webhooks com HMAC | *"Modele o contrato OpenAPI 3.1 para a API de pagamentos com chave de idempotência e webhooks assinados."* | [`skills/_api-design`](./skills/_api-design/SKILL.md) |
 | **`_security-appsec`** | OAuth 2.1, OIDC, hashing Argon2id, RBAC/ABAC e proteção contra IDOR | *"Audite a segurança deste fluxo de login, migrando para Argon2id e adicionando proteção contra IDOR."* | [`skills/_security-appsec`](./skills/_security-appsec/SKILL.md) |
 | **`_system-design`** | Transactional Outbox, mensageria assíncrona, consumidores idempotentes | *"Projete uma arquitetura orientada a eventos com Transactional Outbox e consumidores idempotentes no Kafka."* | [`skills/_system-design`](./skills/_system-design/SKILL.md) |
+| **`_architecture-adr`** | Modelagem C4 em Mermaid, Architecture Decision Records (ADRs) e Post-Mortems | *"Documente a decisão de migração para mensageria com uma ADR formal e diagrama de contêineres C4."* | [`skills/_architecture-adr`](./skills/_architecture-adr/SKILL.md) |
+| **`_observability-sre`** | OpenTelemetry (Traces/Metrics/Logs), SLIs/SLOs, mitigação de memory leaks | *"Configure instrumentação OpenTelemetry e colete métricas RED para diagnosticar picos de latência."* | [`skills/_observability-sre`](./skills/_observability-sre/SKILL.md) |
+| **`_ai-engineering`** | LLMs, Tool Calling estruturado, RAG híbrido, Embeddings e Evals | *"Implemente um pipeline de RAG com busca híbrida, embeddings e structured outputs validado por Pydantic."* | [`skills/_ai-engineering`](./skills/_ai-engineering/SKILL.md) |
 | **`_devops`** | Imagens Docker multi-stage sem root, GitHub Actions, CI/CD e OIDC | *"Crie um Dockerfile multi-stage non-root e uma pipeline do GitHub Actions com autenticação OIDC."* | [`skills/_devops`](./skills/_devops/SKILL.md) |
 | **`_git-workflow`** | Trunk-Based Development, rebase linear e Conventional Commits | *"Guie a limpeza dos últimos commits com rebase interativo linear e Conventional Commits antes do PR."* | [`skills/_git-workflow`](./skills/_git-workflow/SKILL.md) |
 
@@ -78,6 +86,8 @@ skills/
 | :--- | :--- | :--- | :---: |
 | **`_tech-nodejs`** | Node 20+ LTS, ESM nativo, Streams Pipeline, AbortController, Zod | *"Implemente um worker de processamento de stream em Node 20+ com AbortController e validação Zod."* | [`skills/_tech-nodejs`](./skills/_tech-nodejs/SKILL.md) |
 | **`_tech-python`** | Python 3.12/3.13, PEP 695 Type Parameters, Pydantic v2, `asyncio.TaskGroup` | *"Crie uma rotina assíncrona com asyncio.TaskGroup, tipagem PEP 695 e validação com Pydantic v2."* | [`skills/_tech-python`](./skills/_tech-python/SKILL.md) |
+| **`_tech-golang`** | Go 1.22+, Goroutines/Channels, `sync.ErrGroup`, `context`, `slog`, `net/http` nativo | *"Construa um microsserviço em Go 1.22+ com roteamento nativo, graceful shutdown e concorrência estruturada."* | [`skills/_tech-golang`](./skills/_tech-golang/SKILL.md) |
+| **`_tech-java`** | Java 21+ LTS, Virtual Threads (Loom), Spring Boot 3.x, Records, JPA anti-N+1 | *"Desenvolva uma API no Spring Boot 3 com Virtual Threads e consultas otimizadas no JPA sem N+1."* | [`skills/_tech-java`](./skills/_tech-java/SKILL.md) |
 | **`_tech-csharp`** | C# 13, .NET 9, `Lock` nativo, `HybridCache`, `IAsyncEnumerable`, Minimal APIs | *"Construa um endpoint em Minimal API com .NET 9 usando HybridCache e o novo tipo System.Threading.Lock."* | [`skills/_tech-csharp`](./skills/_tech-csharp/SKILL.md) |
 | **`_tech-php`** | PHP 8.3/8.4, Property Hooks, Asymmetric Visibility, DTOs readonly, PDO | *"Modele uma entidade de domínio em PHP 8.4 com Property Hooks, visibilidade assimétrica e DTOs readonly."* | [`skills/_tech-php`](./skills/_tech-php/SKILL.md) |
 | **`_tech-react`** | React 19 (`useActionState`, `useOptimistic`), TanStack Query v5, Zustand | *"Crie um formulário interativo no React 19 usando useActionState, useOptimistic e TanStack Query."* | [`skills/_tech-react`](./skills/_tech-react/SKILL.md) |
