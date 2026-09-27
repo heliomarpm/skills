@@ -1,6 +1,6 @@
 # 🧠 Antigravity & Agent Skills: Engineering Toolbox
 
-[![Skills](https://img.shields.io/badge/Skills-19%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-20%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
 [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
@@ -21,7 +21,7 @@ Para garantir total transparência e permitir auditar imediatamente se a skill c
 
 ## 🏛️ Arquitetura do Repositório
 
-Todas as 19 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `_` para evitar colisões de namespace e facilitar a identificação visual:
+Todas as 20 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `_` para evitar colisões de namespace e facilitar a identificação visual:
 
 ```text
 skills/
@@ -31,6 +31,7 @@ skills/
 │   ├── _core-tech/             # Mindset Sênior, SOLID, RFC 7807 e Observabilidade
 │   ├── _database-sql/          # Modelagem Relacional, Keyset Pagination e EXPLAIN
 │   ├── _devops/                # Docker Multi-stage, CI/CD GitHub Actions e OIDC
+│   ├── _discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
 │   ├── _git-workflow/          # Trunk-Based, Rebase Interativo e Conventional Commits
 │   ├── _refactoring/           # Testes de Caracterização e Padrões de Refatoração
 │   ├── _security-appsec/       # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
@@ -58,6 +59,7 @@ skills/
 
 | Skill | Gatilho / Foco | Exemplo de Uso (Prompt) | Documentação |
 | :--- | :--- | :--- | :---: |
+| **`_discovery`** 🔒 | Exploração metódica, síntese de contexto e memória para IAs (PROJECT, AGENTS, DATA) *(Ativação Exclusivamente Explícita)* | *"Faça o discovery deste repositório e crie os arquivos de contexto e memória para os assistentes de IA."* | [`skills/_discovery`](./skills/_discovery/SKILL.md) |
 | **`_core-tech`** | SOLID, Clean Code, contratos de erro RFC 7807 e observabilidade | *"Revise a arquitetura deste serviço aplicando princípios SOLID e padronização RFC 7807 para erros."* | [`skills/_core-tech`](./skills/_core-tech/SKILL.md) |
 | **`_task-management`** | Planejamento, rastreamento e atualização contínua de `TASKS.md` | *"Gere o backlog das tarefas da sprint em TASKS.md e marque como em progresso a tarefa T-002."* | [`skills/_task-management`](./skills/_task-management/SKILL.md) |
 | **`_code-review`** | Revisão bidimensional (especificação vs qualidade) e análise de diffs | *"Faça o code review completo do diff em relação à branch main e aponte eventuais débitos técnicos."* | [`skills/_code-review`](./skills/_code-review/SKILL.md) |
@@ -85,14 +87,18 @@ skills/
 
 ---
 
-## ⚡ Como as Skills Funcionam
+## ⚡ Como as Skills Funcionam e Política de Ativação
 
-O Antigravity adota o padrão de **Divulgação Progressiva (*Progressive Disclosure*)**:
+O Antigravity adota o padrão de **Divulgação Progressiva (*Progressive Disclosure*)** com duas modalidades claras de ativação:
 
-1. **Indexação Leve**: Na inicialização do assistente, apenas o `name` e a `description` do cabeçalho YAML são lidos.
-2. **Ativação Just-in-Time**: Quando uma tarefa envolve um tópico específico (ex: refatoração em React 19 ou otimização SQL), o agente lê o arquivo `SKILL.md` correspondente.
-3. **Assinatura Obrigatória**: Logo na primeira linha da resposta, o agente assina com `> 🧭 **Skill Ativa**: _nome-da-skill`.
-4. **Eficiência de Contexto**: Garante máxima profundidade técnica sem poluir o consumo de tokens em tarefas não relacionadas.
+1. **Ativação Contextual Inteligente (Implícita)**:
+   - A maioria das skills é ativada dinamicamente quando o próprio prompt do usuário traz indícios suficientes da tarefa (ex: ao pedir uma refatoração, testes unitários, query SQL ou desenvolvimento em React 19).
+   - Não é necessário que o usuário digite o nome da skill explicitamente; as palavras-chave da intenção disparam a leitura sob demanda (*Just-in-Time*).
+2. **Ativação Restrita (🔒 Exclusivamente Explícita)**:
+   - Skills estruturais e de varredura ampla (como **`_discovery`**) **NUNCA são ativadas por inferência implícita**.
+   - Elas exigem pedido expresso do usuário (ex: *"faça o discovery do projeto"*, *"mapeie o repositório"*), prevenindo varreduras acidentais ou desperdício de tokens em tarefas pontuais de codificação.
+3. **Assinatura Obrigatória**:
+   - Toda resposta gerada sob uma skill inicia assinando no topo: `> 🧭 **Skill Ativa**: _nome-da-skill`.
 
 ---
 
