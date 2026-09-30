@@ -1,6 +1,7 @@
 ---
 name: _devops
 description: Orienta a automação de entregas, configuração de contêineres e esteiras de integração contínua. Use ao criar ou otimizar Dockerfiles, ambientes locais e fluxos de CI/CD.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(docker build *), Bash(docker compose config *), Bash(docker-compose config *), Bash(terraform validate *), Bash(tflint *)
 ---
 
 # Global Skill: DevOps, Containerization & CI/CD Engineering

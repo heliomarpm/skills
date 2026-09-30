@@ -1,6 +1,7 @@
 ---
 name: _tech-flutter
 description: Orienta o desenvolvimento de aplicativos com Flutter e Dart. Use ao construir interfaces móveis, organizar estado da aplicação, navegar entre telas e gerenciar recursos do dispositivo.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(flutter test *), Bash(flutter analyze *), Bash(dart test *), Bash(dart analyze *)
 ---
 
 # Tech Skill: Flutter & Dart Specialist (Dart 3+ & Modern Flutter)

@@ -1,6 +1,7 @@
 ---
 name: _tech-csharp
 description: Orienta o desenvolvimento em C# e plataforma .NET. Use ao construir APIs, serviços de backend, acesso a banco de dados, fluxos assíncronos e processamento de alta performance.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(dotnet test *), Bash(dotnet build *), Bash(dotnet format *)
 ---
 
 # Tech Skill: C# & .NET Expert (C# 12/13 & .NET 8/9+)

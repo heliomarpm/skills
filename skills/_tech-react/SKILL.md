@@ -1,6 +1,7 @@
 ---
 name: _tech-react
 description: Orienta o desenvolvimento de interfaces com React e TypeScript. Use ao criar componentes reutilizáveis, gerenciar dados e estado da tela, validar formulários e otimizar a experiência do usuário.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *), Bash(npx *), Bash(pnpm test *)
 ---
 
 # Tech Skill: React Architect (Modern React 19+ & TypeScript)

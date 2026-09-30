@@ -1,6 +1,7 @@
 ---
 name: _ai-engineering
 description: "Orienta a engenharia de aplicações com IA generativa e LLMs: Tool/Function Calling com schemas estritos (Pydantic/Zod), pipelines de RAG (chunking semântico, busca híbrida), Structured Outputs, guardrails e mitigação de alucinações."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python *), Bash(npm test *)
 ---
 
 # Global Skill: AI Engineering, LLM Patterns & RAG Systems (Language-Agnostic)

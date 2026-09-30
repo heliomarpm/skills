@@ -1,6 +1,7 @@
 ---
 name: _tech-vue
 description: Orienta o desenvolvimento de interfaces com Vue 3. Use ao criar componentes de interface, gerenciar estado reativo, construir funções utilitárias reutilizáveis e otimizar renderização.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *), Bash(npx *), Bash(pnpm test *)
 ---
 
 # Tech Skill: Vue 3 Expert (Composition API & Vue 3.4/3.5+)

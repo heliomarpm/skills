@@ -1,6 +1,7 @@
 ---
 name: _testing
 description: Fornece diretrizes agnósticas de planejamento e automação de testes (Unitários, Integração, Contrato e E2E), padrão AAA, Test Data Builders, esperas ativas determinísticas e isolamento de mocks.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(pnpm test *), Bash(yarn test *), Bash(pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(gradle test *), Bash(composer test *)
 ---
 
 # Global Skill: Enterprise Test Automation Strategy (Language-Agnostic)

@@ -1,6 +1,7 @@
 ---
 name: _tech-java
 description: "Orienta o desenvolvimento corporativo em Java 21+ LTS e Spring Boot 3.x. Cobre Virtual Threads (Project Loom), Records, Pattern Matching, Sealed Classes, Spring Data JPA sem N+1, GraalVM Native e Micrometer."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(mvn test *), Bash(gradle test *), Bash(./mvnw test *), Bash(./gradlew test *)
 ---
 
 # Java 21+ & Spring Boot 3.x Specialist Skill

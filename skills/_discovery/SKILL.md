@@ -1,6 +1,7 @@
 ---
 name: _discovery
 description: "Explora e analisa repositórios de software existentes para gerar ou atualizar arquivos de contexto e memória para assistentes de IA (PROJECT.md, CONTEXT.md, AGENTS.md, DATA.md). ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: acione apenas quando o usuário solicitar explicitamente o mapeamento, onboarding, exploração ou atualização do contexto do repositório."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git remote *), Bash(git branch *)
 ---
 
 # Discovery Skill: Repository Exploration, Context Synthesis & AI Memory

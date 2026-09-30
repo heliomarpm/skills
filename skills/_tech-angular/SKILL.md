@@ -1,6 +1,7 @@
 ---
 name: _tech-angular
 description: Orienta o desenvolvimento de aplicações com Angular. Use ao criar componentes, gerenciar estado reativo, configurar rotas, serviços e otimizar a renderização da interface.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(ng test *), Bash(npm test *), Bash(npm run *), Bash(npx *)
 ---
 
 # Tech Skill: Enterprise Angular Specialist (Modern Angular 18/19+)

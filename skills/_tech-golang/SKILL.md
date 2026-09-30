@@ -1,6 +1,7 @@
 ---
 name: _tech-golang
 description: "Orienta o desenvolvimento idiomático em Go 1.22+. Cobre concorrência com Goroutines e Channels, sync.ErrGroup, context.Context, structured logging com log/slog, roteamento nativo em net/http e testes com race detector."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(go test *), Bash(go build *), Bash(go vet *), Bash(golangci-lint *)
 ---
 
 # Go 1.22+ Specialist Skill

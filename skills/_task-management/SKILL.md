@@ -1,6 +1,8 @@
 ---
 name: _task-management
 description: Gerencia, planeja, gera e atualiza tarefas do projeto no arquivo TASKS.md. Busca automaticamente em ./TASKS.md, ./agents/TASKS.md ou ./.agents/TASKS.md (com tolerância a TASK.md / task.md) para sincronizar o backlog, acompanhar o progresso e estruturar novas atividades.
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Task Management Skill: Dynamic Project Backlog & Execution Tracking

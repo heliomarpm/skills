@@ -1,6 +1,7 @@
 ---
 name: _tech-php
 description: Orienta o desenvolvimento em PHP moderno. Use ao criar aplicações web, estruturar rotas, modelos de domínio, consultas seguras a banco de dados e APIs em PHP puro ou frameworks.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *)
 ---
 
 # Tech Skill: Modern PHP Specialist (PHP 8.3/8.4+)

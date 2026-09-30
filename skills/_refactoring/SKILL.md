@@ -1,6 +1,7 @@
 ---
 name: _refactoring
 description: Fornece diretrizes agnósticas de refatoração segura de código legado e complexo, preservação de comportamento externo, testes de caracterização e aplicação cirúrgica de padrões de design em qualquer linguagem.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(pnpm test *), Bash(yarn test *), Bash(pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(gradle test *), Bash(composer test *)
 ---
 
 # Global Skill: Safe & Disciplined Code Refactoring (Language-Agnostic)

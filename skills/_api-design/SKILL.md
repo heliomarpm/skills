@@ -1,6 +1,8 @@
 ---
 name: _api-design
 description: Orienta o design de contratos de APIs, especificações RESTful, OpenAPI 3.1, padrões de idempotência, paginação, segurança de webhooks e comunicação síncrona/assíncrona.
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Global Skill: API Design, Contracts & Integration Architecture

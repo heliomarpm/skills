@@ -1,6 +1,8 @@
 ---
 name: _security-appsec
 description: Orienta a segurança de aplicações, autenticação moderna (OAuth 2.1, OIDC, JWT, PKCE), controle de acesso (RBAC/ABAC), mitigação de vulnerabilidades OWASP e hardening web.
+allowed-tools: Read, Grep, Glob, Bash(npm audit *), Bash(pip audit *), Bash(safety check *), Bash(trivy *), Bash(snyk *)
+disallowed-tools: Edit, Write
 ---
 
 # Global Skill: Application Security (AppSec) & Defensive Engineering

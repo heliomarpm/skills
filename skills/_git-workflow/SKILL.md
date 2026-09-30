@@ -1,6 +1,7 @@
 ---
 name: _git-workflow
 description: Orienta fluxos de trabalho no Git, estratégias de branching (Trunk-Based), rebase interativo, Conventional Commits, integridade de codificação UTF-8 no Windows/PowerShell, abertura de Pull Requests e automação de releases.
+allowed-tools: Read, Grep, Glob, Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git branch *), Bash(git checkout *), Bash(git switch *), Bash(git add *), Bash(git commit *), Bash(git fetch *), Bash(git pull *), Bash(git rebase *), Bash(git rev-parse *), Bash(gh pr *), Bash(gh release *)
 ---
 
 # Global Skill: Professional Git Workflow, Branching & Release Management

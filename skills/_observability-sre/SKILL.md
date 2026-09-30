@@ -1,6 +1,8 @@
 ---
 name: _observability-sre
 description: "Orienta a engenharia de observabilidade e confiabilidade (SRE): instrumentação com OpenTelemetry (Traces, Metrics, Logs), contratos SLI/SLO, diagnóstico de memory leaks/CPU profiling, health checks e graceful shutdown."
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Global Skill: Observability, SRE & Production Diagnostics (Language-Agnostic)

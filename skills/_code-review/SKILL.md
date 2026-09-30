@@ -1,6 +1,8 @@
 ---
 name: _code-review
 description: Realiza revisão técnica bidimensional de código e Pull Requests (especificação/escopo vs qualidade/segurança) executada em subagentes paralelos, com severidades, diffs acionáveis e geração automática de TASKS.md.
+allowed-tools: Read, Grep, Glob, Bash(git diff *), Bash(git log *), Bash(git status *), Bash(git show *), Bash(git rev-parse *), Bash(git branch *), Agent
+disallowed-tools: Edit, Write
 ---
 
 # Code Review Skill: Bidimensional & Rigorous Engineering Review

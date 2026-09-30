@@ -1,6 +1,7 @@
 ---
 name: _tech-python
 description: Orienta o desenvolvimento em Python. Use ao escrever scripts, serviços de backend, APIs, validação de dados, tarefas concorrentes e pacotes seguindo os padrões idiomáticos da linguagem.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python -m unittest *), Bash(poetry run *), Bash(pip list)
 ---
 
 # Tech Skill: Pythonic & Robust Software Engineering (Python 3.11/3.12/3.13+)

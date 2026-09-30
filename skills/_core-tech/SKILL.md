@@ -1,6 +1,8 @@
 ---
 name: _core-tech
 description: Fornece diretrizes fundamentais de engenharia de software e arquitetura limpa. Use sempre que estiver projetando sistemas, estruturando código, aplicando boas práticas de segurança, observabilidade ou resiliência.
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Core Tech Skill: Senior Software Engineer Mindset (Language-Agnostic)

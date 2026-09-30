@@ -1,6 +1,7 @@
 ---
 name: _tech-nodejs
 description: Orienta o desenvolvimento de serviços e pacotes com Node.js e TypeScript. Use ao criar APIs de backend, lidar com fluxos assíncronos, manipular arquivos e estruturar projetos no servidor.
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *), Bash(npx *), Bash(pnpm test *), Bash(pnpm run *), Bash(yarn test *)
 ---
 
 # Tech Skill: Node.js & TypeScript Specialist (Node 20+ LTS)

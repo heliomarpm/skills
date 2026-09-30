@@ -1,6 +1,8 @@
 ---
 name: _architecture-adr
 description: "Padroniza a documentação de decisões técnicas e arquitetura: criação de Architecture Decision Records (ADRs) canônicos, diagramação C4 Model em Mermaid e relatórios de causa raiz (RCA / Post-mortem)."
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Global Skill: Architecture Decision Records (ADR) & C4 Architecture Modeling

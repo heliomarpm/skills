@@ -1,6 +1,8 @@
 ---
 name: _system-design
 description: Orienta a arquitetura de sistemas distribuídos, padrões de mensageria assíncrona (RabbitMQ, Kafka), Transactional Outbox, Saga Pattern, estratégias de cache e resiliência.
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Global Skill: Distributed Systems & Scalable System Design

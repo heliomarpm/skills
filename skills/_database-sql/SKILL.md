@@ -1,6 +1,8 @@
 ---
 name: _database-sql
 description: Orienta a modelagem de dados, escrita e otimização de consultas SQL, estratégias de indexação, controle de concorrência e transações em bancos de dados relacionais e NoSQL.
+allowed-tools: Read, Edit, Write, Grep, Glob
+disallowed-tools: Bash
 ---
 
 # Global Skill: Database Engineering, SQL & Performance Optimization
