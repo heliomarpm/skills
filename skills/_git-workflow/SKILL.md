@@ -1,11 +1,11 @@
 ---
 name: _git-workflow
-description: Orienta fluxos de trabalho no Git, estratégias de branching (Trunk-Based), rebase interativo, Conventional Commits, resolução de conflitos e automação de releases.
+description: Orienta fluxos de trabalho no Git, estratégias de branching (Trunk-Based), rebase interativo, Conventional Commits, integridade de codificação UTF-8 no Windows/PowerShell, abertura de Pull Requests e automação de releases.
 ---
 
 # Global Skill: Professional Git Workflow, Branching & Release Management
 
-Diretrizes técnicas especializadas para fluxos de trabalho avançados no Git, histórico limpo e atômico, estratégias de integração contínua e automação de versões.
+Diretrizes técnicas especializadas para fluxos de trabalho avançados no Git, integridade absoluta de codificação de caracteres (UTF-8), histórico limpo e atômico, criação padronizada de Pull Requests e automação de versões.
 
 
 > [!IMPORTANT]
@@ -17,26 +17,52 @@ Diretrizes técnicas especializadas para fluxos de trabalho avançados no Git, h
 
 ## 1. Processo de Execução no Git
 
-Ao desenvolver, revisar ou integrar branches:
+Ao desenvolver, revisar, integrar branches ou interagir com repositórios remotos:
 
-1. **Trunk-Based Development com Branches Curtas**:
-   - Crie branches de curta duração (menos de 2 dias de vida) a partir da branch principal (`main`).
+1. **Garantia de Codificação UTF-8 (Prevenção de Caracteres Inválidos / Mojibake)**:
+   - Em ambientes Windows (especialmente PowerShell 5.1), comandos nativos e CLI tools (`git`, `gh`) frequentemente herdam `$OutputEncoding = ASCII` e code pages ANSI (`Windows-1252`) ou OEM (`ibm850`/`cp437`).
+   - Todo commit, mensagem, título e corpo de Pull Request **deve ser preservado em UTF-8 estrito**, evitando a introdução de caracteres corrompidos (`Ã§`, `Ã£`, `ðŸš€`, `?`) em cedilhas (`ç`), acentos (`á`, `é`, `í`, `ó`, `ú`, `ã`, `õ`, `ê`, `ô`) ou emojis.
+2. **Trunk-Based Development com Branches Curtas**:
+   - Crie branches de curta duração (menos de 2 dias de vida) a partir da branch principal (`main` ou `develop`).
    - Integre alterações frequentemente usando *Feature Flags* para desacoplar deploy de release.
-2. **Commits Atômicos & Conventional Commits**:
+3. **Commits Atômicos & Conventional Commits**:
    - Cada commit deve representar uma única alteração lógica coesa.
    - Siga a especificação: `tipo(escopo opcional): descrição no presente imperativo` (ex: `feat(auth): add pkce support for mobile login`).
-3. **Rebase Interativo para Histórico Linear**:
+4. **Rebase Interativo para Histórico Linear**:
    - Atualize sua branch local com `git fetch origin && git rebase origin/main` para evitar commits de merge poluídos (`Merge branch 'main' into feature`).
-4. **Resolução Cirúrgica de Conflitos**:
+5. **Resolução Cirúrgica de Conflitos**:
    - Resolva conflitos mantendo o histórico original intacto e validando testes unitários logo após cada passo do rebase.
-5. **Automação de Versões (Semantic Release)**:
+6. **Abertura Padronizada de Pull Requests (PRs)**:
+   - Valide se a branch local está sincronizada e limpa antes de submeter a PR.
+   - Utilize templates estruturados com Conventional Commits no título, resumo das entregas e checklist de validação.
+   - Para envio de corpo markdown longo, use sempre passagem por arquivo codificado em UTF-8 (`--body-file`) ou scripts em tempo de execução com encoding UTF-8 garantido (Node.js ou PowerShell com byte stream UTF-8).
+7. **Automação de Versões (Semantic Release)**:
    - Gere tags automáticas e Changelogs sem intervenção manual baseando-se nos prefixos dos commits (`fix:` ➔ PATCH, `feat:` ➔ MINOR, `feat!:` / `BREAKING CHANGE:` ➔ MAJOR).
 
 ---
 
 ## 2. Snippets Canônicos de Referência
 
-### 2.1. Fluxo de Atualização com Rebase Limpo
+### 2.1. Blindagem de Codificação UTF-8 no Windows / PowerShell e Git
+```powershell
+# 1. Configura a sessão do PowerShell para UTF-8 estrito (evita caracteres corrompidos em CLI e APIs)
+[Console]::InputEncoding = [Console]::OutputEncoding = $OutputEncoding = [System.Text.Encoding]::UTF8
+chcp 65001 >$null
+
+# 2. Configura o Git para operar estritamente em UTF-8
+git config --global i18n.commitEncoding utf-8
+git config --global i18n.logOutputEncoding utf-8
+git config --global core.quotepath false
+```
+
+```bash
+# 3. Commit seguro com acentuação via arquivo temporário UTF-8 (evita mangling do shell):
+# Cria o arquivo de mensagem em UTF-8 e executa:
+git commit -F .git/COMMIT_MSG_TEMP.txt
+rm .git/COMMIT_MSG_TEMP.txt
+```
+
+### 2.2. Fluxo de Atualização com Rebase Limpo
 ```bash
 # 1. Busca alterações remotas sem criar commits de merge
 git fetch origin main
@@ -54,7 +80,7 @@ git rebase origin/main
 git push origin feature/minha-tarefa --force-with-lease
 ```
 
-### 2.2. Padronização de Conventional Commits
+### 2.3. Padronização de Conventional Commits
 ```text
 feat(billing): add stripe webhook signature verification
 
@@ -65,7 +91,7 @@ feat(billing): add stripe webhook signature verification
 Closes #142
 ```
 
-### 2.3. Limpeza de Histórico Local com Rebase Interativo
+### 2.4. Limpeza de Histórico Local com Rebase Interativo
 ```bash
 # Agrupa ou edita os últimos 3 commits antes de abrir o Pull Request
 git rebase -i HEAD~3
@@ -76,10 +102,73 @@ git rebase -i HEAD~3
 # squash i7j8k9l fix lint errors               <- Junta com o commit anterior
 ```
 
+### 2.5. Abertura Segura de Pull Request (Preservação de Acentos e Emojis)
+
+#### Opção A: Via GitHub CLI (`gh`) com `--body-file` (Recomendado)
+```bash
+# Grava a descrição em arquivo Markdown UTF-8 para evitar qualquer escape indevido do terminal
+gh pr create \
+  --base develop \
+  --head feature/minha-feature \
+  --title "feat(escopo): descrição concisa no presente" \
+  --body-file pr_body.md
+```
+
+#### Opção B: Via Script Node.js (Fallback Universal 100% UTF-8)
+Quando o `gh` não estiver disponível, prefira executar um script Node.js temporário (que gerencia requisições HTTP e UTF-8 nativamente sem intermediários de code page do Windows):
+```javascript
+import { execSync } from 'node:child_process';
+
+const creds = execSync('git credential fill', { input: 'protocol=https\nhost=github.com\n' }).toString();
+const token = creds.match(/password=(.+)/)?.[1]?.trim();
+
+const response = await fetch('https://api.github.com/repos/<owner>/<repo>/pulls', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json; charset=utf-8',
+    'User-Agent': 'Antigravity-Agent'
+  },
+  body: JSON.stringify({
+    title: 'feat(escopo): descrição da PR com acentuação e emojis 🚀',
+    head: 'feature/minha-feature',
+    base: 'develop',
+    body: '## 🎯 Descrição das Alterações\n\nTexto com acentuação perfeita: validação, atenção, experiência.'
+  })
+});
+```
+
+#### Opção C: Via PowerShell com Stream de Bytes UTF-8 Explícito
+Caso utilize PowerShell (`Invoke-RestMethod`), nunca passe o corpo como string direta no PowerShell 5.1 (ele converterá para ISO-8859-1). Converta para bytes UTF-8 explicitamente:
+```powershell
+[Console]::OutputEncoding = $OutputEncoding = [System.Text.Encoding]::UTF8
+
+$jsonPayload = @{
+    title = "feat(escopo): descrição com acentuação e 🚀"
+    head  = "feature/minha-feature"
+    base  = "develop"
+    body  = "## 🎯 Descrição\n\nPreservação garantida de ç, ã, é."
+} | ConvertTo-Json -Depth 5
+
+# Converte obrigatoriamente a string JSON em array de bytes UTF-8
+$utf8Bytes = [System.Text.Encoding]::UTF8.GetBytes($jsonPayload)
+
+Invoke-RestMethod -Uri "https://api.github.com/repos/<owner>/<repo>/pulls" `
+    -Headers $headers `
+    -Method Post `
+    -ContentType "application/json; charset=utf-8" `
+    -Body $utf8Bytes
+```
+
 ---
 
 ## 3. Armadilhas Críticas no Git (*Gotchas*)
 
+- ⚠️ **Mojibake no Windows / PowerShell (Caracteres Corrompidos em PRs e Commits)**:
+  - No Windows PowerShell 5.1, `$OutputEncoding` é `US-ASCII` por padrão. Passar mensagens com caracteres acentuados (`ç`, `ã`, `é`) via linha de comando (`git commit -m "..."` ou `gh pr create --body "..."`) converte caracteres especiais em `?` ou sequências corrompidas.
+  - O cmdlet `Invoke-RestMethod` do PowerShell 5.1 trata corpos em formato `string` como `ISO-8859-1`. Se a requisição contiver acentos, deve-se obrigatoriamente enviar `-Body ([System.Text.Encoding]::UTF8.GetBytes($jsonPayload))`.
+  - Scripts `.ps1` gerados sem UTF-8 BOM são lidos pelo PowerShell 5.1 como ANSI (`Windows-1252`), corrompendo strings no próprio momento da leitura. Prefira executar via script Node.js ou garantir salvamento com UTF-8 BOM.
 - ⚠️ **`git push --force` sem `--force-with-lease`**: Usar `--force` cego sobrescreve e destrói commits que outro desenvolvedor possa ter enviado para a branch remota. Use sempre `--force-with-lease`.
 - ⚠️ **Commits de Merge Cruzados (`Merge branch 'main' into 'feature'`)**: Misturar merges de sincronização com merges de entrega torna o `git bisect` ineficaz e polui a árvore histórica. Prefira `git rebase origin/main`.
 - ⚠️ **Commits Gigantescos não Atômicos**: Misturar refatoração de código, mudança de formatação (linter) e nova regra de negócio no mesmo commit impede a realização de *Cherry-picks* e *Rollbacks* seguros em produção.
@@ -88,7 +177,9 @@ git rebase -i HEAD~3
 
 ## 4. Padrão de Entrega do Agente
 
-Ao fornecer instruções ou comandos Git:
-1. Recomende sempre comandos seguros com `--force-with-lease`.
-2. Forneça mensagens de commit formatadas estritamente de acordo com o padrão *Conventional Commits*.
-3. Oriente a execução de testes automatizados imediatamente após qualquer resolução de conflitos.
+Ao fornecer instruções, executar comandos Git ou abrir Pull Requests:
+1. **Preservação de Encoding**: Garanta que qualquer comando, commit ou submissão de PR preserve acentos, cedilhas e emojis através de configuração explícita de UTF-8.
+2. **Rebase Seguro**: Recomende sempre comandos seguros com `--force-with-lease`.
+3. **Conventional Commits**: Forneça mensagens de commit e títulos de PR formatados estritamente de acordo com o padrão *Conventional Commits*.
+4. **Estrutura de PR Profissional**: Emita PRs com seções claras (`Descrição das Alterações`, `Principais Entregas`, `Checklist de Validação`).
+5. **Validação Pós-Integração**: Oriente a execução de testes automatizados imediatamente após qualquer resolução de conflitos ou rebase.
