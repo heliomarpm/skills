@@ -6,7 +6,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [Unreleased]
+## [0.6.1] - 2026-09-30
 
 ### Adicionado
 - **Permissões Declarativas e Sandboxing**: Adição dos metadados `allowed-tools` e `disallowed-tools` no YAML frontmatter de todas as 25 skills para controle fino de segurança e automação inteligente.
