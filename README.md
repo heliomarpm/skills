@@ -2,6 +2,7 @@
 
 [![Skills](https://img.shields.io/badge/Skills-25%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
 [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
+[![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
@@ -139,6 +140,8 @@ Cada skill deve ser criada sob uma pasta própria iniciada por `_` contendo obri
 ---
 name: _tech-nome-da-skill
 description: "Descrição concisa contendo as palavras-chave e gatilhos exatos para ativação."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *)
+disallowed-tools: Bash  # (Opcional) Bloqueia terminal em skills puramente documentais/design
 ---
 
 # Título da Skill
@@ -162,6 +165,12 @@ Checklist de armadilhas comuns (vazamentos, deadlocks, concorrência).
 ## 4. Padrão Rigoroso de Entrega
 Requisitos obrigatórios de entrega (tipagem, testes, sem TODOs).
 ```
+
+### 🔒 Gestão de Permissões e Sandboxing (`allowed-tools` / `disallowed-tools`)
+
+Todas as skills definem pré-aprovação de ferramentas e limites de segurança no frontmatter:
+- **`allowed-tools`**: Pré-aprova comandos óbvios e rotineiros (leitura de arquivos, buscas, comandos Git seguros, runners de teste), eliminando solicitações repetitivas de confirmação.
+- **`disallowed-tools`**: Restringe ferramentas desnecessárias ao escopo da skill (ex: bloqueia `Edit`/`Write` em `_code-review` e `_security-appsec` para garantir modo estritamente analítico; bloqueia `Bash` em skills puramente conceituais ou documentais).
 
 ---
 
