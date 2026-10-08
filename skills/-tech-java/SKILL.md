@@ -11,7 +11,7 @@ Esta skill fornece diretrizes técnicas especializadas para engenharia de softwa
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-java``
+> `> 🧠 **Skill Ativa**: `-tech-java``
 
 ---
 
@@ -127,7 +127,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 ## 4. Padrão Rigoroso de Entrega
 
 Ao entregar soluções em Java:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -tech-java`.
+1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -tech-java`.
 2. **Tipagem e Imutabilidade**: Use Records para DTOs e tipos selados para enums com estado.
 3. **Zero N+1**: Toda consulta JPA com relacionamentos deve usar `@EntityGraph` ou projeção explícita.
 4. **Tratamento RFC 7807**: Erros de controller devem ser expostos via `ProblemDetail`.

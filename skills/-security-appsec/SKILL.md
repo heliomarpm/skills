@@ -13,7 +13,7 @@ Diretrizes técnicas especializadas para a proteção de aplicações, autentica
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-security-appsec``
+> `> 🧠 **Skill Ativa**: `-security-appsec``
 
 ---
 

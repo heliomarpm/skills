@@ -14,7 +14,7 @@ Esta skill orienta o desenvolvimento de interfaces com apelo estético de alto n
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-design-system``
+> `> 🧠 **Skill Ativa**: `-design-system``
 
 ---
 
@@ -204,7 +204,7 @@ Ao projetar bibliotecas de componentes, tokens visuais ou refatorar interfaces:
 ## 4. Padrão Rigoroso de Entrega
 
 Ao atuar nesta skill:
-1. **Assinatura Obrigatória**: Toda mensagem deve iniciar com `> 🧭 **Skill Ativa**: `-design-system``.
+1. **Assinatura Obrigatória**: Toda mensagem deve iniciar com `> 🧠 **Skill Ativa**: `-design-system``.
 2. **Tokens de Primeira Classe**: Utilize e declare exclusivamente tokens semânticos para cores, tipografia, espaçamentos e raios; nunca insira valores mágicos literais.
 3. **Conformidade WCAG 2.2 AA**: Garanta que todo componente tenha contraste validado, anel de foco `:focus-visible`, suporte a teclado e atributos `aria-*` apropriados.
 4. **Resiliência de Estados**: Implemente ou especifique os estados essenciais de interface (*Idle, Hover, Active, Focus, Disabled, Loading, Error*).

@@ -12,7 +12,7 @@ Diretrizes técnicas especializadas para o desenvolvimento de aplicações escal
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-angular``
+> `> 🧠 **Skill Ativa**: `-tech-angular``
 
 ---
 

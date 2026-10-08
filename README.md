@@ -26,7 +26,7 @@
 Para garantir total transparência e permitir auditar imediatamente se a skill correta foi ativada, **todas as skills deste repositório assinam obrigatoriamente a primeira linha da resposta**:
 
 ```markdown
-> 🧭 **Skill Ativa**: `-nome-da-skill`
+> 🧠 **Skill Ativa**: `-nome-da-skill`
 ```
 
 ---
@@ -120,7 +120,7 @@ O Antigravity adota o padrão de **Divulgação Progressiva (*Progressive Disclo
    - Skills estruturais e de varredura ampla (como **`-discovery`**) **NUNCA são ativadas por inferência implícita**.
    - Elas exigem pedido expresso do usuário (ex: *"faça o discovery do projeto"*, *"mapeie o repositório"*), prevenindo varreduras acidentais ou desperdício de tokens em tarefas pontuais de codificação.
 3. **Assinatura Obrigatória**:
-   - Toda resposta gerada sob uma skill inicia assinando no topo: `> 🧭 **Skill Ativa**: -nome-da-skill`.
+   - Toda resposta gerada sob uma skill inicia assinando no topo: `> 🧠 **Skill Ativa**: -nome-da-skill`.
 
 ---
 
@@ -160,7 +160,7 @@ disallowed-tools: Bash  # (Opcional) Bloqueia terminal em skills puramente docum
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-nome-da-skill``
+> `> 🧠 **Skill Ativa**: `-tech-nome-da-skill``
 
 ---
 

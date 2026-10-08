@@ -9,7 +9,7 @@ allowed-tools: Read, Edit, Write, Grep, Glob, Bash
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: \`-sdd\``
+> `> 🧠 **Skill Ativa**: \`-sdd\``
 
 Esta skill fornece diretrizes detalhadas para atuar no modelo **Spec-Driven Development (SDD)**, onde a especificação (comportamento, arquitetura, contratos) é o artefato central que antecede e guia toda a implementação de código.
 

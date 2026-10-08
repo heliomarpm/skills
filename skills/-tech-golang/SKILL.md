@@ -11,7 +11,7 @@ Esta skill fornece diretrizes técnicas especializadas para engenharia de softwa
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-golang``
+> `> 🧠 **Skill Ativa**: `-tech-golang``
 
 ---
 
@@ -202,4 +202,4 @@ Todo código entregue sob esta skill deve satisfazer:
 2. **Qualidade e Testes**:
    - Testes unitários utilizando tabelas orientadas a dados (*table-driven tests*).
    - Validação contínua com `go vet ./...` e execução de testes com `-race`.
-3. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -tech-golang`.
+3. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -tech-golang`.

@@ -12,7 +12,7 @@ Diretrizes técnicas especializadas para desenvolvimento em PHP moderno corporat
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-php``
+> `> 🧠 **Skill Ativa**: `-tech-php``
 
 ---
 

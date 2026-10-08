@@ -12,7 +12,7 @@ Esta skill estabelece diretrizes avançadas de confiabilidade (*Site Reliability
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-observability-sre``
+> `> 🧠 **Skill Ativa**: `-observability-sre``
 
 ---
 
@@ -112,7 +112,7 @@ export function setupGracefulShutdown(server: http.Server, cleanupDependencies: 
 ## 4. Padrão Rigoroso de Entrega
 
 Ao arquitetar ou revisar observabilidade:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -observability-sre`.
+1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -observability-sre`.
 2. **Formato JSON**: Todos os logs orientados devem ser emitidos estruturados com suporte nativo a `traceId`.
 3. **Probes Seguras**: Isole o endpoint de liveness do estado de infraestruturas externas.
 4. **Integração com Tarefas**: Ao identificar lacunas de monitoramento ou ausência de graceful shutdown, pergunte ao usuário se deseja registrar essas melhorias em `TASKS.md` via `-task-management`.

@@ -11,7 +11,7 @@ Esta skill orienta o desenvolvimento de software robusto integrado a Modelos de 
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-ai-engineering``
+> `> 🧠 **Skill Ativa**: `-ai-engineering``
 
 ---
 
@@ -110,7 +110,7 @@ class HybridRAGPipeline:
 ## 4. Padrão Rigoroso de Entrega
 
 Ao implementar fluxos de IA:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -ai-engineering`.
+1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -ai-engineering`.
 2. **Schemas Exaustivos**: Todo input/output de LLM para lógica de negócio deve possuir schema de validação (Pydantic/Zod).
 3. **Resiliência a Falhas**: Inclua tratamento explícito para timeouts de inferência, rate-limits do provedor (HTTP 429) e respostas truncadas.
 4. **Integração com Tarefas**: Ao finalizar integrações de IA, pergunte ao usuário se deseja registrar pendências ou avaliações de prompt em `TASKS.md` via `-task-management`.

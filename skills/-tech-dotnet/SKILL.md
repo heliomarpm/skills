@@ -12,7 +12,7 @@ Diretrizes técnicas especializadas para o desenvolvimento de serviços e APIs c
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-dotnet``
+> `> 🧠 **Skill Ativa**: `-tech-dotnet``
 
 ---
 

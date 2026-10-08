@@ -12,7 +12,7 @@ Esta skill padroniza a governança e o registro formal de decisões de engenhari
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-arch-adr``
+> `> 🧠 **Skill Ativa**: `-arch-adr``
 
 ---
 
@@ -107,7 +107,7 @@ C4Container
 ## 4. Padrão Rigoroso de Entrega
 
 Ao atuar com esta skill:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -arch-adr`.
+1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -arch-adr`.
 2. **Neutralidade e Rigor**: Analisar trade-offs com objetividade técnica baseada em métricas e requisitos reais.
 3. **Diagramas Executáveis**: Todo diagrama deve ser compilável em blocos markdown com tag `mermaid`.
 4. **Integração com Tarefas**: Ao finalizar um ADR ou desenho arquitetural, pergunte obrigatoriamente ao usuário se deseja cadastrar as etapas de implementação em `TASKS.md` via `-task-management`.

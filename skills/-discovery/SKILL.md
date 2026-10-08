@@ -11,7 +11,7 @@ Esta skill orienta a exploração metódica e a engenharia de contexto de bases 
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-discovery``
+> `> 🧠 **Skill Ativa**: `-discovery``
 
 > [!CAUTION]
 > ### 🔒 Política de Ativação Restrita: Exclusivamente Explícita
@@ -180,7 +180,7 @@ Instruções mandatórias que qualquer agente deve obedecer ao propor código ne
 ## 4. Padrão Rigoroso de Entrega
 
 Ao conduzir o discovery:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -discovery`.
+1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -discovery`.
 2. **Confirmação de Destino**: Caso nenhum artefato exista, perguntar obrigatoriamente onde criá-los antes de gravar qualquer arquivo.
 3. **Transparência**: Listar claramente os arquivos criados ou atualizados com links markdown navegáveis (`[arquivo.md](file:///...)`).
 4. **Resumo Executivo**: Apresentar um resumo condensado da stack e da arquitetura identificada na resposta do chat.
