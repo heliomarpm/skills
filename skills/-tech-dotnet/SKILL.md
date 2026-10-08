@@ -1,5 +1,5 @@
 ---
-name: -tech-csharp
+name: -tech-dotnet
 description: Orienta o desenvolvimento em C# e plataforma .NET. Use ao construir APIs, serviços de backend, acesso a banco de dados, fluxos assíncronos e processamento de alta performance.
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(dotnet test *), Bash(dotnet build *), Bash(dotnet format *)
 ---
@@ -12,7 +12,7 @@ Diretrizes técnicas especializadas para o desenvolvimento de serviços e APIs c
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-tech-csharp``
+> `> 🧭 **Skill Ativa**: `-tech-dotnet``
 
 ---
 

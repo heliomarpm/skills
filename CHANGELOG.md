@@ -10,6 +10,10 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ### Modificado
 - **Padronização de Nomenclatura das Skills**: Renomeação de todas as 26 skills substituindo o prefixo `_` por `-` (ex: `-ai-engineering`, `-api-design`, `-tech-react`, etc.).
+- **Simplificação e Ajuste Semântico de Nomes**:
+  - `-architecture-adr` renomeada para `-arch-adr` para maior ergonomia e padrão de mercado.
+  - `-refactoring` renomeada para `-refactor`, harmonizando com o tipo de Conventional Commits (`refactor:`).
+  - `-tech-csharp` renomeada para `-tech-dotnet`, alinhando a nomenclatura ao ecossistema e runtime da plataforma (padrão mantido em `tech-flutter` e `tech-nodejs`).
 - **Assinatura Obrigatória e Metadados**: Atualização dos campos `name` e blocos de assinatura ativa em todos os arquivos `SKILL.md`.
 - **Documentação Central**: Atualização do catálogo, árvore de diretórios, contagem de skills e guias de criação no `README.md`.
 - **Sincronização de Ambiente**: Propagação de todas as 26 skills renomeadas para o diretório de configuração do assistente em `~/.gemini/config/skills`.

@@ -29,7 +29,7 @@ skills/
 ├── skills/
 │   ├── -ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
 │   ├── -api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
-│   ├── -architecture-adr/      # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
+│   ├── -arch-adr/              # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
 │   ├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
 │   ├── -core-tech/             # Mindset Sênior, SOLID, RFC 7807 e Observabilidade
 │   ├── -database-sql/          # Modelagem Relacional, Keyset Pagination e EXPLAIN
@@ -37,14 +37,14 @@ skills/
 │   ├── -discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
 │   ├── -git-workflow/          # Trunk-Based, Rebase Interativo e Conventional Commits
 │   ├── -observability-sre/     # OpenTelemetry, SLI/SLO, Graceful Shutdown e Debug de Heap
-│   ├── -refactoring/           # Testes de Caracterização e Padrões de Refatoração
+│   ├── -refactor/              # Testes de Caracterização e Padrões de Refatoração
 │   ├── -sdd/                   # Spec-Driven Development, Estruturação de SPEC.md e Contratos
 │   ├── -security-appsec/       # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
 │   ├── -system-design/         # Transactional Outbox, Mensageria e Cache
 │   ├── -task-management/       # Gestão Dinâmica, Decomposição e Atualização de TASKS.md
 │   ├── -testing/               # Pirâmide de Testes, Padrão AAA e Data Builders
 │   ├── -tech-angular/          # Angular 18/19+, Signals, Resource API e @defer
-│   ├── -tech-csharp/           # C# 13, .NET 9, HybridCache e Lock nativo
+│   ├── -tech-dotnet/           # C# 13, .NET 9, HybridCache e Lock nativo
 │   ├── -tech-flutter/          # Dart 3+, Riverpod 2.x, Isolates e RepaintBoundary
 │   ├── -tech-golang/           # Go 1.22+, Goroutines/Channels, sync.ErrGroup e log/slog
 │   ├── -tech-java/             # Java 21+ LTS, Virtual Threads/Loom, Spring Boot 3.x e JPA
@@ -68,7 +68,7 @@ skills/
 | :--- | :--- | :--- | :---: |
 | **`-ai-engineering`** | LLMs, Tool Calling estruturado, RAG híbrido, Embeddings e Evals | *"Implemente um pipeline de RAG com busca híbrida, embeddings e structured outputs validado por Pydantic."* | [`skills/-ai-engineering`](./skills/-ai-engineering/SKILL.md) |
 | **`-api-design`** | Contratos OpenAPI 3.1, middleware de idempotência e Webhooks com HMAC | *"Modele o contrato OpenAPI 3.1 para a API de pagamentos com chave de idempotência e webhooks assinados."* | [`skills/-api-design`](./skills/-api-design/SKILL.md) |
-| **`-architecture-adr`** | Modelagem C4 em Mermaid, Architecture Decision Records (ADRs) e Post-Mortems | *"Documente a decisão de migração para mensageria com uma ADR formal e diagrama de contêineres C4."* | [`skills/-architecture-adr`](./skills/-architecture-adr/SKILL.md) |
+| **`-arch-adr`** | Modelagem C4 em Mermaid, Architecture Decision Records (ADRs) e Post-Mortems | *"Documente a decisão de migração para mensageria com uma ADR formal e diagrama de contêineres C4."* | [`skills/-arch-adr`](./skills/-arch-adr/SKILL.md) |
 | **`-code-review`** | Revisão bidimensional (especificação vs qualidade) e análise de diffs | *"Faça o code review completo do diff em relação à branch main e aponte eventuais débitos técnicos."* | [`skills/-code-review`](./skills/-code-review/SKILL.md) |
 | **`-core-tech`** | SOLID, Clean Code, contratos de erro RFC 7807 e observabilidade | *"Revise a arquitetura deste serviço aplicando princípios SOLID e padronização RFC 7807 para erros."* | [`skills/-core-tech`](./skills/-core-tech/SKILL.md) |
 | **`-database-sql`** | Modelagem 3NF, Keyset Pagination, análise `EXPLAIN` e concorrência ACID | *"Otimize esta query com lentidão no PostgreSQL usando Keyset Pagination e analise o plano EXPLAIN."* | [`skills/-database-sql`](./skills/-database-sql/SKILL.md) |
@@ -76,7 +76,7 @@ skills/
 | **`-discovery`** 🔒 | Exploração metódica, síntese de contexto e memória para IAs (PROJECT, AGENTS, DATA) *(Ativação Exclusivamente Explícita)* | *"Faça o discovery deste repositório e crie os arquivos de contexto e memória para os assistentes de IA."* | [`skills/-discovery`](./skills/-discovery/SKILL.md) |
 | **`-git-workflow`** | Trunk-Based Development, rebase linear e Conventional Commits | *"Guie a limpeza dos últimos commits com rebase interativo linear e Conventional Commits antes do PR."* | [`skills/-git-workflow`](./skills/-git-workflow/SKILL.md) |
 | **`-observability-sre`** | OpenTelemetry (Traces/Metrics/Logs), SLIs/SLOs, mitigação de memory leaks | *"Configure instrumentação OpenTelemetry e colete métricas RED para diagnosticar picos de latência."* | [`skills/-observability-sre`](./skills/-observability-sre/SKILL.md) |
-| **`-refactoring`** | Regra dos dois chapéus, testes de caracterização prévios e transformações | *"Refatore este módulo legado com segurança, criando testes de caracterização antes de alterar a estrutura."* | [`skills/-refactoring`](./skills/-refactoring/SKILL.md) |
+| **`-refactor`** | Regra dos dois chapéus, testes de caracterização prévios e transformações | *"Refatore este módulo legado com segurança, criando testes de caracterização antes de alterar a estrutura."* | [`skills/-refactor`](./skills/-refactor/SKILL.md) |
 | **`-sdd`** | Spec-Driven Development, estruturação de SPEC.md e contratos | *"Crie a especificação da nova feature em um arquivo SPEC.md antes de iniciarmos o código."* | [`skills/-sdd`](./skills/-sdd/SKILL.md) |
 | **`-security-appsec`** | OAuth 2.1, OIDC, hashing Argon2id, RBAC/ABAC e proteção contra IDOR | *"Audite a segurança deste fluxo de login, migrando para Argon2id e adicionando proteção contra IDOR."* | [`skills/-security-appsec`](./skills/-security-appsec/SKILL.md) |
 | **`-system-design`** | Transactional Outbox, mensageria assíncrona, consumidores idempotentes | *"Projete uma arquitetura orientada a eventos com Transactional Outbox e consumidores idempotentes no Kafka."* | [`skills/-system-design`](./skills/-system-design/SKILL.md) |
@@ -88,7 +88,7 @@ skills/
 | Skill | Tecnologias & Versões Alvo | Exemplo de Uso (Prompt) | Documentação |
 | :--- | :--- | :--- | :---: |
 | **`-tech-angular`** | Angular 18/19+, Signals, Resource API, Deferrable Views (`@defer`), OnPush | *"Desenvolva um componente com Signals, Resource API assíncrona e visualizações diferidas com @defer."* | [`skills/-tech-angular`](./skills/-tech-angular/SKILL.md) |
-| **`-tech-csharp`** | C# 13, .NET 9, `Lock` nativo, `HybridCache`, `IAsyncEnumerable`, Minimal APIs | *"Construa um endpoint em Minimal API com .NET 9 usando HybridCache e o novo tipo System.Threading.Lock."* | [`skills/-tech-csharp`](./skills/-tech-csharp/SKILL.md) |
+| **`-tech-dotnet`** | C# 13, .NET 9, `Lock` nativo, `HybridCache`, `IAsyncEnumerable`, Minimal APIs | *"Construa um endpoint em Minimal API com .NET 9 usando HybridCache e o novo tipo System.Threading.Lock."* | [`skills/-tech-dotnet`](./skills/-tech-dotnet/SKILL.md) |
 | **`-tech-flutter`** | Dart 3+, Riverpod 2.x `AsyncNotifier`, `Isolate.run()`, `RepaintBoundary` | *"Estruture o gerenciamento de estado desta tela complexa com Riverpod AsyncNotifier e Isolate.run."* | [`skills/-tech-flutter`](./skills/-tech-flutter/SKILL.md) |
 | **`-tech-golang`** | Go 1.22+, Goroutines/Channels, `sync.ErrGroup`, `context`, `slog`, `net/http` nativo | *"Construa um microsserviço em Go 1.22+ com roteamento nativo, graceful shutdown e concorrência estruturada."* | [`skills/-tech-golang`](./skills/-tech-golang/SKILL.md) |
 | **`-tech-java`** | Java 21+ LTS, Virtual Threads (Loom), Spring Boot 3.x, Records, JPA anti-N+1 | *"Desenvolva uma API no Spring Boot 3 com Virtual Threads e consultas otimizadas no JPA sem N+1."* | [`skills/-tech-java`](./skills/-tech-java/SKILL.md) |

@@ -69,4 +69,4 @@ Ao gerar uma especificação, utilize os seguintes tópicos (ajustando a profund
 
 - **Sem Código de Produção Antecipado:** Nunca inclua código de implementação no seu retorno ao usuário antes da aprovação do SPEC.
 - **Cobertura 1:1:** O código dos testes automatizados (`-testing`) deve espelhar exatamente os "Critérios de Aceite" do SPEC.
-- **Integração:** Combine esta skill com `-architecture-adr` (decisões arquiteturais), `-api-design` (boas práticas de contrato) e `-task-management` (para organizar a execução).
+- **Integração:** Combine esta skill com `-arch-adr` (decisões arquiteturais), `-api-design` (boas práticas de contrato) e `-task-management` (para organizar a execução).

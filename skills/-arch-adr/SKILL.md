@@ -1,5 +1,5 @@
 ---
-name: -architecture-adr
+name: -arch-adr
 description: "Padroniza a documentação de decisões técnicas e arquitetura: criação de Architecture Decision Records (ADRs) canônicos, diagramação C4 Model em Mermaid e relatórios de causa raiz (RCA / Post-mortem)."
 allowed-tools: Read, Edit, Write, Grep, Glob
 disallowed-tools: Bash
@@ -12,7 +12,7 @@ Esta skill padroniza a governança e o registro formal de decisões de engenhari
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-architecture-adr``
+> `> 🧭 **Skill Ativa**: `-arch-adr``
 
 ---
 
@@ -107,7 +107,7 @@ C4Container
 ## 4. Padrão Rigoroso de Entrega
 
 Ao atuar com esta skill:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -architecture-adr`.
+1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧭 **Skill Ativa**: -arch-adr`.
 2. **Neutralidade e Rigor**: Analisar trade-offs com objetividade técnica baseada em métricas e requisitos reais.
 3. **Diagramas Executáveis**: Todo diagrama deve ser compilável em blocos markdown com tag `mermaid`.
 4. **Integração com Tarefas**: Ao finalizar um ADR ou desenho arquitetural, pergunte obrigatoriamente ao usuário se deseja cadastrar as etapas de implementação em `TASKS.md` via `-task-management`.

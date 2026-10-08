@@ -1,5 +1,5 @@
 ---
-name: -refactoring
+name: -refactor
 description: Fornece diretrizes agnósticas de refatoração segura de código legado e complexo, preservação de comportamento externo, testes de caracterização e aplicação cirúrgica de padrões de design em qualquer linguagem.
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(pnpm test *), Bash(yarn test *), Bash(pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(gradle test *), Bash(composer test *)
 ---
@@ -12,7 +12,7 @@ allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(pnpm test *
 > [!IMPORTANT]
 > ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
 > Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧭 **Skill Ativa**: `-refactoring``
+> `> 🧭 **Skill Ativa**: `-refactor``
 
 ---
 
