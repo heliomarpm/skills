@@ -1,0 +1,26 @@
+name: "Semantic Release"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      strict-mode:
+        description: 'Validar Conventional Commits rigorosamente'
+        type: boolean
+        default: true
+      skip-version-file:
+        description: 'Pular atualização do arquivo de versão'
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    uses: heliomarpm/reusable-workflows/.github/workflows/cd-semantic-release.yml@main
+    secrets:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      project-path: '.'
+      strict-conventional-commits: ${{ inputs.strict-mode != false }}
+      skip-version-file: ${{ inputs.skip-version-file || true }}
