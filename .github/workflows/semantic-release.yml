@@ -10,10 +10,6 @@ on:
         description: 'Validar Conventional Commits rigorosamente'
         type: boolean
         default: true
-      skip-version-file:
-        description: 'Pular atualização do arquivo de versão'
-        type: boolean
-        default: true
 
 jobs:
   release:
@@ -23,4 +19,4 @@ jobs:
     with:
       project-path: '.'
       strict-conventional-commits: ${{ inputs.strict-mode != false }}
-      skip-version-file: ${{ inputs.skip-version-file || true }}
+      skip-version-file: true
