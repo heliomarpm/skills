@@ -87,7 +87,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 - **Padronização de Namespace com Prefixo `_`**:
   - Renomeação de todas as pastas e metadados de skills adicionando o prefixo `_` (ex: `_code-review`, `_tech-react`), eliminando conflitos de escopo com ferramentas de sistema e padronizando identificação visual.
 - **Assinatura Obrigatória da Conversa**:
-  - Implementação de cabeçalho obrigatório na primeira linha de resposta de qualquer skill (`> 🧭 **Skill Ativa**: _nome-da-skill`), permitindo auditar instantaneamente qual inteligência especializada está operando.
+  - Implementação de cabeçalho obrigatório na primeira linha de resposta de qualquer skill (`> 🧠 **Skill Ativa**: _nome-da-skill`), permitindo auditar instantaneamente qual inteligência especializada está operando.
 - **Consolidação Documental Centralizada**:
   - Unificação de toda a documentação dispersa (`global/README.md`, `workspace/README.md`) em um único `README.md` canônico na raiz.
   - Adição de catálogo detalhado com exemplos práticos de prompts para cada uma das habilidades catalogadas.
