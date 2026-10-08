@@ -1,10 +1,21 @@
-# 🧠 Antigravity & Agent Skills: Engineering Toolbox
+<div id="top" align="center">
+  <h1>🧠 Antigravity & Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-[![Skills](https://img.shields.io/badge/Skills-27%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
-[![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
-[![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+   [![Skills](https://img.shields.io/badge/Skills-27%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+   [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
+   [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
+   [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
+   [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+
+  <div class="badges">
+
+  [![GitHub Sponsors][url-github-sponsors-badge]][url-github-sponsors]
+  [![PayPal][url-paypal-badge]][url-paypal]
+  [![Ko-fi][url-kofi-badge]][url-kofi]
+  [![Liberapay][url-liberapay-badge]][url-liberapay]
+    
+  </div>
+</div>
 
 > Repositório central para versionamento, desenvolvimento e catalogação de **Habilidades de Agente (Agent Skills)** voltadas para engenharia de software de alto nível com assistentes como **Google Antigravity**, **Gemini**, **Claude Code** e IDEs agênticas.
 
@@ -25,38 +36,34 @@ Para garantir total transparência e permitir auditar imediatamente se a skill c
 Todas as 27 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
 
 ```text
-skills/
-├── skills/
-│   ├── -ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
-│   ├── -api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
-│   ├── -arch-adr/              # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
-│   ├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
-│   ├── -core-tech/             # Mindset Sênior, SOLID, RFC 7807 e Observabilidade
-│   ├── -database-sql/          # Modelagem Relacional, Keyset Pagination e EXPLAIN
-│   ├── -design-system/         # Tokens Semânticos, WCAG 2.2 AA (A11y), Estados de UI e Componentes
-│   ├── -devops/                # Docker Multi-stage, CI/CD GitHub Actions e OIDC
-│   ├── -discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
-│   ├── -git-workflow/          # Trunk-Based, Rebase Interativo e Conventional Commits
-│   ├── -observability-sre/     # OpenTelemetry, SLI/SLO, Graceful Shutdown e Debug de Heap
-│   ├── -refactor/              # Testes de Caracterização e Padrões de Refatoração
-│   ├── -sdd/                   # Spec-Driven Development, Estruturação de SPEC.md e Contratos
-│   ├── -security-appsec/       # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
-│   ├── -system-design/         # Transactional Outbox, Mensageria e Cache
-│   ├── -task-management/       # Gestão Dinâmica, Decomposição e Atualização de TASKS.md
-│   ├── -testing/               # Pirâmide de Testes, Padrão AAA e Data Builders
-│   ├── -tech-angular/          # Angular 18/19+, Signals, Resource API e @defer
-│   ├── -tech-dotnet/           # C# 13, .NET 9, HybridCache e Lock nativo
-│   ├── -tech-flutter/          # Dart 3+, Riverpod 2.x, Isolates e RepaintBoundary
-│   ├── -tech-golang/           # Go 1.22+, Goroutines/Channels, sync.ErrGroup e log/slog
-│   ├── -tech-java/             # Java 21+ LTS, Virtual Threads/Loom, Spring Boot 3.x e JPA
-│   ├── -tech-nodejs/           # Node 20+ LTS, ESM, Streams e AbortController
-│   ├── -tech-php/              # PHP 8.4 Property Hooks, Asymmetric Visibility e PDO
-│   ├── -tech-python/           # Python 3.12/3.13, PEP 695 Generics e Pydantic v2
-│   ├── -tech-react/            # React 19, useActionState, TanStack Query e Zustand
-│   └── -tech-vue/              # Vue 3.5 defineModel, Props Destructure e Pinia
-│
-├── .gitignore                  # Regras de exclusão do Git
-└── README.md                   # Documentação central e unificada do repositório
+./skills/
+├── -ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
+├── -api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
+├── -arch-adr/              # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
+├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
+├── -core-tech/             # Mindset Sênior, SOLID, RFC 7807 e Observabilidade
+├── -database-sql/          # Modelagem Relacional, Keyset Pagination e EXPLAIN
+├── -design-system/         # Tokens Semânticos, WCAG 2.2 AA (A11y), Estados de UI e Componentes
+├── -devops/                # Docker Multi-stage, CI/CD GitHub Actions e OIDC
+├── -discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
+├── -git-workflow/          # Trunk-Based, Rebase Interativo e Conventional Commits
+├── -observability-sre/     # OpenTelemetry, SLI/SLO, Graceful Shutdown e Debug de Heap
+├── -refactor/              # Testes de Caracterização e Padrões de Refatoração
+├── -sdd/                   # Spec-Driven Development, Estruturação de SPEC.md e Contratos
+├── -security-appsec/       # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
+├── -system-design/         # Transactional Outbox, Mensageria e Cache
+├── -task-management/       # Gestão Dinâmica, Decomposição e Atualização de TASKS.md
+├── -testing/               # Pirâmide de Testes, Padrão AAA e Data Builders
+├── -tech-angular/          # Angular 18/19+, Signals, Resource API e @defer
+├── -tech-dotnet/           # C# 13, .NET 9, HybridCache e Lock nativo
+├── -tech-flutter/          # Dart 3+, Riverpod 2.x, Isolates e RepaintBoundary
+├── -tech-golang/           # Go 1.22+, Goroutines/Channels, sync.ErrGroup e log/slog
+├── -tech-java/             # Java 21+ LTS, Virtual Threads/Loom, Spring Boot 3.x e JPA
+├── -tech-nodejs/           # Node 20+ LTS, ESM, Streams e AbortController
+├── -tech-php/              # PHP 8.4 Property Hooks, Asymmetric Visibility e PDO
+├── -tech-python/           # Python 3.12/3.13, PEP 695 Generics e Pydantic v2
+├── -tech-react/            # React 19, useActionState, TanStack Query e Zustand
+└── -tech-vue/              # Vue 3.5 defineModel, Props Destructure e Pinia
 ```
 
 ---
@@ -189,8 +196,47 @@ Utilize mensagens semânticas ao commitar melhorias ou novas skills:
 | `docs` | `docs: atualiza catálogo do README com exemplos de uso` |
 | `refactor` | `refactor(-core-tech): aprimora diretrizes de observabilidade` |
 
+
+---
+
+## 🤝 Contribuições & Suporte
+
+- Quer contribuir com uma nova stack ou melhoria? Veja nosso [Guia de Contribuição](docs/CONTRIBUTING.md).
+- Precisa de ajuda ou encontrou um problema? Consulte nosso [Suporte](docs/SUPPORT.md) ou abra uma [Issue](https://github.com/heliomarpm/skills/issues).
+- Leia o [Código de Conduta](docs/CODE_OF_CONDUCT.md).
+
+Obrigado a todos que já contribuíram para o projeto!
+
+<a href="https://github.com/heliomarpm/skills/graphs/contributors" target="_blank">
+<img src="https://contrib.nn.ci/api?repo=heliomarpm/skills&no_bot=true" />
+</a>
+
+###### Criado com [contrib.nn](https://contrib.nn.ci/?repo=heliomarpm/skills&no_bot=true).
+
+Dito isso, existem várias maneiras de contribuir para este projeto, como:
+
+⭐ Marcando o repositório com uma estrela (star) \
+🐞 Relatando bugs \
+💡 Sugerindo funcionalidades \
+🧾 Melhorando a documentação \
+📢 Compartilhando este projeto e recomendando-o aos seus amigos
+
 ---
 
 ## 📄 Licença
 
-Distribuído sob a licença [MIT](LICENSE). Sinta-se livre para utilizar, customizar e estender estas habilidades nos seus ambientes de desenvolvimento.
+Distribuído sob a licença [MIT](LICENSE) © [Heliomar P. Marques](https://github.com/heliomarpm). <a href="#top">🔝</a>
+
+Sinta-se livre para utilizar, customizar e estender estas habilidades nos seus ambientes de desenvolvimento.
+
+----
+<!-- Sponsor badges -->
+
+[url-github-sponsors]: https://github.com/sponsors/heliomarpm
+[url-github-sponsors-badge]: https://img.shields.io/badge/GitHub%20-Sponsor-1C1E26?style=for-the-badge&labelColor=1C1E26&color=db61a2
+[url-kofi]: https://ko-fi.com/heliomarpm
+[url-kofi-badge]: https://img.shields.io/badge/kofi-1C1E26?style=for-the-badge&labelColor=1C1E26&color=ff5f5f
+[url-liberapay]: https://liberapay.com/heliomarpm
+[url-liberapay-badge]: https://img.shields.io/badge/liberapay-1C1E26?style=for-the-badge&labelColor=1C1E26&color=f6c915
+[url-paypal]: https://bit.ly/paypal-sponsor-heliomarpm
+[url-paypal-badge]: https://img.shields.io/badge/donate%20on-paypal-1C1E26?style=for-the-badge&labelColor=1C1E26&color=0475fe
