@@ -6,6 +6,16 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
+## [0.7.0] - 2026-10-08
+
+### Modificado
+- **Padronização de Nomenclatura das Skills**: Renomeação de todas as 26 skills substituindo o prefixo `_` por `-` (ex: `-ai-engineering`, `-api-design`, `-tech-react`, etc.).
+- **Assinatura Obrigatória e Metadados**: Atualização dos campos `name` e blocos de assinatura ativa em todos os arquivos `SKILL.md`.
+- **Documentação Central**: Atualização do catálogo, árvore de diretórios, contagem de skills e guias de criação no `README.md`.
+- **Sincronização de Ambiente**: Propagação de todas as 26 skills renomeadas para o diretório de configuração do assistente em `~/.gemini/config/skills`.
+
+---
+
 ## [0.6.1] - 2026-09-30
 
 ### Adicionado
