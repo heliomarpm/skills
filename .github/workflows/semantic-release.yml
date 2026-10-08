@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'CHANGELOG.md'
   workflow_dispatch:
     inputs:
       strict-mode:
@@ -22,6 +24,11 @@ jobs:
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
-      project-path: '.'
-      strict-conventional-commits: ${{ inputs.strict-mode != false }}
       skip-version-file: true
+      strict-conventional-commits: ${{ inputs.strict-mode != false }}
+      chnagelog-title: |
+        # 📦 Changelog
+
+        Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
+        
+        O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        

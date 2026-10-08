@@ -1,6 +1,8 @@
 # 📦 Changelog
 
-All notable changes to this project will be documented in this file.
+Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
+
+O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 # 1.0.0 (2026-10-08)
 
@@ -19,11 +21,6 @@ All notable changes to this project will be documented in this file.
 * **skills:** ✨ adicionar skill de gerenciamento de tarefas e integração com skills existentes ([6d2fac6](https://github.com/heliomarpm/skills/commit/6d2fac6d805ea25faf662954b05da56fb3c9d397))
 * **skills:** adicionar _ai-engineering, _architecture-adr, _observability-sre, _tech-java e _tech-golang ([e1a8ea9](https://github.com/heliomarpm/skills/commit/e1a8ea9385f2b336a1c1b77d25c3350dfe70266c))
 
-# Changelog
-
-Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
-
-O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
