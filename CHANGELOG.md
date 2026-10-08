@@ -1,3 +1,24 @@
+# 📦 Changelog
+
+All notable changes to this project will be documented in this file.
+
+# 1.0.0 (2026-10-08)
+
+
+### Features
+
+* **_discovery:** adicionar pergunta interativa de destino para novos artefatos ([26db88d](https://github.com/heliomarpm/skills/commit/26db88d5450a148e791f0c9f5a2e871b914423ba))
+* **_discovery:** adicionar skill de discovery com politica de ativacao exclusivamente explicita ([b16a919](https://github.com/heliomarpm/skills/commit/b16a919802ef0954aeeb63e4f1a6f873cb52420e))
+* **_git-workflow:** add global skill for professional git workflow and release management ([dceee95](https://github.com/heliomarpm/skills/commit/dceee9526857e7c6f57a66a01ef62266f74e2296))
+* ✨ atualizar ferramentas permitidas para skills ([8f93692](https://github.com/heliomarpm/skills/commit/8f93692b3b64891295bf278fbc17408071616238))
+* add core development skill definitions and semantic release workflow ([2ef6610](https://github.com/heliomarpm/skills/commit/2ef6610ced12482b64fcad4d900212efd88518cb))
+* **design-system:** ✨ adicionar skill global de design system ([33f37a8](https://github.com/heliomarpm/skills/commit/33f37a8b8b3261f2d28fa5f6aeb9683ef16aaff9))
+* **docs:** ✨ adicionar documentação de apoio e licença ([7c20e9b](https://github.com/heliomarpm/skills/commit/7c20e9b20b2b7cfa1f8ef1a48a2c4315e46b3c0a))
+* **global:** ✨ adicionar diretrizes de habilidades técnicas para várias tecnologias ([256238d](https://github.com/heliomarpm/skills/commit/256238de8bdd534a439c1e7a9dda4d67eaaab790))
+* **sdd:** ✨ adiciona nova skill de Spec Driven Development ([fed69fb](https://github.com/heliomarpm/skills/commit/fed69fb912c5a877dbfdd43caf87ed18afaecb5f))
+* **skills:** ✨ adicionar skill de gerenciamento de tarefas e integração com skills existentes ([6d2fac6](https://github.com/heliomarpm/skills/commit/6d2fac6d805ea25faf662954b05da56fb3c9d397))
+* **skills:** adicionar _ai-engineering, _architecture-adr, _observability-sre, _tech-java e _tech-golang ([e1a8ea9](https://github.com/heliomarpm/skills/commit/e1a8ea9385f2b336a1c1b77d25c3350dfe70266c))
+
 # Changelog
 
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
