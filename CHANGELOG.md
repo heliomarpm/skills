@@ -8,6 +8,13 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ## [0.7.0] - 2026-10-08
 
+### Adicionado
+- **Nova Skill Global de Interfaces e UI/UX (`-design-system`)**:
+  - Diretrizes técnicas para governança de Design Systems, arquitetura de componentes escaláveis e Design Tokens semânticos em 3 camadas.
+  - Conformidade estrita com acessibilidade digital WCAG 2.2 Nível AA por padrão (WAI-ARIA, foco visível `:focus-visible`, contraste e navegação por teclado).
+  - Padrão dos 7 estados essenciais de interface (*Idle, Hover, Active, Focus, Disabled, Loading/Skeletons, Empty/Error*).
+  - Composição com *Compound Components*, polimorfismo (`asChild`/slots) e integração direta com os especialistas de frontend (`-tech-react`, `-tech-vue`, `-tech-angular`, `-tech-flutter`).
+
 ### Modificado
 - **Padronização de Nomenclatura das Skills**: Renomeação de todas as 26 skills substituindo o prefixo `_` por `-` (ex: `-ai-engineering`, `-api-design`, `-tech-react`, etc.).
 - **Simplificação e Ajuste Semântico de Nomes**:

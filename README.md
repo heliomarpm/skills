@@ -1,6 +1,6 @@
 # 🧠 Antigravity & Agent Skills: Engineering Toolbox
 
-[![Skills](https://img.shields.io/badge/Skills-26%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+[![Skills](https://img.shields.io/badge/Skills-27%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
 [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
 [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
@@ -22,7 +22,7 @@ Para garantir total transparência e permitir auditar imediatamente se a skill c
 
 ## 🏛️ Arquitetura do Repositório
 
-Todas as 26 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
+Todas as 27 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
 
 ```text
 skills/
@@ -33,6 +33,7 @@ skills/
 │   ├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
 │   ├── -core-tech/             # Mindset Sênior, SOLID, RFC 7807 e Observabilidade
 │   ├── -database-sql/          # Modelagem Relacional, Keyset Pagination e EXPLAIN
+│   ├── -design-system/         # Tokens Semânticos, WCAG 2.2 AA (A11y), Estados de UI e Componentes
 │   ├── -devops/                # Docker Multi-stage, CI/CD GitHub Actions e OIDC
 │   ├── -discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
 │   ├── -git-workflow/          # Trunk-Based, Rebase Interativo e Conventional Commits
@@ -72,6 +73,7 @@ skills/
 | **`-code-review`** | Revisão bidimensional (especificação vs qualidade) e análise de diffs | *"Faça o code review completo do diff em relação à branch main e aponte eventuais débitos técnicos."* | [`skills/-code-review`](./skills/-code-review/SKILL.md) |
 | **`-core-tech`** | SOLID, Clean Code, contratos de erro RFC 7807 e observabilidade | *"Revise a arquitetura deste serviço aplicando princípios SOLID e padronização RFC 7807 para erros."* | [`skills/-core-tech`](./skills/-core-tech/SKILL.md) |
 | **`-database-sql`** | Modelagem 3NF, Keyset Pagination, análise `EXPLAIN` e concorrência ACID | *"Otimize esta query com lentidão no PostgreSQL usando Keyset Pagination e analise o plano EXPLAIN."* | [`skills/-database-sql`](./skills/-database-sql/SKILL.md) |
+| **`-design-system`** | Design Tokens semânticos, WCAG 2.2 AA (A11y), estados de tela e componentização | *"Modele a arquitetura de Design Tokens semânticos com suporte a Dark Mode e componente de botão acessível."* | [`skills/-design-system`](./skills/-design-system/SKILL.md) |
 | **`-devops`** | Imagens Docker multi-stage sem root, GitHub Actions, CI/CD e OIDC | *"Crie um Dockerfile multi-stage non-root e uma pipeline do GitHub Actions com autenticação OIDC."* | [`skills/-devops`](./skills/-devops/SKILL.md) |
 | **`-discovery`** 🔒 | Exploração metódica, síntese de contexto e memória para IAs (PROJECT, AGENTS, DATA) *(Ativação Exclusivamente Explícita)* | *"Faça o discovery deste repositório e crie os arquivos de contexto e memória para os assistentes de IA."* | [`skills/-discovery`](./skills/-discovery/SKILL.md) |
 | **`-git-workflow`** | Trunk-Based Development, rebase linear e Conventional Commits | *"Guie a limpeza dos últimos commits com rebase interativo linear e Conventional Commits antes do PR."* | [`skills/-git-workflow`](./skills/-git-workflow/SKILL.md) |
