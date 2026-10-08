@@ -2,6 +2,20 @@
 
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
+O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
+
+
+# [1.1.0](https://github.com/heliomarpm/skills/compare/v1.0.0...v1.1.0) (2026-10-08)
+
+
+### Features
+
+* add semantic release GitHub Actions workflow for automated releases ([842fc95](https://github.com/heliomarpm/skills/commit/842fc95600499fc3831786821f05b2c1d15cde46))
+
+# 📦 Changelog
+
+Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
+
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 # 1.0.0 (2026-10-08)
