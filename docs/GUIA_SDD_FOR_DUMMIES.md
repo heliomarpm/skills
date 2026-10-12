@@ -19,15 +19,45 @@ Imagine que desenvolver software com IA é igual a construir uma casa:
 ## 👥 Quem manda e quem faz?
 
 ```mermaid
-flowchart LR
-    HUMANO["👤 VOCÊ (O Arquiteto / Dono)"]
-    IA["🤖 A IA (O Engenheiro Executivo)"]
+sequenceDiagram
+    autonumber
+    actor VOCE as 👤 Você (Humano / Diretor)
+    participant IA as 🤖 IA (Engenheiro Assistente)
+    participant SPEC as 📄 docs/specs/
+    participant TASKS as 📋 TASKS.md
+    participant CODE as 💻 Código & Testes
 
-    HUMANO -->|"Define a intenção e regras de negócio"| IA
-    IA -->|"Desenha a Spec técnica"| HUMANO
-    HUMANO -->|"🛑 APROVA ou REJEITA (Freio de mão)"| IA
-    IA -->|"Quebra em Tasks e Codifica com Testes"| HUMANO
-    HUMANO -->|"Valida o resultado final"| IA
+    Note over VOCE, CODE: FASE 1: ESPECIFICAÇÃO & DESENHO
+    VOCE->>IA: 1. "Preciso da feature X. Faça a spec com -spec"
+    activate IA
+    IA->>SPEC: Cria spec preliminar (status: rascunho)
+    IA-->>VOCE: Apresenta rascunho e PUXA O FREIO DE MÃO 🛑
+    deactivate IA
+
+    Note over VOCE, CODE: FASE 2: APROVAÇÃO (PONTO DE CONTROLE)
+    VOCE->>VOCE: Revisa contratos, regras e critérios de aceite
+    VOCE->>IA: 2. "Spec Aprovada! Registre as tarefas com -tasks"
+    activate IA
+    IA->>SPEC: Altera status para "aprovada"
+    IA->>TASKS: Importa tarefas atômicas (T-01, T-02...)
+    IA-->>VOCE: "Backlog pronto em TASKS.md. Podemos codificar?"
+    deactivate IA
+
+    Note over VOCE, CODE: FASE 3: IMPLEMENTAÇÃO TDD
+    VOCE->>IA: 3. "Implemente a tarefa T-01 seguindo -testing"
+    activate IA
+    IA->>CODE: Escreve teste do critério Given/When/Then (🔴 Vermelho)
+    IA->>CODE: Escreve código para passar o teste (🟢 Verde)
+    IA->>TASKS: Marca tarefa como concluída [x]
+    IA-->>VOCE: Reporta testes passando e tarefa finalizada
+    deactivate IA
+
+    Note over VOCE, CODE: FASE 4: FECHAMENTO & RASTREABILIDADE
+    VOCE->>IA: 4. "Tudo validado! Feche a spec e gere o commit"
+    activate IA
+    IA->>SPEC: Preenche rastreabilidade e muda status para "implementada"
+    IA-->>VOCE: Prepara commit semântico via -git
+    deactivate IA
 ```
 
 * 👤 **Você (Humano):** Pensa, define o objetivo, revisa, aprova e decide se está pronto. **Você é o Diretor.**
