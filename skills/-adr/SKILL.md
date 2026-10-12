@@ -1,113 +1,201 @@
 ---
-name: -arch-adr
-description: "Padroniza a documentação de decisões técnicas e arquitetura: criação de Architecture Decision Records (ADRs) canônicos, diagramação C4 Model em Mermaid e relatórios de causa raiz (RCA / Post-mortem)."
-allowed-tools: Read, Edit, Write, Grep, Glob
-disallowed-tools: Bash
+name: -adr
+description: "Registra e mantém decisões técnicas e arquiteturais como Architecture Decision Records (ADRs): quando escrever, contexto, alternativas reais, consequências e trade-offs, ciclo de vida (proposto, aceito, substituído) com aprovação explícita, índice e ADRs retroativos a partir de código existente. Use sempre que o usuário pedir 'crie um ADR', 'registre esta decisão', 'documente por que escolhemos X', 'documente os trade-offs', 'substitua a decisão Y', 'quais decisões temos sobre Z' ou comparar alternativas técnicas para decidir, mesmo sem a sigla ADR. NÃO use para desenhar a arquitetura de um sistema ou modelar diagramas C4 (isso é -system-design), especificar uma funcionalidade (isso é -spec) ou analisar um incidente em produção (isso é -observability)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *)
 ---
 
-# Global Skill: Architecture Decision Records (ADR) & C4 Architecture Modeling
+# ADR: registro de decisões técnicas
 
-Esta skill padroniza a governança e o registro formal de decisões de engenharia de software através de **Architecture Decision Records (ADRs)**, modelagem visual no padrão **C4 Model** com diagramas Mermaid e análise técnica de incidentes (**Post-mortems / RCA**).
+Um ADR guarda **por que** uma decisão foi tomada: o contexto, as alternativas consideradas e o preço que se aceitou pagar. É lido seis meses depois por quem pergunta "por que fizemos assim?".
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-arch-adr``
+## 0. Regras de operação
 
----
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-## 1. Processo de Execução em Arquitetura e Decisões
+> 🧠 **Skill Ativa**: `-adr`
 
-### 1.1. Identificação de Necessidade de um ADR
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-Toda decisão técnica que altere significativamente o sistema deve ser cristalizada em um ADR sob `./docs/adr/` ou `./adr/`:
-- Adoção ou descontinuação de linguagens, frameworks ou bibliotecas centrais.
-- Escolha de bancos de dados (SQL vs NoSQL), mensageria ou modelos de cache.
-- Mudanças de padrões de integração (REST para gRPC, síncrono para eventos via Outbox).
-- Alterações estruturais de segurança (migração de sessão para OAuth 2.1 com PKCE).
+**A decisão é de quem decide.** A skill escreve o ADR com status **Proposto**, com uma recomendação explícita e justificada, e só muda para **Aceito** com aprovação explícita do usuário ("aprovado", "aceito"). Silêncio não vale.
 
-### 1.2. Os 5 Pilares de um ADR Eficaz
-1. **Título & Metadados**: Número sequencial, título claro, status (`[Proposto | Aceito | Substituído | Rejeitado]`) e data.
-2. **Contexto & Forças Motrizes**: O problema atual, restrições financeiras/temporais e por que o status quo é insustentável.
-3. **Decisão**: A escolha técnica adotada de forma afirmativa e direta.
-4. **Alternativas Avaliadas**: Pelo menos 2 outras soluções analisadas e o motivo explícito de seu descarte.
-5. **Consequências & Trade-offs**: Todo design de software tem um custo. Liste claramente as consequências **Positivas** (ganhos) e **Negativas** (débitos, complexidade adicionada, custos operacionais).
+**Imutabilidade.** ADR aceito não se reescreve. Se a decisão mudou, crie um novo ADR que o substitui (seção 5). São permitidas correções de digitação e a atualização de status e de links.
 
-### 1.3. Modelagem Visual no Padrão C4 com Mermaid
-Ao diagramar sistemas, utilize os 3 primeiros níveis do C4 Model gerados nativamente em blocos `mermaid`:
-- **Nível 1 (System Context)**: Atores humanos e sistemas externos de alto nível.
-- **Nível 2 (Container)**: Aplicações web, APIs, bancos de dados, filas e serviços executáveis.
-- **Nível 3 (Component)**: Módulos internos, controladores e adaptadores de um contêiner específico.
+**Evidência.** Números citados (latência, custo, volume) têm fonte (benchmark, documentação, incidente) ou levam a marca `(estimativa)`. Nunca invente métricas, nem o contexto e as alternativas de uma decisão passada.
+
+**Escrita restrita.** A skill escreve apenas na pasta de ADRs e no `DECISIONS.md`. Nunca altera código.
+
+**Sem segredos.** ADRs ficam no repositório: nada de credenciais, tokens ou hosts internos. Em decisões de segurança, evite detalhar vulnerabilidades se o repositório for público.
+
+**Idioma e data.** O do repositório; a data vem do contexto da conversa e, sem ela, é omitida.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Modos de operação
 
-### 2.1. Template Canônico de ADR em Markdown
-```markdown
-# ADR-005: Adoção do Padrão Transactional Outbox com Kafka para Eventos Financeiros
-
-> **Status**: Aceito  
-> **Data**: 2026-09-27  
-> **Decisores**: Equipe de Arquitetura & Engenharia Backend  
-> **Substitui**: N/A  
-
----
-
-## 1. Contexto & Problema
-Atualmente, o serviço de pagamentos grava o status da transação no PostgreSQL e imediatamente chama o cluster Kafka via rede. Em momentos de instabilidade na conexão, o commit no banco tem sucesso, mas o evento nunca chega ao Kafka (Dual-Write Problem), gerando inconsistência silenciosa entre o saldo contábil e a esteira de pedidos.
-
-## 2. Decisão Adotada
-Implementaremos o padrão **Transactional Outbox**. Toda mutação financeira gravará o registro de domínio e o evento na tabela local `outbox_events` na mesma transação ACID. Um worker assíncrono (Debezium / polling CDC) publicará os eventos no Kafka com garantia *At-least-once*.
-
-## 3. Alternativas Avaliadas
-- **Two-Phase Commit (2PC / XA)**: Descartado devido à alta latência de rede e bloqueios distribuídos que limitam o throughput.
-- **Retry síncrono no Kafka**: Descartado pois bloqueia a requisição HTTP do usuário e trava threads do servidor em caso de indisponibilidade prolongada.
-
-## 4. Consequências & Trade-offs
-- **Positivas**: 
-  - Consistência transacional garantida (zero perda de eventos em falhas de rede).
-  - Desacoplamento da latência do Kafka da rota HTTP do usuário.
-- **Negativas / Riscos**:
-  - Consumidores agora são obrigados a implementar idempotência rigorosa (risco de eventos duplicados).
-  - Adição de um worker/componente de leitura de Outbox na infraestrutura.
-```
-
-### 2.2. Diagrama C4 Container em Mermaid
-```mermaid
-C4Container
-  title Diagrama C4 de Contêineres - Gateway de Pagamentos
-
-  Person(cliente, "Cliente Final", "Usuário do aplicativo móvel")
-  
-  System_Boundary(b1, "Gateway de Pagamentos") {
-    Container(api, "API de Pagamentos", "Node.js / Fastify", "Recebe e valida transações financeiras")
-    ContainerDb(db, "Banco Principal", "PostgreSQL 16", "Armazena transações e tabela de Outbox")
-    Container(worker, "Outbox Relayer Worker", "Go 1.22", "Lê a Outbox e publica eventos no Kafka")
-  }
-
-  System_Ext(kafka, "Apache Kafka", "Cluster corporativo de streaming de eventos")
-
-  Rel(cliente, api, "Efetua pagamento", "HTTPS / JSON")
-  Rel(api, db, "Grava transação e evento Outbox", "ACID Transaction")
-  Rel(worker, db, "Polling de eventos pendentes", "SELECT FOR UPDATE SKIP LOCKED")
-  Rel(worker, kafka, "Publica eventos de domínio", "TCP / Kafka Protocol")
-```
+| Modo | Quando |
+| :--- | :--- |
+| **Criar** | Registrar uma decisão nova |
+| **Substituir ou alterar status** | A decisão mudou ou foi rejeitada |
+| **Registrar retroativo** | Documentar uma decisão já implementada |
+| **Revisar** | Validar ADRs, achar duplicatas e conflitos |
+| **Consultar** | Buscar as decisões vigentes antes de propor uma mudança |
 
 ---
 
-## 3. Armadilhas Críticas em Governança de Arquitetura (*Gotchas*)
+## 2. Quando escrever um ADR
 
-- ⚠️ **ADRs Sem Consequências Negativas**: Afirmar que uma nova tecnologia ou padrão tem "apenas vantagens". Toda escolha arquitetural introduz complexidade, custo ou overhead de manutenção.
-- ⚠️ **ADRs Como Retrospectiva Tardia**: Escrever o ADR meses após o código já estar em produção apenas para "preencher burocracia", perdendo o registro do contexto e alternativas reais analisadas.
-- ⚠️ **Diagramas C4 com Níveis Misturados**: Misturar detalhes de classes/funções (Nível 4) em diagramas de Contexto Geral (Nível 1), tornando o desenho confuso para stakeholders técnicos e não técnicos.
+Escreva quando a decisão é **cara de reverter**, **atravessa módulos ou equipes**, ou alguém vai perguntar o motivo no futuro. Exemplos: linguagem ou framework central, banco de dados, mensageria, padrão de integração, estratégia de autenticação, estrutura de módulos.
+
+Não escreva para escolhas locais, baratas e reversíveis, nem para estilo de código (isso vai no `GUIDELINE.md`).
 
 ---
 
-## 4. Padrão Rigoroso de Entrega
+## 3. Localização, nome e índice
 
-Ao atuar com esta skill:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -arch-adr`.
-2. **Neutralidade e Rigor**: Analisar trade-offs com objetividade técnica baseada em métricas e requisitos reais.
-3. **Diagramas Executáveis**: Todo diagrama deve ser compilável em blocos markdown com tag `mermaid`.
-4. **Integração com Tarefas**: Ao finalizar um ADR ou desenho arquitetural, pergunte obrigatoriamente ao usuário se deseja cadastrar as etapas de implementação em `TASKS.md` via `-task-management`.
+- **Pasta**: detecte a existente (`docs/adr`, `adr`, `docs/decisions`, `doc/adr`, `architecture/decisions`). Sem nenhuma, pergunte uma vez; em execução não interativa use `docs/adr/`.
+- **Arquivo**: `NNNN-titulo-em-kebab-case.md`. O número é o maior existente mais um, incluindo os substituídos; nunca reutilize nem renumere.
+- **Índice**: mantenha `README.md` na pasta, atualizado a cada criação ou mudança de status:
+
+````markdown
+| Nº | Título | Status | Data |
+| :--- | :--- | :--- | :--- |
+| [0005](./0005-transactional-outbox.md) | Transactional Outbox para eventos financeiros | Aceito | 2026-09-27 |
+| [0003](./0003-kafka-como-broker.md) | Kafka como broker de eventos | Substituído por 0009 | 2026-03-02 |
+````
+
+- **`DECISIONS.md`** (do `-discovery`): se a pasta de ADRs existe, ele vira apenas um índice que aponta para os ADRs, sem duplicar conteúdo. Sem a pasta, usa entradas curtas neste mesmo formato.
+
+---
+
+## 4. Workflow
+
+1. **Contexto**: procure ADRs existentes (duplicatas e conflitos) e leia `ARCHITECTURE.md`, `DECISIONS.md` e a spec relacionada.
+2. **Escolha o formato**: o **curto** para decisões simples (contexto, decisão, consequências); o **completo** quando há várias alternativas ou impacto amplo. Limite de ~100 linhas por ADR.
+3. **Redija com neutralidade**: inclua o status quo entre as alternativas, apresente cada opção não escolhida no seu melhor argumento e liste consequências negativas reais.
+4. **Recomende** uma opção, com a justificativa, e deixe o ADR como **Proposto**.
+5. **Aprovação**: ao receber a aprovação explícita, mude para **Aceito** e atualize o índice.
+6. **Vínculos**: linke a spec, as tarefas e os ADRs relacionados; peça ao usuário para referenciar os ADRs críticos no `AGENTS.md` e no `GUIDELINE.md`.
+
+---
+
+## 5. Ciclo de vida
+
+| Status | Significado |
+| :--- | :--- |
+| Proposto | Em discussão, ainda sem decisão |
+| Aceito | Vigente |
+| Rejeitado | Avaliado e descartado (mantenha o registro) |
+| Obsoleto | Já não se aplica, sem substituto |
+| Substituído por NNNN | Trocado por outro ADR |
+
+**Substituir**: crie o ADR novo com a linha `Substitui: NNNN` e, no antigo, altere apenas o status (`Substituído por MMMM`) e os links. O texto original permanece.
+
+---
+
+## 6. ADR retroativo
+
+Para uma decisão já implementada, parta do código, do histórico (`git log`) e de documentos existentes. Marque o que vem do código como `(inferido)` e o que só a memória do time sabe como `[A CONFIRMAR]`. O status é **Aceito (retroativo)**. Nunca fabrique contexto ou alternativas que não estejam documentados.
+
+---
+
+## 7. Modelos
+
+### 7.1. Formato curto
+
+````markdown
+# ADR-0007: Usar UUIDv7 como identificador de pedidos
+
+> Status: Proposto | Data: 2026-10-11
+
+## Contexto
+IDs sequenciais expõem o volume de pedidos e dificultam a geração em múltiplos serviços.
+
+## Decisão
+Adotar UUIDv7 gerado na aplicação.
+
+## Consequências
+- Positivas: geração descentralizada e ordenação temporal aproximada.
+- Negativas: índices maiores e IDs menos legíveis em suporte.
+````
+
+### 7.2. Formato completo
+
+````markdown
+# ADR-0005: Transactional Outbox para eventos financeiros
+
+> Status: Proposto | Data: 2026-09-27
+> Decisores: Arquitetura e Backend | Substitui: n/a
+> Relacionados: [Spec 003](../specs/003-cobranca-recorrente.md), T-012
+
+## Contexto e forças
+O serviço de pagamentos grava a transação no PostgreSQL e depois publica no Kafka. Se a rede falha entre os dois passos, o banco confirma e o evento se perde (dual-write), gerando inconsistência silenciosa. Restrições: sem aumento de infraestrutura neste trimestre; equipe conhece SQL, não conhece Debezium.
+
+## Critérios de decisão
+Consistência, complexidade operacional, prazo, domínio da equipe, custo.
+
+## Decisão
+Implementar **Transactional Outbox** com relay por polling: a mutação e o evento são gravados na tabela `outbox_events` na mesma transação; um worker lê com `SELECT ... FOR UPDATE SKIP LOCKED` e publica no Kafka, com garantia at-least-once.
+
+## Alternativas avaliadas
+
+| Opção | Prós | Contras |
+| :--- | :--- | :--- |
+| Status quo (escrita dupla) | Nada a construir | Perde eventos em falha |
+| Two-phase commit (XA) | Atomicidade forte | Latência e bloqueios distribuídos |
+| Outbox com CDC (Debezium) | Baixa latência, sem polling | Componente novo, curva de aprendizado |
+| **Outbox com polling (escolhida)** | Simples, usa o que a equipe domina | Latência de segundos, carga de leitura no banco |
+
+## Consequências
+- Positivas: nenhum evento perdido em falha de rede; latência do Kafka fora da rota HTTP.
+- Negativas: consumidores precisam ser idempotentes; novo worker para operar; latência de publicação na ordem de segundos `(estimativa)`.
+
+## Verificação e revisão
+- Como garantir: teste de integração que derruba o broker e confere a entrega; checklist de PR para toda mutação financeira.
+- Reavaliar quando o volume passar de `(estimativa)` 500 eventos/s ou a latência de publicação virar requisito.
+````
+
+---
+
+## 8. Registro via `-tasks` e integrações
+
+Se o ADR tem etapas de implementação, pergunte ao final:
+
+> *"Deseja que eu registre as etapas de implementação desta decisão no `TASKS.md` do projeto?"*
+
+Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `adr ADR-NNNN`, links relativos e a prioridade: P1 para etapas que desbloqueiam as demais, P2 para as outras e P3 para a revisão futura da decisão. **Fallback**: lista no chat.
+
+| Skill | Como se integra |
+| :--- | :--- |
+| `-system-design` | Como projetar e modelar C4; o ADR registra a escolha |
+| `-spec` | Decisões da spec viram ADR; o ADR é referenciado na spec |
+| `-discovery` | Índice em `DECISIONS.md` e ADRs retroativos |
+| `-code-review` | Lê os ADRs aceitos como fonte de padrões do Eixo 2 |
+| `-refactor` | Decisões estruturais relevantes geram ADR |
+| `-observability` | Post-mortem que muda a arquitetura gera ADR |
+| `-security` | Decisões de segurança passam pelas regras da seção 0 |
+
+Se alguma não existir, siga o padrão desta skill sem a integração.
+
+---
+
+## 9. Armadilhas
+
+- **Editar a decisão de um ADR aceito**: apaga o histórico. Substitua por outro ADR.
+- **ADR sem alternativa real**: se só havia uma opção, não era uma decisão.
+- **Decisão apresentada como já tomada**: o status inicial é Proposto.
+- **Só prós**: toda escolha tem custo, e o ADR deve listar as consequências negativas.
+- **Retrospectiva tardia**: escrever meses depois perde o contexto real. Se for retroativo, declare e marque o que é inferido.
+- **Métrica inventada**: cite fonte ou marque `(estimativa)`.
+- **Número duplicado ou índice desatualizado**: dificulta a busca.
+- **ADR para decisão trivial**: burocracia sem valor.
+- **Decisão escolhida pela skill**: quem decide é o usuário.
+
+---
+
+## 10. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivo do ADR criado ou alterado e o índice atualizado, com links relativos.
+3. Resumo da decisão, da recomendação e das principais consequências negativas.
+4. Status atual e o que falta para a aprovação.
+5. Pendências e a pergunta sobre o registro em tarefas (seção 8).

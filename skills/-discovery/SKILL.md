@@ -1,187 +1,283 @@
 ---
 name: -discovery
-description: "Explora e analisa repositórios de software existentes para gerar ou atualizar arquivos de contexto e memória para assistentes de IA (PROJECT.md, CONTEXT.md, AGENTS.md, DATA.md). ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: acione apenas quando o usuário solicitar explicitamente o mapeamento, onboarding, exploração ou atualização do contexto do repositório."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git remote *), Bash(git branch *)
+description: "Explora repositórios existentes (brownfield/legados) e gera ou atualiza a base de documentação de contexto para assistentes de IA: CONTEXT.md e AGENTS.md sempre, e, conforme o que o repositório justificar, ARCHITECTURE.md, DATA.md, PRD.md, GUIDELINE.md, TESTING.md, OPERATIONS.md, DECISIONS.md e GLOSSARY.md. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir discovery, mapeamento, onboarding, exploração do repositório ou a criação/atualização desses arquivos (ex.: 'faça o discovery do projeto', 'mapeie este repositório', 'gere o PRD.md e o ARCHITECTURE.md', 'atualize o CONTEXT.md'). Nunca acione em tarefas comuns de código, refatoração, correção de bugs ou perguntas pontuais."
+disable-model-invocation: true
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git remote *), Bash(git branch *), Bash(git rev-parse *), Bash(git ls-files *)
 ---
 
-# Discovery Skill: Repository Exploration, Context Synthesis & AI Memory
+# Discovery: exploração de repositório e memória para IAs
 
-Esta skill orienta a exploração metódica e a engenharia de contexto de bases de código preexistentes (brownfield ou legadas). Seu propósito central é sintetizar a arquitetura, stack, convenções e modelos de dados do repositório em arquivos markdown padronizados de memória para assistentes de IA.
+Orienta a exploração metódica de bases de código preexistentes e a síntese de arquitetura, stack, produto, convenções e dados em arquivos markdown enxutos, que servem de memória persistente para assistentes de IA e de onboarding para humanos.
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-discovery``
+## 0. Regras de operação
 
-> [!CAUTION]
-> ### 🔒 Política de Ativação Restrita: Exclusivamente Explícita
-> Esta skill **NUNCA deve ser executada de forma implícita ou automática** em tarefas cotidianas de codificação, refatoração ou correção de bugs.
-> - **Gatilhos Válidos (Apenas Explícitos)**: Pedidos diretos como *"faça o discovery do projeto"*, *"explore este repositório e gere o contexto"*, *"crie ou atualize o CONTEXT.md / AGENTS.md / DATA.md"*, *"mapeie a arquitetura desta base de código"*.
-> - **Operação Silenciosa nas Demais Tarefas**: Se o usuário fizer uma pergunta pontual de código ou pedir uma alteração comum, não execute a exploração completa do repositório.
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
----
+> 🧠 **Skill Ativa**: `-discovery`
 
-## 1. Processo de Execução Estruturado (Workflow)
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-### 1.1. Inspeção Prévia, Preservação e Resolução de Destino
+**Ativação exclusivamente explícita.** Nunca execute esta skill por conta própria durante codificação, refatoração ou correção de bugs. Gatilhos válidos são pedidos diretos como "faça o discovery", "explore o repositório e gere o contexto", "crie ou atualize o CONTEXT.md / AGENTS.md / PRD.md". Para uma pergunta pontual de código, responda normalmente, sem varredura completa.
 
-Antes de iniciar qualquer varredura ou escrita:
-1. **Verificação de Documentos Existentes**: Inspecione na raiz (`./`), nas pastas de agentes (`./.agents/`, `./agents/`) e de documentação (`./docs/`) se já existem:
-   - `PROJECT.md` ou `CONTEXT.md`
-   - `AGENTS.md` ou `GEMINI.md`
-   - `DATA.md` ou `DATABASE.md`
-   - `TASKS.md` (ou legado `TASK.md`)
-2. **Resolução de Destino e Pergunta Obrigatória**:
-   - **Cenário A (Arquivos Encontrados)**: Preserve o local onde já se encontram. Jamais crie arquivos duplicados em outro diretório nem execute sobrescrita cega. Leia-os primeiro para preservar anotações manuais e decisões de negócio já registradas.
-   - **Cenário B (Nenhum Arquivo Localizado)**: O agente **NÃO DEVE** criar arquivos em local arbitrário por presunção. **Deve obrigatoriamente perguntar ao usuário** o local de destino desejado antes de criar os arquivos:
-     > *"Não identifiquei arquivos de contexto existentes no repositório. Onde você prefere que eu crie os novos artefatos de memória (`CONTEXT.md`, `AGENTS.md`, `DATA.md`)?*
-     > *1. Na raiz do projeto (`./`)*
-     > *2. Na pasta oculta de configuração (`./.agents/`)*
-     > *3. Na pasta de agentes (`./agents/`)*
-     > *4. Na pasta de documentação (`./docs/`)*
-     > *(ou informe outro caminho de sua preferência)*"*
+**Evidência antes de afirmação.** Todo fato escrito nos artefatos deve ser rastreável a um arquivo do repositório. O que for dedução recebe a marca `(inferido)`; o que não puder ser deduzido recebe `[A CONFIRMAR]`. Nunca invente metas de negócio, comandos, versões ou nomes de serviços.
+
+**Segredos.** Leia apenas `.env.example`, `.env.dist` e equivalentes. Nunca abra `.env`, `*.pem`, `*.key`, `credentials*`, `secrets*` ou arquivos de estado de IaC (`*.tfstate`). Nos artefatos, registre somente os nomes das variáveis de ambiente, jamais valores.
 
 ---
 
-### 1.2. Varredura Multicamadas da Base de Código
+## 1. Catálogo de artefatos
 
-A exploração deve ser cirúrgica e orientada a metadados para não sobrecarregar tokens desnecessariamente:
+Nomes padrão abaixo. Use um nome alternativo apenas se ele já existir no repositório (veja a tabela de equivalências).
 
-1. **Camada 1 — Identidade e Dependências (Manifestos)**:
-   - Identifique a linguagem, framework principal e versões analisando arquivos raiz: `package.json`, `pom.xml`, `*.csproj`, `pyproject.toml`, `Cargo.toml`, `composer.json`, `pubspec.yaml`, `go.mod`.
-   - Inspecione arquivos de containerização e orquestração: `Dockerfile`, `docker-compose.yml`, `k8s/`.
-2. **Camada 2 — Comandos Operacionais**:
-   - Extraia os scripts canônicos de execução definidos nos manifestos ou `Makefile`: comando de inicialização local, build de produção, execução de testes unitários e linters.
-   - Inspecione variáveis de ambiente de exemplo (`.env.example`, `.env.dist`).
-3. **Camada 3 — Topologia Arquitetural**:
-   - Analise a estrutura de pastas para deduzir o estilo arquitetural: Clean Architecture, Arquitetura Hexagonal (Ports & Adapters), MVC, Modular Monolith ou Microsserviços.
-   - Identifique os pontos de entrada (*entrypoints*): controllers/handlers HTTP, listeners de fila/mensageria, workers e rotinas CLI.
-4. **Camada 4 — Modelagem de Dados & Integrações**:
-   - Mapeie ferramentas de persistência: ORMs (Prisma, Entity Framework, SQLAlchemy, Eloquent), migrations (`db/migrations`, `alembic/`, `flyway/`) ou arquivos schema SQL.
-   - Identifique conexões com mensageria (RabbitMQ, Kafka), cache (Redis) e APIs externas críticas.
-5. **Camada 5 — Diretrizes de Engenharia e Governança**:
-   - Inspecione regras de estilo e linters (`eslint`, `prettier`, `editorconfig`, regras de tipagem estrita).
-   - Inspecione pipelines de CI/CD (`.github/workflows/`, `gitlab-ci.yml`).
+| Arquivo | Papel | Gerar quando | Limite |
+| :--- | :--- | :--- | :--- |
+| `CONTEXT.md` | Visão executiva, stack, comandos, topologia e índice dos demais docs | Sempre | ~150 linhas |
+| `AGENTS.md` | Regras e restrições obrigatórias para IAs | Sempre | ~100 linhas |
+| `ARCHITECTURE.md` | Estilo arquitetural, módulos, fluxos, diagramas e riscos | Há mais de um módulo ou camada identificável | ~200 linhas |
+| `DATA.md` | Banco, entidades, migrations, mensageria, cache e APIs externas | Há persistência ou integrações relevantes | ~150 linhas |
+| `PRD.md` | Produto retroativo: problema, usuários, funcionalidades existentes, lacunas | README, docs, rotas ou telas permitem inferir o produto | ~150 linhas |
+| `GUIDELINE.md` | Padrões de engenharia com justificativa: nomenclatura, estrutura, erros, git, PR, dependências | Há linters, configs, CI ou histórico que revelem convenções | ~120 linhas |
+| `TESTING.md` | Estratégia e execução de testes, convenções e lacunas | Existem testes ou configuração de testes | ~80 linhas |
+| `OPERATIONS.md` | Ambientes, variáveis, CI/CD, deploy e observabilidade | Existem Docker, IaC, pipelines ou scripts de deploy | ~120 linhas |
+| `DECISIONS.md` | Índice das decisões técnicas: aponta para os ADRs (formato do `-adr`) se existirem; senão, entradas curtas nesse formato | Há ADRs ou decisões claras no histórico e na estrutura | sem limite fixo, uma entrada por decisão |
+| `GLOSSARY.md` | Termos de domínio e onde aparecem no código | O domínio tem 8 ou mais termos específicos | ~80 linhas |
+| `TASKS.md` | Backlog de débitos encontrados | Somente com confirmação do usuário (seção 5) | via `-tasks` |
 
----
+**Diferença entre `AGENTS.md` e `GUIDELINE.md`.** `AGENTS.md` é uma lista curta de regras imperativas ("faça / não faça") voltada a IAs. `GUIDELINE.md` explica os padrões de engenharia do time e o porquê de cada um, e serve a humanos e IAs. Não duplique conteúdo: `AGENTS.md` aponta para `GUIDELINE.md` quando a regra exigir contexto.
 
-### 1.3. Geração e Sincronização dos Artefatos de Memória
+**Equivalências de nome já existentes**
 
-A skill estrutura ou atualiza os artefatos no caminho confirmado com o usuário (ou no local preexistente já adotado pelo repositório):
+| Padrão | Aceitos se já existirem |
+| :--- | :--- |
+| `CONTEXT.md` | `PROJECT.md` |
+| `AGENTS.md` | `GEMINI.md`, `CLAUDE.md` |
+| `DATA.md` | `DATABASE.md` |
+| `GUIDELINE.md` | `GUIDELINES.md`, `CONTRIBUTING.md` (apenas leitura e complemento, nunca sobrescrita) |
+| `TASKS.md` | `TASK.md` |
 
-#### 📄 A. `CONTEXT.md` (ou `PROJECT.md`) — Visão Executiva do Projeto
-- **Missão/Propósito**: Resumo de 1 a 2 parágrafos do que o software faz e seu valor de negócio.
-- **Stack & Versões**: Tabela objetiva com linguagens, runtime, frameworks, banco de dados e mensageria.
-- **Comandos Essenciais**: Tabela de comandos rápidos (`instalação`, `dev`, `test`, `lint`, `build`).
-- **Topologia de Pastas**: Árvore concisa anotada com a responsabilidade de cada diretório principal.
+**Ponteiro para Claude Code.** Se `AGENTS.md` for o arquivo canônico e não existir `CLAUDE.md`, proponha criar um `CLAUDE.md` contendo apenas `@AGENTS.md`. Crie somente se o usuário aceitar no plano de entrega.
 
-#### 📄 B. `AGENTS.md` (ou `GEMINI.md`) — Regras de Ouro e Restrições para IAs
-- **Convenções Obrigatórias**: Padrão de commits (Conventional Commits), convenções de nomenclatura e arquitetura.
-- **O que NÃO fazer (Restrições)**: Lista de limites estritos (ex: *não rodar migrações destrutivas*, *não ignorar tipagem estrita*, *não usar bibliotecas fora da lista aprovada*).
-- **Tratamento de Erros e Padrões**: Formato padronizado de erro (ex: RFC 7807) e diretrizes de logs.
-
-#### 📄 C. `DATA.md` — Mapa de Dados e Integrações
-- **Banco de Dados Principal**: Dialeto (PostgreSQL, MySQL, SQL Server, MongoDB) e ferramenta de migração.
-- **Entidades Centrais**: Lista das 5 a 10 entidades principais de domínio com seus papéis e relacionamentos.
-- **Sistemas Externos**: Serviços de autenticação, gateways de pagamento, filas ou APIs terceiras consumidas.
+**Modo parcial.** Se o usuário pedir arquivos específicos ("gere só o PRD.md e o ARCHITECTURE.md"), gere apenas esses, mas execute a varredura necessária para eles.
 
 ---
 
-### 1.4. Integração Obrigatória com `-task-management` (Ao Final)
+## 2. Workflow
 
-Sempre ao término da geração ou atualização do discovery, se foram identificados débitos técnicos, discrepâncias de documentação ou ausência de testes durante a exploração:
+### 2.1. Inspeção prévia e resolução de destino
 
-> *"Mapeamento do repositório concluído com sucesso. Identifiquei oportunidades de melhoria e débitos técnicos durante a varredura. Deseja que eu registre essas tarefas no arquivo `TASKS.md` do projeto?"*
+Procure, na raiz (`./`), em `./.agents/`, `./agents/` e `./docs/`, qualquer arquivo do catálogo ou de suas equivalências. Leia tudo que existir antes de qualquer escrita.
 
-Ao receber a confirmação, acione a skill **`-task-management`** para registrar as pendências.
+- **Cenário A (todos os alvos existem)**: atualize no local, sem criar duplicatas em outro diretório.
+- **Cenário B (nenhum existe)**: pergunte o destino antes de criar qualquer arquivo (texto na seção 2.3).
+- **Cenário C (parcial)**: atualize os existentes no lugar e crie os faltantes **no mesmo diretório** dos existentes, sem perguntar o destino.
+- **Execução não interativa** (sem como perguntar): use a raiz do projeto como destino padrão e registre essa escolha no resumo final.
+
+### 2.2. Varredura em camadas
+
+Seja cirúrgico e guiado por metadados. Não leia arquivos de código inteiros sem necessidade.
+
+1. **Identidade e dependências**: `package.json`, `pom.xml`, `*.csproj`, `pyproject.toml`, `Cargo.toml`, `composer.json`, `pubspec.yaml`, `go.mod`; `Dockerfile`, `docker-compose.yml`, `k8s/`. Em monorepos, `workspaces`, `pnpm-workspace.yaml`, `turbo.json`, `nx.json`, `*.sln`.
+2. **Comandos operacionais**: scripts dos manifestos, `Makefile`, `justfile`, workflows de CI e `.env.example`. Para cada comando, registre de onde ele veio.
+3. **Topologia arquitetural**: use `git ls-files` e `Glob` para mapear pastas; deduza o estilo (Clean Architecture, Hexagonal, MVC, Monolito Modular, Microsserviços) e localize entrypoints (controllers, handlers, listeners, workers, CLI).
+4. **Dados e integrações**: ORMs (Prisma, Entity Framework, SQLAlchemy, Eloquent), migrations, schemas SQL, filas, cache e APIs externas críticas.
+5. **Engenharia e governança**: linters e formatadores (`eslint`, `prettier`, `.editorconfig`, analyzers), tipagem estrita, pipelines (`.github/workflows/`, `.gitlab-ci.yml`), templates de PR e issue.
+6. **Produto e domínio**: `README`, `docs/`, rotas, telas, nomes de entidades, CHANGELOG, ADRs existentes. Fonte principal do `PRD.md`, do `GLOSSARY.md` e do `DECISIONS.md`.
+7. **Histórico git** (somente leitura): `git log` para detectar o padrão real de commits (Conventional Commits ou não), áreas mais ativas e tempo desde a última mudança; `git remote` para o link do repositório; `git rev-parse --short HEAD` para registrar o commit base.
+
+**Monorepos.** Gere os arquivos globais na raiz. Para pacotes com stack ou regras próprias, gere um `AGENTS.md` curto (até ~60 linhas) dentro do pacote, que herda o da raiz. Liste os pacotes na tabela de topologia do `CONTEXT.md`.
+
+### 2.3. Plano de entrega e confirmação
+
+Antes de gravar qualquer arquivo, apresente em **uma única mensagem**: o que foi detectado (stack e estilo em uma linha), os arquivos que pretende criar ou atualizar (com o motivo de cada um e dos que foram descartados), o destino e o idioma. Pergunte uma vez:
+
+> *"Posso seguir com este plano? Se não houver arquivos de contexto no repositório, onde prefere criá-los: 1) raiz (`./`), 2) `./.agents/`, 3) `./agents/`, 4) `./docs/`, ou outro caminho? Quer também o ponteiro `CLAUDE.md` com `@AGENTS.md`?"*
+
+Pule a pergunta de destino nos cenários A e C. Pule o plano inteiro se o usuário já especificou os arquivos e o destino no pedido ou se a execução for não interativa.
+
+### 2.4. Geração e sincronização
+
+Gere ou atualize os arquivos conforme as regras da seção 3 e os modelos da seção 4. Valide cada comando antes de incluí-lo (seção 3.3).
+
+### 2.5. Fechamento
+
+Apresente o resumo conforme a seção 6. Se houver débitos ou lacunas identificados, siga a seção 5.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 3. Regras de escrita
 
-### 2.1. Exemplo Canônico de `CONTEXT.md`
+### 3.1. Preservação e merge
 
-```markdown
-# 🧭 Contexto do Projeto: Gateway de Pagamentos
+- Texto escrito por humanos é sagrado. Nunca apague nem reescreva trechos existentes sem aprovação.
+- As seções geradas pela skill ficam entre marcadores `<!-- discovery:start:ID -->` e `<!-- discovery:end:ID -->`. Em atualizações, edite somente o conteúdo dentro dos marcadores.
+- Conteúdo humano é qualquer coisa fora dos marcadores, ou dentro de `<!-- manual:start -->` e `<!-- manual:end -->`. Nunca altere esses trechos.
+- Arquivo preexistente **sem marcadores**: não reescreva. Adicione as seções novas com marcadores, preserve o restante intacto e, se houver contradição entre o texto existente e o código, não resolva sozinho: registre como "Conflito" no resumo final.
+- Ao atualizar, compare o commit base do cabeçalho com o `HEAD` atual e informe o que mudou desde então.
 
-> **Versão da Documentação**: 1.0.0  
-> **Última Atualização**: 2026-09-27  
-> **Arquitetura**: Modular Monolith / Clean Architecture  
+### 3.2. Concisão
 
----
+- Respeite os limites do catálogo. Prefira tabelas e listas curtas a prosa.
+- Nunca cole código-fonte inteiro nos documentos. Cite caminhos e nomes de símbolos.
+- Prefira ponteiros ("detalhes em [ARCHITECTURE.md](./ARCHITECTURE.md)") a repetir conteúdo entre arquivos. `CONTEXT.md` mantém um índice de todos os demais.
+- Sem emojis nos arquivos gerados. Links sempre relativos, como `[DATA.md](./DATA.md)`, nunca `file:///`.
 
-## 🎯 Propósito
-Serviço responsável pelo processamento de transações financeiras (PIX, Cartão de Crédito e Boleto), gestão de idempotência de cobranças e disparo de webhooks assinados com HMAC.
+### 3.3. Verificação de comandos
 
----
+Só inclua um comando se ele for rastreável a um manifesto, `Makefile`, `justfile` ou workflow. Cite a origem na tabela. Se não for possível comprovar, marque como `não verificado`. Nunca presuma `npm start`, `python main.py` ou equivalentes.
 
-## 🛠️ Stack Tecnológica
+### 3.4. Idioma
 
-| Componente | Tecnologia | Versão |
-| :--- | :--- | :--- |
-| **Runtime** | Node.js | 20+ LTS (ESM nativo) |
-| **Framework Web** | Fastify | 4.x |
-| **Banco de Dados** | PostgreSQL | 16 (via Prisma ORM) |
-| **Cache & Filas** | Redis & BullMQ | 7.x |
-| **Testes** | Vitest | 2.x |
+Escreva os artefatos no idioma já usado nos documentos existentes do repositório. Sem documentos, use o idioma do README; se também não houver, use o idioma do pedido do usuário. Mantenha termos técnicos, nomes de comandos e de código em seu idioma original.
 
----
+### 3.5. Cabeçalho obrigatório
 
-## ⚡ Comandos Rápidos
+Todo arquivo gerado começa com o título e esta linha:
 
-```bash
-npm install            # Instala dependências
-npm run dev            # Inicia servidor de desenvolvimento com hot-reload
-npm run test           # Executa suíte de testes unitários com Vitest
-npm run lint           # Valida regras de linter com ESLint e Prettier
-npm run db:migrate     # Executa migrações pendentes do Prisma
+```
+> Gerado por -discovery | Commit base: `<hash curto>` | Atualizado em: <AAAA-MM-DD> | Idioma: <código>
 ```
 
 ---
 
-## 🏛️ Topologia de Pastas
+## 4. Modelos de referência
+
+Os modelos mostram estrutura e nível de detalhe. Os valores são ilustrativos. Em cada arquivo real, mantenha somente o que o repositório sustenta.
+
+### 4.1. `CONTEXT.md`
+
+````markdown
+# Contexto do Projeto: Gateway de Pagamentos
+
+> Gerado por -discovery | Commit base: `a1b2c3d` | Atualizado em: 2026-10-11 | Idioma: pt-BR
+
+<!-- discovery:start:proposito -->
+## Propósito
+Serviço de processamento de transações (PIX, cartão, boleto), com idempotência de cobranças e webhooks assinados com HMAC.
+<!-- discovery:end:proposito -->
+
+<!-- discovery:start:stack -->
+## Stack
+
+| Componente | Tecnologia | Versão | Origem |
+| :--- | :--- | :--- | :--- |
+| Runtime | Node.js | 20 LTS | `package.json` (engines) |
+| Web | Fastify | 4.x | `package.json` |
+| Banco | PostgreSQL via Prisma | 16 | `docker-compose.yml` |
+| Testes | Vitest | 2.x | `package.json` |
+<!-- discovery:end:stack -->
+
+<!-- discovery:start:comandos -->
+## Comandos
+
+| Ação | Comando | Origem |
+| :--- | :--- | :--- |
+| Instalar | `npm install` | `package.json` |
+| Dev | `npm run dev` | `package.json` (scripts) |
+| Testes | `npm run test` | `package.json` (scripts) |
+| Migrar | `npm run db:migrate` | `package.json` (scripts) |
+| Deploy | não verificado | n/d |
+<!-- discovery:end:comandos -->
+
+<!-- discovery:start:topologia -->
+## Topologia de pastas
 
 ```text
 src/
-├── domain/            # Entidades de negócio puras, DTOs e regras de validação
-├── application/       # Casos de uso e orquestração de transações
-├── infrastructure/    # Prisma repositórios, Redis clients e adapters externos
-└── presentation/      # Fastify routes, controllers e schemas RFC 7807
+├── domain/          # Entidades e regras puras
+├── application/     # Casos de uso
+├── infrastructure/  # Repositórios, clientes externos
+└── presentation/    # Rotas e controllers
 ```
-```
+<!-- discovery:end:topologia -->
+
+<!-- discovery:start:indice -->
+## Índice da documentação
+
+| Documento | Conteúdo |
+| :--- | :--- |
+| [AGENTS.md](./AGENTS.md) | Regras para IAs |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Módulos e fluxos |
+| [DATA.md](./DATA.md) | Dados e integrações |
+<!-- discovery:end:indice -->
+````
+
+### 4.2. `AGENTS.md`
+
+````markdown
+# Diretrizes para Assistentes de IA
+
+> Gerado por -discovery | Commit base: `a1b2c3d` | Atualizado em: 2026-10-11 | Idioma: pt-BR
+
+<!-- discovery:start:regras -->
+## Regras obrigatórias
+1. Tipagem estrita: não use `any`; modele contratos de API. (Origem: `tsconfig.json`, `strict: true`)
+2. Erros no formato RFC 7807 (Problem Details). (Origem: `src/presentation/errors`)
+3. Commits no padrão Conventional Commits. (Origem: histórico git e `commitlint.config.js`)
+4. Mutações financeiras exigem o cabeçalho `Idempotency-Key`.
+
+## Restrições (o que não fazer)
+- Não execute comandos destrutivos no banco (`drop`, `truncate`, `delete` sem `where`).
+- Não adicione dependências fora do fluxo descrito em [GUIDELINE.md](./GUIDELINE.md).
+- Não leia nem exponha `.env`; use `.env.example` como referência.
+
+## Skills aplicáveis
+Stack detectada: TypeScript, Node.js e PostgreSQL. Use `-tech-typescript`, `-tech-nodejs`, `-sql`, `-api-design` e `-testing`.
+
+## Decisões críticas
+- [ADR-0005](./docs/adr/0005-transactional-outbox.md): Transactional Outbox para eventos financeiros.
+
+## Antes de concluir uma tarefa
+Rodar lint e testes (comandos em [CONTEXT.md](./CONTEXT.md)).
+<!-- discovery:end:regras -->
+
+<!-- manual:start -->
+<!-- Notas e regras escritas pela equipe. A skill não altera este bloco. -->
+<!-- manual:end -->
+````
+
+### 4.3. Estrutura dos demais arquivos
+
+Cada um segue o cabeçalho da seção 3.5 e seções com marcadores. Conteúdo mínimo esperado:
+
+- **`ARCHITECTURE.md`**: estilo arquitetural e justificativa observável; diagrama de componentes em Mermaid (um só, enxuto); fluxo da requisição ou do caso de uso principal; tabela de módulos com responsabilidade e dependências; pontos de extensão; riscos arquiteturais observados. Para modelagem C4 completa ou decisões de desenho, aponte o `-system-design`.
+- **`AGENTS.md`** (seções adicionais): **Skills aplicáveis**, que mapeia a stack detectada às skills existentes no ambiente (`-tech-*`, `-sql`, `-api-design`, `-testing`, `-security`, `-devops`; liste só as que existirem); e **Decisões críticas**, com links para os ADRs aceitos que restringem o código.
+- **`DATA.md`**: banco e ferramenta de migração; 5 a 10 entidades centrais com papel e relacionamentos; mensageria e cache; sistemas externos (autenticação, pagamentos, APIs terceiras) com onde são chamados.
+- **`PRD.md`** (retroativo): problema e proposta de valor `(inferido)`; usuários e personas (`(inferido)` ou `[A CONFIRMAR]`); funcionalidades existentes derivadas de rotas, telas e comandos, cada uma com status (implementada, parcial, não verificada) e o arquivo de origem; fora de escopo observado; métricas de sucesso (`[A CONFIRMAR]` salvo se documentadas); perguntas abertas. Nunca invente objetivos de negócio.
+- **`GUIDELINE.md`**: nomenclatura; organização de código; tratamento de erros e logs; git (commits, branches, PR, revisão); estilo e linters; política para adicionar dependências. Cada padrão tem uma linha de justificativa e a origem (arquivo de configuração ou histórico).
+- **`TESTING.md`**: frameworks; como rodar (comando e origem); estrutura e convenções de nomes; tipos de teste presentes; cobertura se mensurável; lacunas.
+- **`OPERATIONS.md`**: ambientes; variáveis de ambiente (apenas nomes, com descrição); jobs de CI/CD e o que cada um faz; processo de deploy; observabilidade e logs; Docker/IaC relevantes.
+- **`DECISIONS.md`**: se existe uma pasta de ADRs, vira apenas um índice (link, título e status de cada ADR), sem duplicar conteúdo; sem a pasta, uma entrada por decisão no formato do `-adr` (ID, contexto, decisão, consequências e origem: histórico git ou `(inferido)`). ADRs retroativos completos são criados pelo `-adr`, não por esta skill.
+- **`GLOSSARY.md`**: termo, definição curta, onde aparece no código.
 
 ---
 
-### 2.2. Exemplo Canônico de `AGENTS.md`
+## 5. Integração com `-tasks` (ao final)
 
-```markdown
-# 🤖 Diretrizes para Assistentes de IA (AGENTS.md)
+Se a varredura encontrou débitos técnicos, documentação divergente do código, ausência de testes ou lacunas marcadas `[A CONFIRMAR]`, pergunte:
 
-Instruções mandatórias que qualquer agente deve obedecer ao propor código neste repositório:
+> *"Mapeamento concluído. Identifiquei débitos e lacunas durante a varredura. Deseja que eu os registre no `TASKS.md` do projeto?"*
 
-1. **Tipagem Estrita**: Nenhuma utilização de `any`. Todos os tipos e contratos de API devem ser estritamente modelados.
-2. **Padrão de Erro**: Retorne sempre respostas de erro formatadas sob a RFC 7807 (Problem Details).
-3. **Idempotência**: Toda mutação financeira deve exigir o cabeçalho `Idempotency-Key`.
-4. **Commits**: Use estritamente o padrão Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`).
-5. **Restrição Crítica**: NUNCA execute comandos destrutivos no banco de dados (`drop`, `truncate` ou `delete` sem `where`).
-```
+Com a confirmação, acione a skill `-tasks`. **Fallback**: se `-tasks` não estiver disponível, crie ou atualize o `TASKS.md` diretamente, com uma lista de itens (título, motivo, arquivo de origem), ou apresente a lista no chat se o usuário preferir. Não registre nada sem confirmação.
 
 ---
 
-## 3. Armadilhas Críticas em Discovery (*Gotchas*)
+## 6. Padrão de entrega
 
-- ⚠️ **Sobrescrita Destrutiva de Contexto**: Substituir arquivos de documentação preexistentes sem mesclar com o conteúdo anterior, apagando notas e instruções estratégicas da equipe humana.
-- ⚠️ **Geração de Documentos Prolixos/Bloated**: Copiar arquivos inteiros de código para dentro dos markdowns. O contexto deve ser **altamente sintetizado** para economizar janela de contexto dos modelos.
-- ⚠️ **Alucinação de Comandos Operacionais**: Inventar comandos como `npm start` ou `python main.py` sem verificar se o script realmente existe no manifesto de dependências ou no `Makefile`.
-- ⚠️ **Execução Não Solicitada**: Ativar a varredura completa da base de código em perguntas simples de programação, desperdiçando tokens e tempo de processamento.
+1. Assinatura na primeira mensagem (seção 0).
+2. Plano e confirmação antes de gravar (seção 2.3), quando aplicável.
+3. Lista dos arquivos criados e atualizados, com links relativos (`[CONTEXT.md](./CONTEXT.md)`) e uma marca de "criado" ou "atualizado".
+4. Resumo executivo de 5 a 8 linhas: stack, arquitetura, estilo de commits e estado dos testes.
+5. Pendências: itens `[A CONFIRMAR]`, comandos `não verificado` e conflitos encontrados com conteúdo humano.
+6. Pergunta sobre o registro em `TASKS.md` (seção 5).
 
 ---
 
-## 4. Padrão Rigoroso de Entrega
+## 7. Armadilhas
 
-Ao conduzir o discovery:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -discovery`.
-2. **Confirmação de Destino**: Caso nenhum artefato exista, perguntar obrigatoriamente onde criá-los antes de gravar qualquer arquivo.
-3. **Transparência**: Listar claramente os arquivos criados ou atualizados com links markdown navegáveis (`[arquivo.md](file:///...)`).
-4. **Resumo Executivo**: Apresentar um resumo condensado da stack e da arquitetura identificada na resposta do chat.
-5. **Integração com Backlog**: Perguntar se o usuário deseja registrar os débitos ou lacunas encontradas em `TASKS.md` via `-task-management`.
+- **Sobrescrita destrutiva**: reescrever documentos existentes e apagar notas da equipe. Respeite a seção 3.1.
+- **Documentos inchados**: copiar código para dentro dos markdowns ou repetir o mesmo conteúdo em vários arquivos. Respeite os limites e use ponteiros.
+- **Alucinação operacional**: inventar comandos, versões ou serviços. Aplique a seção 3.3 e use `[A CONFIRMAR]`.
+- **PRD ficcional**: apresentar inferências como requisitos oficiais. Marque tudo que não vier de documentação.
+- **Vazamento de segredos**: ler `.env` ou copiar valores sensíveis. Registre apenas nomes de variáveis.
+- **Geração em excesso**: criar todos os arquivos do catálogo mesmo sem evidência. Gere somente o que o repositório justifica e informe o que foi descartado.
+- **Execução não solicitada**: ativar a varredura em perguntas simples de programação.

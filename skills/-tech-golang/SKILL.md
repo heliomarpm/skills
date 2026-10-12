@@ -1,55 +1,55 @@
 ---
 name: -tech-golang
-description: "Orienta o desenvolvimento idiomático em Go 1.22+. Cobre concorrência com Goroutines e Channels, sync.ErrGroup, context.Context, structured logging com log/slog, roteamento nativo em net/http e testes com race detector."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(go test *), Bash(go build *), Bash(go vet *), Bash(golangci-lint *)
+description: "Orienta Go idiomático: interfaces pequenas definidas por quem consome, context.Context em todo I/O, concorrência estruturada com errgroup, tratamento de erros com %w, servidores net/http com roteamento nativo, JSON e logs estruturados (slog), encerramento gracioso e testes com race detector. Use sempre que o usuário pedir 'serviço em Go', 'goroutine', 'canal', 'errgroup', 'handler HTTP', 'vazamento de goroutine', 'data race' ou 'migre de versão do Go', mesmo sem dizer 'Go'. NÃO use para modelagem e SQL em si (isso é -sql), contratos de API (isso é -api-design) nem para pipelines (isso é -devops)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(go test *), Bash(go build *), Bash(go vet *), Bash(gofmt -l *), Bash(golangci-lint *)
 ---
 
-# Go 1.22+ Specialist Skill
+# Go: simples, concorrente e sem vazamentos
 
-Esta skill fornece diretrizes técnicas especializadas para engenharia de software idiomática, performática e segura no ecossistema **Go (Golang) 1.22+**. O foco é concorrência estruturada, propagação de contexto, logging estruturado (`log/slog`), roteamento HTTP nativo sem dependências infladas e prevenção de *goroutine leaks* e *data races*.
+## 0. Regras de operação
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-golang``
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
----
+> 🧠 **Skill Ativa**: `-tech-golang`
 
-## 1. Processo de Execução em Go Moderno
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-Ao construir ou refatorar serviços em Go:
+**Versão.** Leia as diretivas `go` e `toolchain` do `go.mod` e use só o que a versão suporta (por exemplo, roteamento com método e parâmetros no `ServeMux` e a variável de laço por iteração são do 1.22). Recursos novos: confirme na documentação oficial.
 
-1. **Simplicidade e Idiomaticidade First**:
-   - Mantenha funções pequenas e com responsabilidade única.
-   - Favoreça interfaces minúsculas (1 ou 2 métodos, como `io.Reader`, `io.Closer`) definidas pelo consumidor, não pelo produtor.
-   - Evite abstrações e hierarquias desnecessárias; prefira composição de structs.
-2. **Propagação Rigorosa de `context.Context`**:
-   - O primeiro parâmetro de qualquer função que faça I/O (rede, banco, disco) ou controle de concorrência deve ser `ctx context.Context`.
-   - Respeite sempre cancelamentos e timeouts ouvindo `ctx.Done()`.
-3. **Concorrência Estruturada e Sem Leaks**:
-   - Nunca inicie uma goroutine com `go func()` sem saber exatamente como e quando ela irá terminar.
-   - Utilize `golang.org/x/sync/errgroup` para orquestrar tarefas concorrentes com cancelamento imediato na primeira falha.
-   - Feche canais no emissor (`sender`), nunca no receptor (`receiver`).
-4. **Tratamento de Erros Explícito**:
-   - Erros são valores (`err != nil`). Nunca silencie ou apenas imprima sem decidir o fluxo de retorno.
-   - Use `%w` com `fmt.Errorf("falha ao processar pagamento: %w", err)` para empilhar contexto preservando a árvore de causas.
-   - Avalie erros com `errors.Is(err, ErrNotFound)` ou `errors.As(err, &targetErr)`.
-5. **Roteamento Nativo e Logging Estruturado**:
-   - No Go 1.22+, utilize os recursos nativos do `http.NewServeMux()` (`GET /pedidos/{id}`) em vez de bibliotecas pesadas de roteamento a menos que haja necessidade comprovada.
-   - Adote o pacote padrão `log/slog` para logs estruturados em JSON ou texto com campos contextualizados.
+**Siga o projeto.** Respeite a estrutura de pacotes, o roteador e o logger existentes; `gofmt` e `golangci-lint` são obrigatórios.
+
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; identificadores seguem as convenções de Go.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. Servidor HTTP com Roteamento Nativo (Go 1.22+) & Graceful Shutdown
+- **Simplicidade**: funções pequenas, composição de structs, interfaces mínimas (1 ou 2 métodos) **definidas por quem as consome**. Nomes curtos e pacotes coesos.
+- **`context.Context`** como primeiro parâmetro de todo I/O ou controle de concorrência; respeite `ctx.Done()` e prazos.
+- **Concorrência estruturada**: nunca inicie uma goroutine sem saber como ela termina. `errgroup` (com `SetLimit` para limitar paralelismo) cancela as irmãs na primeira falha. Feche canais no emissor.
+- **Erros** são valores: `fmt.Errorf("...: %w", err)`, `errors.Is` e `errors.As`; nada de `panic` em código de biblioteca.
+- **HTTP**: `net/http` com `ServeMux`; timeouts do servidor (`ReadHeaderTimeout`, `ReadTimeout`, `WriteTimeout`, `IdleTimeout`); JSON com `encoding/json`, **nunca** montado com `Sprintf`; sempre feche e esvazie o corpo da resposta de clientes.
+- **Logs** com `log/slog`, sem segredos e sem PII; correlação com traces (`-observability`).
+- **Encerramento gracioso** com `signal.NotifyContext` e `Server.Shutdown`.
+- **Testes**: tabelas com `t.Run` e `t.Parallel`; `go test -race ./...` no CI; fakes para I/O; benchmarks e `pprof` antes de otimizar (`-testing`).
+- **Estrutura**: `cmd/<servico>/main.go` e `internal/` para a lógica privada. `pkg/` é opcional e não é padrão oficial.
+- **Genéricos** só quando há reuso real.
+
+---
+
+## 2. Exemplos
+
+### 2.1. Servidor com roteamento nativo, JSON e encerramento
+
 ```go
 package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -58,148 +58,134 @@ import (
 	"time"
 )
 
+type pedidoResposta struct {
+	ID     string `json:"pedido_id"`
+	Status string `json:"status"`
+}
+
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
-	slog.SetDefault(logger)
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
 
 	mux := http.NewServeMux()
-
-	// Roteamento nativo Go 1.22+ com método e path parameter
 	mux.HandleFunc("GET /api/v1/pedidos/{id}", func(w http.ResponseWriter, r *http.Request) {
-		pedidoID := r.PathValue("id")
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"pedido_id":"%s","status":"processado"}`, pedidoID)
+		resp := pedidoResposta{ID: r.PathValue("id"), Status: "processado"}
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			slog.Error("falha ao escrever a resposta", "error", err)
+		}
 	})
 
-	server := &http.Server{
-		Addr:         ":8080",
-		Handler:      mux,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  60 * time.Second,
+	srv := &http.Server{
+		Addr:              ":8080",
+		Handler:           mux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
-	// Canal para captura de sinais do SO
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
 	go func() {
-		slog.Info("servidor iniciado", "porta", 8080)
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.Error("falha crítica no servidor HTTP", "error", err)
-			os.Exit(1)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			slog.Error("falha no servidor HTTP", "error", err)
+			stop() // dispara o encerramento
 		}
 	}()
 
-	<-stop
-	slog.Info("sinal de encerramento recebido, finalizando conexões ativas...")
+	<-ctx.Done()
+	slog.Info("encerrando")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	if err := server.Shutdown(ctx); err != nil {
-		slog.Error("erro ao finalizar servidor graciosamente", "error", err)
-		_ = server.Close()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		slog.Error("falha no encerramento gracioso", "error", err)
+		_ = srv.Close()
 	}
-
-	slog.Info("servidor finalizado com sucesso")
 }
 ```
 
-### 2.2. Concorrência Estruturada com `sync/errgroup`
+### 2.2. Concorrência estruturada com `errgroup`
+
 ```go
 package servico
 
 import (
 	"context"
 	"fmt"
+
 	"golang.org/x/sync/errgroup"
 )
 
-type DadosAgregados struct {
-	Perfil   string
-	Extrato  []string
-	Score    int
+type ClienteAPI interface {
+	BuscarPerfil(ctx context.Context, id string) (string, error)
+	BuscarExtrato(ctx context.Context, id string) ([]string, error)
 }
 
-type AggregatorService struct {
-	clientAPI ClientAPI
+type Agregado struct {
+	Perfil  string
+	Extrato []string
 }
 
-func (s *AggregatorService) ObterDadosCliente(ctx context.Context, clienteID string) (*DadosAgregados, error) {
+type Servico struct{ api ClienteAPI }
+
+func (s *Servico) ObterDados(ctx context.Context, id string) (*Agregado, error) {
 	g, ctx := errgroup.WithContext(ctx)
+	var ag Agregado // cada goroutine escreve um campo diferente; g.Wait() sincroniza a leitura
 
-	var perfil string
-	var extrato []string
-	var score int
-
-	// Tarefa 1: Perfil
 	g.Go(func() error {
-		p, err := s.clientAPI.BuscarPerfil(ctx, clienteID)
+		p, err := s.api.BuscarPerfil(ctx, id)
 		if err != nil {
 			return fmt.Errorf("buscar perfil: %w", err)
 		}
-		perfil = p
+		ag.Perfil = p
 		return nil
 	})
 
-	// Tarefa 2: Extrato
 	g.Go(func() error {
-		e, err := s.clientAPI.BuscarExtrato(ctx, clienteID)
+		e, err := s.api.BuscarExtrato(ctx, id)
 		if err != nil {
 			return fmt.Errorf("buscar extrato: %w", err)
 		}
-		extrato = e
+		ag.Extrato = e
 		return nil
 	})
 
-	// Tarefa 3: Score
-	g.Go(func() error {
-		sc, err := s.clientAPI.BuscarScore(ctx, clienteID)
-		if err != nil {
-			return fmt.Errorf("buscar score: %w", err)
-		}
-		score = sc
-		return nil
-	})
-
-	// Aguarda todas as tarefas ou encerra no primeiro erro
 	if err := g.Wait(); err != nil {
-		return nil, fmt.Errorf("falha na agregação de dados do cliente %s: %w", clienteID, err)
+		return nil, fmt.Errorf("agregar dados do cliente %s: %w", id, err)
 	}
-
-	return &DadosAgregados{
-		Perfil:  perfil,
-		Extrato: extrato,
-		Score:   score,
-	}, nil
+	return &ag, nil
 }
 ```
 
 ---
 
-## 3. Armadilhas Comuns e Como Evitá-las (Anti-patterns)
+## 3. Integrações
 
-| Armadilha | Risco | Como Evitar |
-| :--- | :--- | :--- |
-| **Goroutine Leak** | Consumo infinito de memória e travamento do processo | Sempre garanta canal de cancelamento via `ctx.Done()` ou encerramento garantido de loops concorrentes. |
-| **Data Races** | Comportamento não-determinístico e corrupção de memória | Execute sempre `go test -race ./...` no CI/CD e use tipos atômicos (`sync/atomic`) ou `sync.Mutex`. |
-| **Cópia de Mutex** | Deadlocks silenciosos | Nunca passe structs que contêm `sync.Mutex` por valor. Use sempre ponteiros (`*MinhaStruct`). |
-| **Vazamento de `http.Response`** | Esgotamento do pool de sockets TCP | Sempre feche o body e drene os bytes: `defer resp.Body.Close()`; execute `io.Copy(io.Discard, resp.Body)` antes de fechar se pretender reutilizar a conexão. |
-| **Panic em Goroutine sem Recover** | Toda a aplicação encerra bruscamente | Em workers ou rotinas assíncronas isoladas, capture panics com `defer func() { if r := recover(); r != nil { ... } }()`. |
+`-testing` (tabelas, race), `-sql` (acesso a banco), `-api-design`, `-security`, `-observability` (slog, métricas, pprof), `-devops`, `-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão Rigoroso de Entrega
+## 4. Armadilhas
 
-Todo código entregue sob esta skill deve satisfazer:
-1. **Estrutura de Pacotes Limpa**:
-   - `cmd/<servico>/main.go` para entrypoint.
-   - `internal/` para lógica de negócio e repositórios não expostos externamente.
-   - `pkg/` apenas para utilitários públicos reutilizáveis.
-2. **Qualidade e Testes**:
-   - Testes unitários utilizando tabelas orientadas a dados (*table-driven tests*).
-   - Validação contínua com `go vet ./...` e execução de testes com `-race`.
-3. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -tech-golang`.
+| Armadilha | Risco | Como evitar |
+| :--- | :--- | :--- |
+| Vazamento de goroutine | Memória e travamentos | Garanta o término por `ctx.Done()` ou por fechamento do canal |
+| *Data race* | Corrupção e comportamento imprevisível | `go test -race`, `sync.Mutex` ou `sync/atomic` |
+| Cópia de `sync.Mutex` | Exclusão mútua quebrada | Use ponteiros para structs que o contêm |
+| Corpo de resposta HTTP não fechado | Esgota conexões | `defer resp.Body.Close()` e, para reutilizar, `io.Copy(io.Discard, resp.Body)` |
+| `panic` em goroutine sem `recover` | Derruba o processo | `recover` nos workers; trate erros como valores |
+| JSON por `Sprintf` | Injeção e escape errado | `encoding/json` |
+| `time.After` em laços (versões antigas) | Temporizadores acumulados | `time.NewTimer` com `Stop` |
+| Variável de laço capturada (antes do 1.22) | Goroutines com o mesmo valor | Copie a variável ou use o 1.22+ |
+| Ignorar erros | Falhas silenciosas | Trate ou propague com contexto |
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Código formatado, com `context` propagado, erros tratados e testes em tabela, com links relativos.
+3. Resultado de `go vet`, `go test -race` e lint, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-golang`, P1 a P3; fallback em lista no chat).

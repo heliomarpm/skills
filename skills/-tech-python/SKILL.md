@@ -1,102 +1,132 @@
 ---
 name: -tech-python
-description: Orienta o desenvolvimento em Python. Use ao escrever scripts, serviços de backend, APIs, validação de dados, tarefas concorrentes e pacotes seguindo os padrões idiomáticos da linguagem.
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python -m unittest *), Bash(poetry run *), Bash(pip list)
+description: "Orienta Python moderno e tipado: type hints (PEP 695 quando a versão permite), Pydantic v2 nas fronteiras, dataclasses imutáveis, Decimal para dinheiro, asyncio estruturado (TaskGroup, timeouts, trabalho bloqueante fora do loop), erros específicos, logging, empacotamento com pyproject e ferramentas (uv, ruff, mypy, pytest). Use sempre que o usuário pedir 'script em Python', 'API em Python', 'tipagem', 'asyncio', 'Pydantic', 'pyproject' ou 'migre de versão do Python', mesmo sem dizer 'Python'. NÃO use para integração com LLMs (isso é -ai-engineering), modelagem e SQL em si (isso é -sql) nem para contratos de API (isso é -api-design)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python -m pytest *), Bash(ruff check *), Bash(ruff format --check *), Bash(mypy *), Bash(uv run pytest *), Bash(uv run ruff *), Bash(uv run mypy *)
 ---
 
-# Tech Skill: Pythonic & Robust Software Engineering (Python 3.11/3.12/3.13+)
+# Python: idiomático, tipado e robusto
 
-Diretrizes técnicas especializadas para o desenvolvimento em Python idiomático, fortemente tipado e com alta performance.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-python``
+> 🧠 **Skill Ativa**: `-tech-python`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Engenharia Python
+**Versão.** Leia `requires-python` no `pyproject.toml` e use só o que a versão suporta: `TaskGroup` e `except*` (3.11); sintaxe PEP 695 (`type X = ...`, `def f[T]()`) e `typing.override` (3.12). Em versões anteriores use `TypeVar` e `Generic`. Recursos novos: confirme na documentação oficial.
 
-Ao implementar código em Python:
+**Siga o projeto.** Respeite o framework (FastAPI, Django, Flask), o gerenciador de dependências (uv, Poetry, pip) e as ferramentas de qualidade existentes.
 
-1. **Definição de Tipos e Generics Modernos**: Utilize a sintaxe PEP 695 (`type MyType = ...` e `def func[T](val: T):`) com tipagem estrita em todas as assinaturas.
-2. **Modelagem de Fronteira com Pydantic v2**: Valide entradas externas e configurações com `BaseModel` e `@field_validator` / `@model_validator`.
-3. **Estrutura Interna de Dados**: Utilize `@dataclass(slots=True, frozen=True)` para entidades puramente em memória e imutáveis.
-4. **Concorrência Estruturada com AsyncIO**: Orquestre operações de I/O concorrentes utilizando `asyncio.TaskGroup()` e trate exceções em tarefas com `except*`.
-5. **Automação e Tooling Moderno**: Utilize `uv` para gestão de dependências e `ruff` para formatação/linting padronizado via `pyproject.toml`.
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; identificadores seguem o PEP 8.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. Sintaxe de Generics PEP 695 & Concorrência com TaskGroup
+- **Tipos**: anotações em todas as assinaturas públicas; `Protocol` para contratos estruturais; verificador (`mypy` ou `pyright`) no CI.
+- **Fronteiras**: Pydantic v2 para entradas externas e configuração; `@dataclass(slots=True, frozen=True)` para entidades internas imutáveis.
+- **Dinheiro**: `Decimal`, nunca `float`. **Datas**: sempre com fuso (*timezone-aware*).
+- **Async**: `asyncio.TaskGroup` (falha de uma tarefa cancela as outras e levanta `ExceptionGroup`, tratado com `except*`), `asyncio.timeout`, e trabalho bloqueante ou de CPU fora do loop (`asyncio.to_thread`, `ProcessPoolExecutor`).
+- **Erros**: exceções específicas, `raise ... from e`, nada de `except:` vazio; `logging` com `logger.exception`, sem `print`.
+- **Recursos**: `pathlib.Path`, gerenciadores de contexto, geradores para dados grandes.
+- **Projeto**: `pyproject.toml`, dependências travadas (`uv.lock` ou equivalente), `ruff` para lint e formatação.
+- **Segurança**: nada de `eval` ou `pickle` com dados não confiáveis; `subprocess` sem `shell=True`; consultas parametrizadas; segredos fora do código (`-security`).
+- **Testes**: `pytest` com fixtures e parametrização (`-testing`).
+
+---
+
+## 2. Exemplos (Python 3.12+)
+
+### 2.1. Genéricos, `Decimal` e `TaskGroup`
+
 ```python
 import asyncio
-from typing import override
+import logging
 from dataclasses import dataclass
+from decimal import Decimal
 
-# PEP 695: Declaração nativa de tipo genérico e alias
-type EntityId = str | int
+logger = logging.getLogger(__name__)
+
+type IdEntidade = str | int
+
 
 @dataclass(slots=True, frozen=True)
-class Transaction[T]:
-    id: EntityId
-    payload: T
-    amount: float
+class Transacao[T]:
+    id: IdEntidade
+    carga: T
+    valor: Decimal
 
-class PaymentProcessor:
-    async def process_transaction[T](self, tx: Transaction[T]) -> bool:
-        await asyncio.sleep(0.05)  # Simula I/O não bloqueante
-        return True
 
-async def process_batch[T](transactions: list[Transaction[T]]) -> list[bool]:
-    results: list[bool] = []
-    processor = PaymentProcessor()
+async def processar[T](tx: Transacao[T]) -> bool:
+    await asyncio.sleep(0.05)  # simula I/O não bloqueante
+    return True
 
-    # AsyncIO estruturado: falhas em uma tarefa cancelam as demais com segurança
+
+async def processar_lote[T](transacoes: list[Transacao[T]]) -> list[bool]:
     async with asyncio.TaskGroup() as tg:
-        tasks = [tg.create_task(processor.process_transaction(tx)) for tx in transactions]
+        tarefas = [tg.create_task(processar(tx)) for tx in transacoes]
+    return [t.result() for t in tarefas]
 
-    return [task.result() for task in tasks]
+
+async def principal(lote: list[Transacao[str]]) -> None:
+    try:
+        resultados = await processar_lote(lote)
+    except* ValueError as grupo:  # TaskGroup agrupa as falhas em um ExceptionGroup
+        logger.error("falhas de validação: %s", grupo.exceptions)
+    else:
+        logger.info("lote concluído: %d itens", len(resultados))
 ```
 
-### 2.2. Tipagem de Decoradores com ParamSpec
+### 2.2. Decorador tipado que preserva a assinatura
+
 ```python
+import logging
+import time
 from collections.abc import Callable
 from functools import wraps
-from typing import ParamSpec, TypeVar
-import time
 
-P = ParamSpec("P")
-R = TypeVar("R")
+logger = logging.getLogger(__name__)
 
-def measure_time(func: Callable[P, R]) -> Callable[P, R]:
-    """Decorador type-safe que preserva a assinatura e tipos originais da função."""
+
+def medir_tempo[**P, R](func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        start = time.perf_counter()
+        inicio = time.perf_counter()
         try:
             return func(*args, **kwargs)
         finally:
-            elapsed = time.perf_counter() - start
-            print(f"[{func._name__}] Executado em {elapsed:.4f}s")
+            logger.info("%s executada em %.4fs", func.__name__, time.perf_counter() - inicio)
+
     return wrapper
 ```
 
 ---
 
-## 3. Armadilhas Críticas em Python (*Gotchas*)
+## 3. Integrações
 
-- ⚠️ **Argumentos Padrão Mutáveis**: Definir argumentos com valores mutáveis como `def add_item(item, list=[])` faz a lista ser compartilhada entre todas as invocações da função. Use `def add_item(item, list: list[str] | None = None)`.
-- ⚠️ **Captura Genérica de Exceções**: Usar `except: pass` engole exceções do sistema como `KeyboardInterrupt` e mascara bugs graves de código. Sempre capture exceções específicas (`except ValueError:`) ou trate com `logger.exception()`.
-- ⚠️ **CPU-Bound Bloqueando AsyncIO**: Executar processamento pesado de CPU (ex: cálculos matemáticos em loops puros de Python) dentro do loop de eventos assíncrono trava todas as demais requisições. Delegue para `ProcessPoolExecutor` ou bibliotecas C (NumPy/Polars).
+`-testing` (pytest), `-security`, `-sql`, `-api-design`, `-observability`, `-devops`, `-code-review`, `-ai-engineering` (integrações com LLM). Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão de Entrega do Agente
+## 4. Armadilhas
 
-Ao entregar código em Python:
-1. Inclua type hints em 100% dos parâmetros e retornos.
-2. Use `pathlib.Path` para manipulação de arquivos e caminhos.
-3. Forneça código compatível com Python 3.12+ e validado para `mypy`/`ruff`.
+- **Argumento padrão mutável** (`def f(x, lista=[])`): a lista é compartilhada entre chamadas. Use `None` e crie dentro da função.
+- **`except:` vazio ou `except Exception: pass`**: engole erros e interrupções.
+- **CPU ou chamada bloqueante dentro do loop async**: trava todas as tarefas.
+- **`float` para dinheiro.**
+- **`datetime` sem fuso.**
+- **`shell=True` com entrada externa**: injeção de comando.
+- **Efeitos colaterais na importação de módulos.**
+- **Dependências sem versão travada.**
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Código tipado, compatível com a versão do projeto, com links relativos.
+3. Resultado de `pytest`, `ruff` e `mypy`, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-python`, P1 a P3; fallback em lista no chat).

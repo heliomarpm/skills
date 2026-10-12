@@ -1,104 +1,148 @@
 ---
 name: -tech-dotnet
-description: Orienta o desenvolvimento em C# e plataforma .NET. Use ao construir APIs, serviços de backend, acesso a banco de dados, fluxos assíncronos e processamento de alta performance.
+description: "Orienta C# e .NET moderno: nullable, records, EF Core eficiente (AsNoTracking, projeção, AsSplitQuery), async com CancellationToken, injeção de dependências e ciclos de vida, BackgroundService, resiliência (Polly v8), Minimal APIs com TypedResults e Problem Details, TimeProvider, logging estruturado e testes. Use sempre que o usuário pedir 'API em .NET', 'C#', 'EF Core', 'serviço em background', 'minimal API', 'otimize esta query do EF' ou 'migre de versão do .NET', mesmo sem dizer '.NET'. NÃO use para modelagem e consultas SQL em si (isso é -sql), contratos de API (isso é -api-design) nem para segurança em profundidade (isso é -security)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(dotnet test *), Bash(dotnet build *), Bash(dotnet format *)
 ---
 
-# Tech Skill: C# & .NET Expert (C# 12/13 & .NET 8/9+)
+# .NET: serviços corporativos eficientes e testáveis
 
-Diretrizes técnicas especializadas para o desenvolvimento de serviços e APIs corporativas em C# e plataforma .NET.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-dotnet``
+> 🧠 **Skill Ativa**: `-tech-dotnet`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Engenharia .NET
+**Versão.** Leia `TargetFramework` e `LangVersion` nos `.csproj` ou em `Directory.Build.props` e use só o que eles suportam (por exemplo, o tipo `Lock` e o `HybridCache` pedem versões recentes). Recursos novos ou depreciados (como `WithOpenApi`, em favor do suporte nativo de OpenAPI): confirme na documentação oficial da versão do projeto.
 
-Ao desenvolver soluções em C# e .NET:
+**Siga o projeto.** Respeite a arquitetura, o ORM, os analisadores e as convenções existentes.
 
-1. **Modelagem de Domínio & DTOs**: Modele entidades e contratos com `record` imutáveis, ativando `#nullable enable` em todos os projetos.
-2. **Camada de Dados Otimizada (EF Core)**: Configure consultas de leitura com `.AsNoTracking()` e `.AsSplitQuery()` para múltiplos relacionamentos, projetando diretamente para DTOs.
-3. **Concorrência e Fluxo Assíncrono**: Propague `CancellationToken` em operações de I/O e utilize `IAsyncEnumerable<T>` para streaming de grandes volumes de dados.
-4. **Resiliência e Injeção de Dependências**: Configure ciclos de vida corretos de DI e use o `ResiliencePipeline` do Polly v8 nativo para retentativas com jitter e circuit breakers.
-5. **APIs Minimal & Validação**: Exponha endpoints com `TypedResults` e padronize erros no formato RFC 7807 (Problem Details).
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; nomes de código ficam como estão.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. C# 13 Lock, Primary Constructors & Streaming de Dados
+- **Nullable habilitado** em todos os projetos; `record` para DTOs e objetos de valor; `required` para membros obrigatórios.
+- **EF Core**:
+  - Leitura com `AsNoTracking()` e projeção direta para DTO (`Select`).
+  - Várias coleções com `Include` geram produto cartesiano: avalie `AsSplitQuery()` (divide em consultas **sequenciais**, com o custo de poder ler dados em momentos diferentes).
+  - Atualizações em massa com `ExecuteUpdate` e `ExecuteDelete`.
+  - O `DbContext` é *scoped*, não é thread-safe; fora de um escopo use `IDbContextFactory`.
+- **Async**: propague `CancellationToken` em todo I/O; nada de `.Result` ou `.Wait()` (esgota o pool de threads e pode causar deadlock); `IAsyncEnumerable<T>` para streaming; `ConfigureAwait(false)` em bibliotecas.
+- **Injeção de dependências**: ciclos de vida corretos; serviço *scoped* dentro de `BackgroundService` só via `IServiceScopeFactory`; configuração com o padrão Options e `ValidateOnStart()`.
+- **Tempo**: `TimeProvider` injetado, não `DateTime.Now`, para tornar o código testável.
+- **Resiliência**: `HttpClientFactory` com timeout e `Microsoft.Extensions.Http.Resilience` ou `ResiliencePipeline` do Polly v8 (retry com backoff e jitter, circuit breaker).
+- **APIs Minimal**: `TypedResults`, validação na borda e erros em Problem Details (`AddProblemDetails()`).
+- **Concorrência**: `Interlocked` para contadores; `Lock` (versões recentes) ou `lock` para seções críticas com vários campos.
+- **Logs** estruturados com templates (`{Campo}`), sem concatenação, e sem PII; traces e métricas com OpenTelemetry (`-observability`).
+- **Testes**: xUnit, `WebApplicationFactory` e Testcontainers para integração (`-testing`); `dotnet format` e analisadores no CI.
+
+---
+
+## 2. Exemplos
+
+### 2.1. Endpoint com projeção e `TypedResults`
+
 ```csharp
-using System.Threading;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Http.HttpResults;
 
-public sealed class OrderProcessingService(IOrderRepository repository, ILogger<OrderProcessingService> logger)
+app.MapGet("/api/v1/pedidos/{id:guid}", async Task<Results<Ok<PedidoDetalheDto>, NotFound>> (
+    Guid id, AppDbContext db, CancellationToken ct) =>
 {
-    // C# 13: Novo objeto de sincronização leve nativo
-    private readonly Lock _syncLock = new();
-    private int _processedCount;
+    var pedido = await db.Pedidos
+        .AsNoTracking()
+        .Where(p => p.Id == id)
+        .Select(p => new PedidoDetalheDto(
+            p.Id,
+            p.Cliente.Nome,
+            p.Itens.Select(i => new ItemDto(i.Produto.Nome, i.Quantidade, i.PrecoUnitario)).ToList()))
+        .FirstOrDefaultAsync(ct);
 
-    public async IAsyncEnumerable<OrderDto> StreamPendingOrdersAsync(
-        string customerId,
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    return pedido is null ? TypedResults.NotFound() : TypedResults.Ok(pedido);
+})
+.WithName("ObterPedido");
+```
+
+### 2.2. Streaming com cancelamento, tempo injetado e contador seguro
+
+```csharp
+public sealed class ProcessadorPedidos(
+    IPedidoRepository repositorio, TimeProvider relogio, ILogger<ProcessadorPedidos> logger)
+{
+    private long _processados;
+
+    public async IAsyncEnumerable<PedidoDto> ListarPendentesAsync(
+        string clienteId, [EnumeratorCancellation] CancellationToken ct = default)
     {
-        // Streaming de dados sem carregar tudo na memória RAM de uma vez
-        await foreach (var order in repository.GetPendingOrdersStreamAsync(customerId, cancellationToken))
+        await foreach (var pedido in repositorio.ObterPendentesAsync(clienteId, ct))
         {
-            lock (_syncLock)
-            {
-                _processedCount++;
-            }
-            yield return new OrderDto(order.Id, order.Total, order.CreatedAt);
+            Interlocked.Increment(ref _processados);
+            yield return new PedidoDto(pedido.Id, pedido.Total, pedido.CriadoEm);
         }
+
+        logger.LogInformation("Pendentes listados em {Instante}; total acumulado {Total}",
+            relogio.GetUtcNow(), Interlocked.Read(ref _processados));
     }
 }
 
-public readonly record struct OrderDto(Guid Id, decimal Total, DateTime CreatedAt);
+public readonly record struct PedidoDto(Guid Id, decimal Total, DateTimeOffset CriadoEm);
 ```
 
-### 2.2. EF Core Otimizado & Minimal API com TypedResults
+### 2.3. `BackgroundService` com escopo por iteração
+
 ```csharp
-app.MapGet("/api/v1/orders/{id:guid}", async Task<Results<Ok<OrderDetailsDto>, NotFound, ProblemHttpResult>> (
-    Guid id,
-    AppDbContext db,
-    CancellationToken ct) =>
+public sealed class ReprocessadorWorker(IServiceScopeFactory escopos, ILogger<ReprocessadorWorker> logger)
+    : BackgroundService
 {
-    var order = await db.Orders
-        .AsNoTracking()
-        .Where(o => o.Id == id)
-        .Select(o => new OrderDetailsDto(
-            o.Id,
-            o.Customer.Name,
-            o.Items.Select(i => new OrderItemDto(i.Product.Name, i.Quantity, i.UnitPrice)).ToList()
-        ))
-        .FirstOrDefaultAsync(ct);
-
-    return order is not null
-        ? TypedResults.Ok(order)
-        : TypedResults.NotFound();
-})
-.WithName("GetOrderById")
-.WithOpenApi();
+    protected override async Task ExecuteAsync(CancellationToken ct)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
+        while (await timer.WaitForNextTickAsync(ct))
+        {
+            try
+            {
+                using var escopo = escopos.CreateScope();
+                var db = escopo.ServiceProvider.GetRequiredService<AppDbContext>();
+                // ... trabalho da iteração
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogError(ex, "Falha na iteração; o worker continua");
+            }
+        }
+    }
+}
 ```
 
 ---
 
-## 3. Armadilhas Críticas em .NET (*Gotchas*)
+## 3. Integrações
 
-- ⚠️ **Resolução de Scoped em BackgroundService**: Injetar um serviço `Scoped` (ex: `DbContext`) diretamente no construtor de um `BackgroundService` (`Singleton`) causa exceção de *Scope Validation* em runtime. Crie explicitamente um escopo via `IServiceScopeFactory.CreateScope()`.
-- ⚠️ **Produto Cartesiano com Múltiplos `.Include()`**: Consultas com mais de um `Include()` de coleções geram explosão de linhas duplicadas no SQL. Use `.AsSplitQuery()` para dividir em consultas paralelas controladas.
-- ⚠️ **Bloqueio Síncrono de Threads (`.Result` ou `.Wait()`)**: Chamar `.Result` em tarefas assíncronas bloqueia threads do ThreadPool e causa *Deadlocks* em aplicações ASP.NET Core. Use estritamente `await`.
+`-sql` (consultas e migrações), `-api-design` (contratos), `-security` (autorização, segredos), `-testing`, `-observability`, `-devops`, `-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão de Entrega do Agente
+## 4. Armadilhas
 
-Ao entregar código em C# / .NET:
-1. Inclua diretivas `using` completas e namespaces padronizados.
-2. Declare tipos explicitamente com suporte a `#nullable enable`.
-3. Garanta que métodos assíncronos recebam e propaguem `CancellationToken`.
+- **Serviço *scoped* injetado em *singleton*** (inclusive `BackgroundService`): exceção de validação de escopo.
+- **Vários `Include` de coleções sem avaliar `AsSplitQuery`**: explosão de linhas.
+- **`DbContext` compartilhado entre threads.**
+- **`.Result` ou `.Wait()`**: esgotamento do pool e deadlocks.
+- **`async void`** fora de manipuladores de evento: exceções não observadas.
+- **`DateTime.Now` no domínio**: testes frágeis e fuso incorreto.
+- **`HttpClient` criado a cada chamada**: esgota sockets; use `HttpClientFactory`.
+- **`catch (Exception)` que engole erros** sem registrar nem repropagar.
+- **Ignorar o `CancellationToken`.**
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Código com `using` completos, nullable habilitado e `CancellationToken` propagado, com links relativos.
+3. Resultado de `dotnet build`, `test` e `format`, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-dotnet`, P1 a P3; fallback em lista no chat).

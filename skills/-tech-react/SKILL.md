@@ -1,87 +1,107 @@
 ---
 name: -tech-react
-description: Orienta o desenvolvimento de interfaces com React e TypeScript. Use ao criar componentes reutilizáveis, gerenciar dados e estado da tela, validar formulários e otimizar a experiência do usuário.
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *), Bash(npx *), Bash(pnpm test *)
+description: "Orienta interfaces com React e TypeScript: componentes e props tipados, estado local, de servidor (TanStack Query ou o data layer do framework) e global, Actions e hooks do React 19, formulários, uso correto de efeitos, desempenho com medição, tratamento de erros e acessibilidade. Use sempre que o usuário pedir 'componente React', 'hook', 'formulário', 'estado', 'busca de dados', 'otimize renderização' ou 'migre para React 19', mesmo sem dizer 'React'. NÃO use para tokens e acessibilidade em profundidade (isso é -design-system), tipagem em geral (isso é -tech-typescript) nem para o backend."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *)
 ---
 
-# Tech Skill: React Architect (Modern React 19+ & TypeScript)
+# React: interfaces tipadas, previsíveis e rápidas
 
-Diretrizes técnicas especializadas para o desenvolvimento de aplicações front-end escaláveis, type-safe e performáticas com React 19 e TypeScript.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-react``
+> 🧠 **Skill Ativa**: `-tech-react`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Engenharia React
+**Versão e framework.** Leia a versão de `react` e o framework (Next, Remix, Vite) no `package.json` e use só o que eles suportam. Recursos do React 19, Server Components e o React Compiler: confirme o suporte e a configuração do projeto na documentação oficial.
 
-Ao implementar componentes e fluxos em React:
+**Siga o projeto.** Respeite a estrutura, a biblioteca de estado e de dados e o sistema de design existentes. Tipagem: `-tech-typescript`.
 
-1. **Modelagem de Componentes & Props**: Defina interfaces TypeScript explícitas para as propriedades de cada componente.
-2. **Separação de Estado de Servidor vs Cliente**:
-   - Utilize **TanStack Query** para carregar, cachear e sincronizar dados de APIs externas.
-   - Utilize **Zustand** para estados compartilhados de interface (UI state).
-3. **Adoção de Primitivos do React 19**: Utilize `useActionState` para formulários assíncronos, `useOptimistic` para feedbacks instantâneos e `use()` para consumo de promises/contextos.
-4. **Formulários Type-Safe com Validação**: Integre `react-hook-form` com `zodResolver` para validação na digitação com o mínimo de re-renderizações.
-5. **Uso Consciente de Efeitos**: Isole `useEffect` estritamente para conexões com sistemas externos, eliminando efeitos que sincronizam estados locais a partir de props.
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; nomes de código ficam como estão.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. React 19 Formulário com `useActionState` e Atualização Otimista
+- **Componentes funcionais** com props tipadas, pequenos e compostos; chaves estáveis em listas (nunca o índice em listas mutáveis).
+- **Estado no lugar certo**: local primeiro; **estado de servidor** com TanStack Query ou com o data layer do framework (loaders, Server Components); estado global de UI (Zustand ou Context) só quando necessário.
+- **React 19**: `use`, `useActionState`, `useOptimistic`, `useFormStatus`, `ref` como prop e Actions em formulários.
+- **Efeitos só para sincronizar com sistemas externos**, com limpeza. Valores derivados são calculados na renderização, não em `useEffect`.
+- **Formulários**: Actions do React 19 ou `react-hook-form` com `zodResolver`; a validação do servidor continua obrigatória.
+- **Desempenho com medição**: `memo`, `useMemo` e `useCallback` só com evidência. Se o projeto usa o React Compiler, não os adicione à mão. Divida o código com `lazy` e `Suspense` e virtualize listas longas.
+- **Erros**: *error boundaries* em fronteiras de tela, e estados de carregamento, vazio e erro em todo componente que carrega dados.
+- **Segurança**: sem `dangerouslySetInnerHTML` com conteúdo não sanitizado; tokens fora de `localStorage` (`-security`).
+- **Acessibilidade**: elementos semânticos, rótulos e foco (`-design-system`).
+- **Testes**: Testing Library consultando por papel e texto, com MSW para a rede.
+
+---
+
+## 2. Exemplos
+
+### 2.1. Formulário com Action e atualização otimista
+
 ```tsx
 import { useActionState, useOptimistic } from 'react';
 
-interface Todo {
+interface Tarefa {
   id: string;
-  title: string;
-  pending?: boolean;
+  titulo: string;
+  pendente?: boolean;
+}
+interface EstadoAcao {
+  erro: string | null;
 }
 
-interface ActionState {
-  error: string | null;
-}
+export function ListaTarefas({
+  tarefas,
+  salvar,
+}: {
+  tarefas: Tarefa[];
+  salvar: (titulo: string) => Promise<void>; // lança erro se falhar; o pai atualiza `tarefas` ao concluir
+}) {
+  const [otimistas, adicionarOtimista] = useOptimistic(tarefas, (atual, nova: Tarefa) => [
+    ...atual,
+    { ...nova, pendente: true },
+  ]);
 
-export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
-  // Atualização otimista imediata na interface
-  const [optimisticTodos, addOptimisticTodo] = useOptimistic(
-    initialTodos,
-    (state, newTodo: Todo) => [...state, { ...newTodo, pending: true }]
-  );
+  const [estado, acao, enviando] = useActionState(
+    async (_anterior: EstadoAcao, dados: FormData): Promise<EstadoAcao> => {
+      const titulo = String(dados.get('titulo') ?? '').trim();
+      if (!titulo) return { erro: 'Informe um título.' };
 
-  // React 19: useActionState para gerenciar submissão assíncrona
-  const [state, formAction, isPending] = useActionState(
-    async (prevState: ActionState, formData: FormData) => {
-      const title = formData.get('title') as string;
-      addOptimisticTodo({ id: crypto.randomUUID(), title });
-
+      adicionarOtimista({ id: crypto.randomUUID(), titulo });
       try {
-        await fetch('/api/todos', { method: 'POST', body: JSON.stringify({ title }) });
-        return { error: null };
-      } catch (err) {
-        return { error: 'Falha ao salvar tarefa no servidor.' };
+        await salvar(titulo);
+        return { erro: null };
+      } catch {
+        return { erro: 'Falha ao salvar a tarefa.' };
       }
     },
-    { error: null }
+    { erro: null },
   );
 
   return (
     <div>
-      <form action={formAction}>
-        <input name="title" placeholder="Nova tarefa..." required disabled={isPending} />
-        <button type="submit" disabled={isPending}>Adicionar</button>
+      <form action={acao}>
+        <label>
+          Nova tarefa
+          <input name="titulo" required disabled={enviando} />
+        </label>
+        <button type="submit" disabled={enviando}>
+          Adicionar
+        </button>
       </form>
 
-      {state.error && <p role="alert" className="error">{state.error}</p>}
+      {estado.erro && <p role="alert">{estado.erro}</p>}
 
       <ul>
-        {optimisticTodos.map((todo) => (
-          <li key={todo.id} style={{ opacity: todo.pending ? 0.6 : 1 }}>
-            {todo.title} {todo.pending && '⏳'}
+        {otimistas.map((t) => (
+          <li key={t.id} aria-busy={t.pendente}>
+            {t.titulo}
+            {t.pendente && ' (salvando...)'}
           </li>
         ))}
       </ul>
@@ -90,53 +110,70 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
 }
 ```
 
-### 2.2. Busca e Cache de Dados com TanStack Query
+A atualização otimista é revertida ao fim da Action: o item definitivo vem de `tarefas`, atualizado pelo pai (estado ou invalidação de cache).
+
+### 2.2. Dados de servidor com TanStack Query
+
 ```tsx
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
-export function useUserProfile(userId: string) {
+const UsuarioSchema = z.object({ id: z.string(), nome: z.string() });
+type Usuario = z.infer<typeof UsuarioSchema>;
+
+async function buscarUsuario(id: string, signal: AbortSignal): Promise<Usuario> {
+  const res = await fetch(`/api/usuarios/${id}`, { signal });
+  if (!res.ok) throw new Error(`Falha HTTP ${res.status}`);
+  return UsuarioSchema.parse(await res.json()); // valida a fronteira
+}
+
+export function useUsuario(id: string) {
+  return useQuery({
+    queryKey: ['usuarios', id],
+    queryFn: ({ signal }) => buscarUsuario(id, signal),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useRenomearUsuario(id: string) {
   const queryClient = useQueryClient();
-
-  const query = useQuery({
-    queryKey: ['users', userId],
-    queryFn: async ({ signal }) => {
-      const res = await fetch(`/api/users/${userId}`, { signal });
-      if (!res.ok) throw new Error('Falha ao buscar perfil.');
-      return res.json();
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutos de cache fresco
-  });
-
-  const mutation = useMutation({
-    mutationFn: async (newName: string) => {
-      await fetch(`/api/users/${userId}`, {
+  return useMutation({
+    mutationFn: async (nome: string) => {
+      const res = await fetch(`/api/usuarios/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ name: newName }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome }),
       });
+      if (!res.ok) throw new Error(`Falha HTTP ${res.status}`);
     },
-    onSuccess: () => {
-      // Invalidação granular do cache
-      queryClient.invalidateQueries({ queryKey: ['users', userId] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['usuarios', id] }),
   });
-
-  return { ...query, updateName: mutation.mutate };
 }
 ```
 
 ---
 
-## 3. Armadilhas Críticas em React (*Gotchas*)
+## 3. Integrações
 
-- ⚠️ **Objetos Literais em Arrays de Dependência**: Passar `[ { id: 1 } ]` no array de dependências do `useEffect` ou `useMemo` cria uma nova referência de memória a cada render, disparando loops infinitos de execução.
-- ⚠️ **`useEffect` para Derivar Estado**: Atualizar um `useState` dentro de um `useEffect` que escuta uma `prop` força uma segunda renderização desnecessária e causa *flickers* visuais. Calcule o valor diretamente no corpo do componente ou via `useMemo`.
-- ⚠️ **Chaves Instáveis (`key={index}`) em Listas**: Usar o índice do array como `key` em listas mutáveis causa bugs visuais e perda de foco em inputs quando itens são filtrados ou reordenados.
+`-tech-typescript` (tipos), `-design-system` (tokens e acessibilidade), `-testing` (testes de componente), `-api-design` (contratos), `-security` (XSS e tokens), `-code-review` e `-devops`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão de Entrega do Agente
+## 4. Armadilhas
 
-Ao entregar código em React / TypeScript:
-1. Componentes 100% funcionais e tipados com interfaces explícitas.
-2. Não utilize `useEffect` para busca de dados se houver suporte a TanStack Query/Server Components.
-3. Garanta acessibilidade semântica (ARIA, labels e foco).
+- **Objeto ou array literal na lista de dependências**: nova referência a cada render, com loops de efeito.
+- **`useEffect` para derivar estado**: renderização extra e cintilação. Calcule na renderização.
+- **`key={index}`** em lista mutável: perda de foco e estado trocado entre itens.
+- **`fetch` sem checar `res.ok`** e sem cancelamento.
+- **Otimizar sem medir**: `memo` em todo lugar só adiciona custo.
+- **Estado de servidor copiado para `useState`**: duplica a fonte de verdade.
+- **Atualização otimista sem fonte de verdade que a confirme.**
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Componentes tipados com estados de carregamento, vazio e erro, e acessibilidade básica, com links relativos.
+3. Resultado de testes, tipos e lint, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-react`, P1 a P3; fallback em lista no chat).

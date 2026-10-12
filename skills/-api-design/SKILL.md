@@ -1,137 +1,276 @@
 ---
 name: -api-design
-description: Orienta o design de contratos de APIs, especificações RESTful, OpenAPI 3.1, padrões de idempotência, paginação, segurança de webhooks e comunicação síncrona/assíncrona.
+description: "Projeta e revisa contratos de API: OpenAPI 3.1 contract-first, convenções REST, erros em Problem Details (RFC 9457), idempotência, paginação, concorrência (ETag), versionamento e depreciação, webhooks assinados e contratos de eventos (AsyncAPI). Use sempre que o usuário pedir 'projete a API', 'modele o contrato', 'OpenAPI', 'endpoint', 'webhook', 'Idempotency-Key', 'paginação', 'versione a API', 'isto quebra o contrato?' ou revisar uma API, mesmo sem dizer 'design'. NÃO use para autenticação e autorização em profundidade (isso é -security), mensageria e arquitetura (isso é -system-design), esquema de banco (isso é -sql) nem para implementar controllers."
 allowed-tools: Read, Edit, Write, Grep, Glob
-disallowed-tools: Bash
 ---
 
-# Global Skill: API Design, Contracts & Integration Architecture
+# API Design: contratos claros, seguros e evolutivos
 
-Diretrizes técnicas especializadas para o design de APIs públicas e privadas, especificações rigorosas de contratos (OpenAPI 3.1), mecanismos de idempotência e protocolos modernos de integração.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-api-design``
+> 🧠 **Skill Ativa**: `-api-design`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Design de APIs
+**Escopo de escrita.** A skill escreve **contratos** (OpenAPI, AsyncAPI, JSON Schema), por padrão em `docs/api/openapi.yaml` ou no arquivo já existente. Não implementa controllers nem altera código de aplicação.
 
-Ao planejar, modelar ou expor novos endpoints:
+**Siga o projeto.** Respeite as convenções existentes (idioma das rotas, camelCase ou snake_case, estilo de versionamento). A decisão de design é do usuário: apresente opções e recomende uma.
 
-1. **Abordagem Contract-First**: Modele o contrato de entrada e saída (OpenAPI 3.1 / JSON Schema) antes de escrever o código dos controllers.
-2. **Nomenclatura Semântica & Recursos REST**:
-   - Use substantivos no plural para recursos (`/api/v1/pedidos`, `/api/v1/usuarios/{id}/transacoes`).
-   - Use verbos HTTP padronizados (`GET` para leitura pura, `POST` para criação/ações complexas, `PUT` para substituição total, `PATCH` para atualização parcial, `DELETE` para remoção).
-3. **Idempotência em Mutações Críticas**: Implemente o cabeçalho `Idempotency-Key` (UUIDv4) para transações financeiras, cobranças e operações de mutação não repetíveis.
-4. **Padronização de Erros**: Retorne 100% dos erros no formato **RFC 7807 (Problem Details)** com códigos HTTP semânticos (400, 401, 403, 404, 409, 422, 429, 500).
-5. **Segurança de Webhooks**: Assine todos os eventos enviados para clientes com HMAC-SHA256 no cabeçalho `X-Signature-SHA256` acompanhado de um timestamp `X-Timestamp` para mitigar ataques de repetição (*Replay Attacks*).
+**Sem segredos.** Exemplos usam valores fictícios.
+
+**Idioma.** O do usuário; nomes de rotas e campos seguem o projeto.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Modos de operação
 
-### 2.1. Padrão de Idempotência com Chave e Redis (Exemplo TypeScript)
-```typescript
-import { Request, Response, NextFunction } from 'express';
-import Redis from 'ioredis';
+| Modo | Quando |
+| :--- | :--- |
+| **Projetar** | API ou endpoint novo |
+| **Evoluir** | Mudar API existente sem quebrar consumidores (seção 7) |
+| **Revisar** | Avaliar um contrato contra este guia |
+| **Documentar** | Gerar ou completar o OpenAPI a partir do que existe |
 
-const redis = new Redis();
+---
 
-export async function idempotencyMiddleware(req: Request, res: Response, next: NextFunction) {
-  const idempotencyKey = req.header('Idempotency-Key');
-  if (!idempotencyKey) return next();
+## 2. Workflow
 
-  const cacheKey = `idempotency:${idempotencyKey}`;
-  const cachedResponse = await redis.get(cacheKey);
+1. **Contexto**: leia o OpenAPI existente, `AGENTS.md`, `GUIDELINE.md`, ADRs e a spec relacionada. Se o projeto usa Spectral ou oasdiff, siga as regras e use-os para checar compatibilidade.
+2. **Requisitos**: consumidores, volume, necessidade de idempotência, autenticação, SLA.
+3. **Contrato primeiro**: escreva o OpenAPI 3.1 antes do código (seção 10).
+4. **Revise** contra as convenções (seção 3) e a compatibilidade (seção 7).
+5. **Entregue** o contrato, as decisões em aberto e as integrações (seção 11).
 
-  if (cachedResponse) {
-    const { status, body, headers } = JSON.parse(cachedResponse);
-    return res.status(status).set(headers).set('X-Cache-Lookup', 'HIT').json(body);
-  }
+---
 
-  // Intercepta a resposta original para salvar no Redis
-  const originalJson = res.json.bind(res);
-  res.json = (body: any) => {
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      redis.set(cacheKey, JSON.stringify({
-        status: res.statusCode,
-        body,
-        headers: { 'Content-Type': 'application/json' }
-      }), 'EX', 86400); // Expira em 24h
-    }
-    return originalJson(body);
-  };
+## 3. Convenções
 
-  next();
+- **Recursos**: substantivos no plural (`/v1/pedidos`, `/v1/clientes/{id}/pedidos`). Verbos HTTP: `GET` leitura, `POST` criação e ações, `PUT` substituição, `PATCH` atualização parcial (JSON Merge Patch), `DELETE` remoção.
+- **Status**: 400 requisição malformada, 401 não autenticado, 403 sem permissão, 404 não encontrado, 409 conflito de estado, 412 `If-Match` falhou, 422 validação semântica, 429 limite excedido.
+- **Paginação**: cursor (keyset) para listas grandes ou mutáveis, com `limit` máximo e `nextCursor`. Offset é aceitável em listas pequenas ou administrativas. Documente a ordenação.
+- **Concorrência**: `ETag` na leitura e `If-Match` na escrita para evitar atualizações perdidas.
+- **Operações longas**: `202 Accepted` com um recurso de status consultável.
+- **Rate limit**: `429` com `Retry-After`; cabeçalhos de limite documentados.
+- **Dados**: datas em ISO 8601 UTC; dinheiro como inteiro (menor unidade) ou string decimal, nunca float; IDs opacos.
+- **Autorização por recurso**: toda rota que recebe um ID valida que o chamador pode acessá-lo (BOLA/IDOR). Detalhes no `-security`.
+
+---
+
+## 4. Erros: Problem Details (RFC 9457)
+
+Todos os erros usam `application/problem+json` (a RFC 9457 substitui a 7807), sem stack traces nem detalhes internos; correlacione por `traceId`.
+
+```json
+{
+  "type": "https://api.exemplo.com/problemas/plano-nao-encontrado",
+  "title": "Plano não encontrado",
+  "status": 404,
+  "detail": "O plano informado não existe.",
+  "instance": "/v1/assinaturas",
+  "code": "PLAN_NOT_FOUND",
+  "traceId": "9f1c2e7a"
 }
 ```
 
-### 2.2. Assinatura e Verificação Segura de Webhooks (HMAC-SHA256)
+Para validação, acrescente `errors[]` com campo e motivo.
+
+---
+
+## 5. Idempotência
+
+Exija `Idempotency-Key` em `POST` não repetíveis (cobranças, pedidos). Regras do contrato:
+
+- A chave tem escopo: **cliente + método + rota**. Nunca global.
+- Mesma chave com **corpo diferente**: `422`.
+- Mesma chave ainda em processamento: `409` com `Retry-After`.
+- Repetição de operação concluída: devolve a resposta original gravada.
+- Retenção: ~24 horas, com limpeza periódica.
+
+Para operações financeiras, registre a chave **no banco, na mesma transação do efeito**; Redis serve só como best-effort.
+
+```sql
+CREATE TABLE idempotency_keys (
+  scope           text        NOT NULL,   -- cliente + método + rota
+  key             text        NOT NULL,
+  request_hash    text        NOT NULL,   -- hash do corpo
+  response_status int,
+  response_body   jsonb,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (scope, key)
+);
+```
+
+```text
+Na transação do efeito:
+  INSERT (scope, key, hash) ON CONFLICT DO NOTHING
+  se inseriu: executa a operação e grava a resposta antes do COMMIT
+  senão: lê o registro
+    hash diferente  -> 422
+    sem resposta    -> 409 (efeito ainda em curso)
+    com resposta    -> devolve a resposta gravada
+```
+
+A chave única serializa requisições duplicadas simultâneas. Se o efeito é externo ao banco, use um estado `IN_PROGRESS` explícito.
+
+---
+
+## 6. Webhooks
+
+- **Assinatura**: HMAC-SHA256 calculado sobre `timestamp.corpoBruto`, em `X-Signature-SHA256`, com `X-Timestamp` para barrar replay. O receptor verifica sobre o **corpo bruto**, não sobre o JSON reserializado.
+- **Entrega**: o receptor responde 2xx rápido e processa de forma assíncrona; o emissor faz retry com backoff e permite reenvio manual.
+- **Eventos**: cada evento tem `id` único e `type` versionado; o receptor deduplica pelo `id`.
+- **Segredo**: um por cliente, com rotação que aceite dois segredos durante a troca.
+
 ```typescript
-import crypto from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 
-export function generateWebhookSignature(payload: string, secret: string, timestamp: number): string {
-  const signaturePayload = `${timestamp}.${payload}`;
-  return crypto.createHmac('sha256', secret).update(signaturePayload).digest('hex');
-}
-
-export function verifyWebhookSignature(
-  payload: string,
-  signature: string,
+export function verifyWebhook(
+  rawBody: Buffer,
+  signatureHex: string,
   secret: string,
   timestamp: number,
-  toleranceSeconds = 300
+  toleranceSeconds = 300,
 ): boolean {
-  // 1. Mitigação de Replay Attack: valida se o evento é recente (ex: max 5 minutos)
   const now = Math.floor(Date.now() / 1000);
-  if (Math.abs(now - timestamp) > toleranceSeconds) {
-    return false;
-  }
+  if (Math.abs(now - timestamp) > toleranceSeconds) return false;
 
-  // 2. Comparação segura contra Timing Attacks
-  const expectedSignature = generateWebhookSignature(payload, secret, timestamp);
-  const signatureBuffer = Buffer.from(signature, 'utf-8');
-  const expectedBuffer = Buffer.from(expectedSignature, 'utf-8');
+  const expected = createHmac('sha256', secret)
+    .update(`${timestamp}.`)
+    .update(rawBody)
+    .digest();
+  const received = Buffer.from(signatureHex, 'hex');
 
-  if (signatureBuffer.length !== expectedBuffer.length) return false;
-  return crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
+  return received.length === expected.length && timingSafeEqual(received, expected);
 }
 ```
 
 ---
 
-## 3. Armadilhas Críticas em APIs (*Gotchas*)
+## 7. Versionamento e depreciação
 
-- ⚠️ **Mutações Não Idempotentes em Redes Instáveis**: Quando um cliente envia um `POST /api/v1/pagamentos` e a conexão cai antes de receber a resposta, o cliente costuma reenviar. Sem `Idempotency-Key`, a cobrança ocorre em duplicidade.
-- ⚠️ **Timing Attacks na Validação de Assinaturas/Tokens**: Usar `signature === expectedSignature` simples vaza informações sobre o tempo de comparação de strings. Use sempre funções de tempo constante (`crypto.timingSafeEqual`).
-- ⚠️ **Vazamento de Detalhes Internos em Erros**: Retornar stacktraces de banco de dados ou exceções internas em respostas HTTP de produção facilita a exploração de vulnerabilidades. Responda com IDs de correlação (`traceId`) e mensagens sanitizadas.
-
----
-
-## 4. Padrão de Entrega do Agente
-
-Ao entregar designs ou implementações de API:
-1. Especifique os métodos HTTP, rotas, cabeçalhos obrigatórios e códigos de status esperados.
-2. Defina contratos de entrada e saída completos no formato JSON Schema / OpenAPI.
-3. Inclua sempre suporte a paginação por cursor em endpoints de listagem.
+- **Quebra de contrato (breaking)**: remover ou renomear campo ou rota, tornar opcional em obrigatório, mudar tipo ou semântica, restringir valores, mudar código de status.
+- **Compatível**: adicionar campo opcional na resposta, nova rota, novo valor em enum que o cliente tolera.
+- Siga o estilo de versão do projeto (caminho `/v1` ou cabeçalho). Uma quebra exige versão nova ou período de convivência.
+- Depreciação: cabeçalhos `Deprecation` e `Sunset`, janela de suporte comunicada e documentada.
 
 ---
 
-## 5. 📝 Planejamento de Endpoints com `-task-management` (Sempre ao Final)
+## 8. Segurança no contrato
 
-Sempre ao término do design, modelagem ou especificação de contratos de APIs (OpenAPI, endpoints, webhooks), **pergunte obrigatoriamente ao usuário ao final da resposta**:
+Declare os `securitySchemes` do OpenAPI e aplique-os por rota. Autenticação, tokens e autorização em profundidade são do `-security`. Nunca exponha detalhes internos em erros e valide todo schema de entrada.
 
-> *"Concluí o design dos contratos da API. Deseja que eu registre as tarefas de implementação e testes no arquivo `TASKS.md` do projeto?"*
+---
 
-Ao receber a confirmação do usuário (ou se instruído a planejar automaticamente):
-1. **Ativação da Skill**: Acione a skill **`-task-management`** para estruturar o backlog dos endpoints.
-2. **Localização em Cascata**: A skill `-task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`).
-3. **Mapeamento de Tarefas de API**:
-   - `🚨 1. Bloqueadores / Alta Prioridade`: Middleware de autenticação/autorização (OAuth 2.1 / PKCE), validação de schemas de entrada e idempotência (`Idempotency-Key`).
-   - `⚠️ 2. Média Prioridade`: Implementação dos endpoints CRUD, controllers, rotas e tratamento de erros RFC 7807.
-   - `💡 3. Baixa Prioridade / Otimização`: Paginação por cursor (Keyset), rate limiting e documentação Swagger UI interativa.
-   - `✅ 4. Concluído recentemente`: Especificações OpenAPI e contratos JSON Schemas finalizados na sessão com `- [x]`.
-4. **Navegabilidade**: Toda tarefa deve indicar as rotas e os arquivos de contrato ou controllers correspondentes (`[arquivo.ext](file:///...)`).
+## 9. Eventos assíncronos
+
+Descreva os contratos de eventos em AsyncAPI ou JSON Schema, com versão e regras de compatibilidade. A arquitetura de mensageria (entrega, DLQ, idempotência do consumidor) é do `-system-design`.
+
+---
+
+## 10. Exemplo de OpenAPI 3.1
+
+```yaml
+openapi: 3.1.0
+info: { title: API de Assinaturas, version: 1.0.0 }
+paths:
+  /v1/assinaturas:
+    post:
+      operationId: criarAssinatura
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, maxLength: 255 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CriarAssinatura' }
+      responses:
+        '201':
+          description: Criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Assinatura' }
+        '404': { $ref: '#/components/responses/Problema' }
+        '409': { $ref: '#/components/responses/Problema' }
+        '422': { $ref: '#/components/responses/Problema' }
+components:
+  schemas:
+    CriarAssinatura:
+      type: object
+      required: [planoId, clienteId]
+      properties:
+        planoId: { type: string }
+        clienteId: { type: string }
+    Assinatura:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [active, canceled] }
+    Problema:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        code: { type: string }
+        traceId: { type: string }
+  responses:
+    Problema:
+      description: Erro
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problema' }
+```
+
+---
+
+## 11. Registro via `-tasks` e integrações
+
+Se o design tem etapas de implementação, pergunte ao final:
+
+> *"Deseja que eu registre as tarefas de implementação e testes no `TASKS.md` do projeto?"*
+
+Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `api-design`, links relativos para o contrato e a prioridade: autenticação, validação de entrada e idempotência P1; endpoints e erros P2; paginação, rate limiting e documentação P3. **Fallback**: lista no chat.
+
+| Skill | Como se integra |
+| :--- | :--- |
+| `-spec` | Alimenta a seção de contratos da spec |
+| `-testing` | Testes de contrato contra o OpenAPI |
+| `-security` | Autenticação, autorização e BOLA |
+| `-system-design` | Eventos, mensageria e resiliência |
+| `-sql` | Esquema que suporta o contrato e a idempotência |
+| `-adr` | Decisões de versionamento e estilo de API |
+| `-code-review` | Usa o contrato para checar compatibilidade |
+
+Se alguma não existir, siga o padrão desta skill sem a integração.
+
+---
+
+## 12. Armadilhas
+
+- **Chave de idempotência global**: vaza respostas entre clientes.
+- **Ignorar o corpo da repetição**: mesma chave com payload diferente deve falhar.
+- **Idempotência sem atomicidade**: registrar a chave fora da transação do efeito.
+- **Webhook verificado sobre JSON reserializado**: a assinatura nunca confere.
+- **Comparação de assinatura sem tempo constante.**
+- **Erro com detalhes internos**: stack trace ou SQL na resposta.
+- **Float para dinheiro.**
+- **Mudar tipo ou semântica sem versão**: quebra consumidores.
+- **Paginação sem ordenação definida**: resultados instáveis.
+- **Rota com ID sem checar o dono**: BOLA.
+
+---
+
+## 13. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Contrato criado ou alterado, com link relativo, e decisões em aberto.
+3. Resultado da checagem de compatibilidade, quando houver contrato anterior.
+4. Pendências e a pergunta sobre o registro em tarefas (seção 11).

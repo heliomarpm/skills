@@ -1,120 +1,143 @@
 ---
 name: -tech-flutter
-description: Orienta o desenvolvimento de aplicativos com Flutter e Dart. Use ao construir interfaces móveis, organizar estado da aplicação, navegar entre telas e gerenciar recursos do dispositivo.
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(flutter test *), Bash(flutter analyze *), Bash(dart test *), Bash(dart analyze *)
+description: "Orienta aplicativos Flutter e Dart: Dart 3 (records, tipos selados, pattern matching), gerenciamento de estado (Riverpod ou BLoC), arquitetura em camadas com repositórios, renderização eficiente, descarte de recursos, navegação com go_router, isolates, tratamento de erros, segurança no dispositivo e testes. Use sempre que o usuário pedir 'tela em Flutter', 'Riverpod', 'estado', 'navegação', 'otimize o desempenho do app', 'isolate' ou 'migre de versão do Flutter', mesmo sem dizer 'Flutter'. NÃO use para tokens e acessibilidade em profundidade (isso é -design-system), contratos de API (isso é -api-design) nem para segurança em profundidade (isso é -security)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(flutter test *), Bash(flutter analyze *), Bash(dart test *), Bash(dart analyze *), Bash(dart format --set-exit-if-changed *)
 ---
 
-# Tech Skill: Flutter & Dart Specialist (Dart 3+ & Modern Flutter)
+# Flutter: interfaces fluidas, estado previsível
 
-Diretrizes técnicas especializadas para a criação de aplicativos móveis fluidos (60/120 FPS), responsivos e escaláveis com Flutter e Dart.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-flutter``
+> 🧠 **Skill Ativa**: `-tech-flutter`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Engenharia Flutter
+**Versão.** Leia o SDK do Dart e do Flutter no `pubspec.yaml` e a versão do pacote de estado em uso. As APIs do Riverpod, do `go_router` e dos geradores de código mudam entre versões principais: **confirme na documentação oficial da versão do projeto** antes de aplicar um exemplo.
 
-Ao desenvolver telas e fluxos em Flutter:
+**Siga o projeto.** Respeite a solução de estado (Riverpod, BLoC), a estrutura de pastas e o sistema de design existentes.
 
-1. **Modelagem com Dart 3 (Records & Sealed Classes)**: Modele dados de domínio com imutabilidade estrita e use *sealed classes* para estados previsíveis da UI.
-2. **Gerenciamento de Estado com Riverpod / BLoC**:
-   - Utilize **Riverpod 2.x com gerador de código** (`@riverpod`, `AsyncNotifier`) e trate estados com `AsyncValue.when()`.
-   - Mantenha os widgets puramente visuais e declarativos (Stateless).
-3. **Otimização de Renderização & Descarte de Recursos**: Aplique construtores `const`, isole animações frequentes com `RepaintBoundary` e garanta o fechamento de controladores no `dispose()`.
-4. **Navegação Declarativa com `go_router`**: Estruture rotas fortemente tipadas e proteja acessos a telas privadas com redirecionamentos centralizados.
-5. **Processamento Pesado em Isolates**: Execute parsing de grandes arquivos JSON e processamento de imagem fora da thread principal utilizando `Isolate.run()`.
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; identificadores seguem as convenções do Dart.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. Riverpod 2.x com Notifier Assíncrono e UI Declarativa
+- **Dart 3**: records, classes seladas e `switch` com padrões para estados previsíveis; segurança contra nulos sempre; dados imutáveis.
+- **Camadas**: apresentação (widgets sem lógica de negócio), domínio e dados; I/O atrás de **repositórios** com interface abstrata, o que viabiliza testes.
+- **Estado**: Riverpod (com `AsyncNotifier`) ou BLoC, conforme o projeto; widgets declarativos que apenas leem o estado.
+- **Renderização**: construtores `const`, widgets pequenos, `ListView.builder` para listas, `ref.watch(...select(...))` para reconstruir só o necessário, `MediaQuery.sizeOf(context)` em vez de `MediaQuery.of(context)`. `RepaintBoundary` e outras otimizações **só com medição** (DevTools, em modo *profile*).
+- **Ciclo de vida**: descarte `TextEditingController`, `AnimationController` e `ScrollController` no `dispose()`; após um `await`, confira `context.mounted` antes de usar o `BuildContext`.
+- **Navegação**: `go_router` com rotas tipadas e redirecionamentos centralizados para telas privadas.
+- **Processamento pesado** fora da thread de interface: `Isolate.run` (não existe na web; use `compute` ou um *web worker* nesse caso).
+- **Erros**: mapeie para mensagens ao usuário; nunca exiba a exceção bruta; registre em um serviço de observabilidade (`-observability`).
+- **Segurança**: nenhuma chave secreta dentro do app (é extraível); armazenamento seguro para tokens; validação no servidor (`-security`).
+- **Acessibilidade**: `Semantics`, contraste, alvos de toque e texto ampliável (`-design-system`).
+- **Testes**: testes de widget, *golden*, `integration_test` e `mocktail`, com repositórios falsos (`-testing`).
+
+---
+
+## 2. Exemplos
+
+### 2.1. Estado assíncrono com Riverpod e UI declarativa
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'user_profile_notifier.g.dart';
+part 'perfil_notifier.g.dart';
 
 @immutable
-sealed class UserState {
-  const UserState();
+class Perfil {
+  const Perfil({required this.id, required this.nome});
+  final String id;
+  final String nome;
 }
 
-class UserProfileData extends UserState {
-  final String id;
-  final String name;
-  const UserProfileData({required this.id, required this.name});
+abstract interface class PerfilRepository {
+  Future<Perfil> buscar(String id);
+  Future<Perfil> renomear(String id, String nome);
 }
+
+// perfilRepositoryProvider: provider do repositório, definido na camada de dados.
 
 @riverpod
-class UserProfileNotifier extends _$UserProfileNotifier {
+class PerfilNotifier extends _$PerfilNotifier {
   @override
-  FutureOr<UserProfileData> build(String userId) async {
-    // Chamada assíncrona ao repositório
-    return UserProfileData(id: userId, name: 'Carlos Eduardo');
-  }
+  Future<Perfil> build(String id) => ref.watch(perfilRepositoryProvider).buscar(id);
 
-  Future<void> updateName(String newName) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      // Simulação de atualização na API
-      return UserProfileData(id: state.value!.id, name: newName);
-    });
+  Future<void> renomear(String novoNome) async {
+    final atual = state.requireValue; // captura ANTES de alterar o estado
+    state = const AsyncLoading<Perfil>().copyWithPrevious(state);
+    state = await AsyncValue.guard(
+      () => ref.read(perfilRepositoryProvider).renomear(atual.id, novoNome),
+    );
   }
 }
 
-class UserProfileScreen extends ConsumerWidget {
-  final String userId;
-  const UserProfileScreen({super.key, required this.userId});
+class PerfilScreen extends ConsumerWidget {
+  const PerfilScreen({super.key, required this.id});
+  final String id;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userProfileNotifierProvider(userId));
+    final perfil = ref.watch(perfilNotifierProvider(id));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Perfil')),
-      body: userAsync.when(
-        data: (user) => Center(child: Text('Bem-vindo, ${user.name}')),
+      body: perfil.when(
+        data: (p) => Center(child: Text('Bem-vindo, ${p.nome}')),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Erro: $err')),
+        error: (e, _) => const Center(child: Text('Não foi possível carregar o perfil.')),
       ),
     );
   }
 }
 ```
 
-### 2.2. Parsing de JSON Pesado em Background com `Isolate.run`
+### 2.2. Processamento pesado fora da thread de interface
+
 ```dart
 import 'dart:convert';
 import 'dart:isolate';
 
-Future<List<Map<String, dynamic>>> parseLargeJsonPayload(String rawJson) async {
-  // Executa o parsing em uma thread isolada sem travar a renderização (UI thread)
-  return await Isolate.run(() {
-    final decoded = jsonDecode(rawJson) as List<dynamic>;
-    return decoded.cast<Map<String, dynamic>>();
-  });
+// Mobile e desktop. Na web, Isolate.run não está disponível: use compute() ou um web worker.
+Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
+  return Isolate.run(
+    () => (jsonDecode(bruto) as List<dynamic>).cast<Map<String, dynamic>>(),
+  );
 }
 ```
 
 ---
 
-## 3. Armadilhas Críticas em Flutter (*Gotchas*)
+## 3. Integrações
 
-- ⚠️ **Controladores Não Descartados no `dispose()`**: Deixar de chamar `dispose()` em instâncias de `TextEditingController`, `AnimationController` ou `ScrollController` impede o Garbage Collector de liberar os recursos, causando *Memory Leaks* graves.
-- ⚠️ **Rebuilds Globais por Uso Incorreto de `MediaQuery`**: Chamar `MediaQuery.of(context)` inteiro para ler apenas o tamanho da tela faz o widget reconstruir a cada abertura do teclado virtual. Use a API granular: `MediaQuery.sizeOf(context)`.
-- ⚠️ **Repintura de Tela Inteira em Animações**: Animar widgets com atualizações contínuas de layout sem envolvê-los em um `RepaintBoundary` força o Flutter a repintar todos os elementos estáticos vizinhos na tela.
+`-design-system` (tokens e acessibilidade), `-testing`, `-security` (armazenamento e segredos), `-api-design` (contratos), `-observability` (erros e desempenho), `-devops` (build e distribuição), `-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão de Entrega do Agente
+## 4. Armadilhas
 
-Ao entregar código em Flutter / Dart:
-1. Use construtores `const` em todos os widgets e instâncias estáticas.
-2. Isole chamadas de rede e persistência atrás de contratos de repositório abstratos.
-3. Garanta tratamento de estados assíncronos (Loading, Error, Data) em todas as telas.
+- **Controladores sem `dispose()`**: vazamento de memória.
+- **`MediaQuery.of(context)` só para o tamanho**: reconstrói a cada mudança de teclado ou orientação.
+- **`state.value!` depois de definir `loading`**: lança erro. Capture o valor antes.
+- **Usar `BuildContext` após um `await`** sem checar `context.mounted`.
+- **Exibir a exceção bruta ao usuário.**
+- **`RepaintBoundary` e outras otimizações sem medir.**
+- **Lista grande sem `ListView.builder`.**
+- **Chave de API ou segredo dentro do app.**
+- **`Isolate.run` sem considerar a web.**
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Código com `const`, estados de carregamento, erro e dados tratados, e I/O atrás de repositórios, com links relativos.
+3. Resultado de `flutter analyze` e `flutter test`, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-flutter`, P1 a P3; fallback em lista no chat).

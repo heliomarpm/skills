@@ -1,117 +1,132 @@
 ---
 name: -tech-vue
-description: Orienta o desenvolvimento de interfaces com Vue 3. Use ao criar componentes de interface, gerenciar estado reativo, construir funções utilitárias reutilizáveis e otimizar renderização.
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *), Bash(npx *), Bash(pnpm test *)
+description: "Orienta interfaces com Vue 3 e TypeScript: script setup, Composition API tipada, defineModel e props reativas, composables reutilizáveis com cancelamento, Pinia, reatividade correta (shallowRef, toRefs), desempenho e testes. Use sempre que o usuário pedir 'componente Vue', 'composable', 'Pinia', 'v-model', 'reatividade' ou 'migre para Vue 3', mesmo sem dizer 'Vue'. NÃO use para tokens e acessibilidade em profundidade (isso é -design-system), tipagem em geral (isso é -tech-typescript) nem para o backend."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx vue-tsc *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *)
 ---
 
-# Tech Skill: Vue 3 Expert (Composition API & Vue 3.4/3.5+)
+# Vue 3: reatividade previsível e componentes enxutos
 
-Diretrizes técnicas especializadas para o desenvolvimento de interfaces reativas, performáticas e escaláveis com Vue 3 moderno e TypeScript.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-vue``
+> 🧠 **Skill Ativa**: `-tech-vue`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Engenharia Vue 3
+**Versão e framework.** Leia a versão de `vue` e o framework (Vite, Nuxt) no `package.json` e use só o que eles suportam. A desestruturação reativa de props e `onWatcherCleanup` são do Vue 3.5; `defineModel`, do 3.4. Confirme na documentação oficial da versão do projeto.
 
-Ao desenvolver componentes e lógicas reutilizáveis em Vue 3:
+**Siga o projeto.** Respeite a estrutura, o gerenciador de estado e o sistema de design existentes. Tipagem: `-tech-typescript`.
 
-1. **Sintaxe `<script setup lang="ts">`**: Utilize exclusivamente Single-File Components com Composition API tipada.
-2. **Bindings Declarativos com `defineModel`**: Elimine boilerplate de props/emits manuais utilizando `defineModel()` para *two-way data binding*.
-3. **Desestruturação Reativa de Props (Vue 3.5+)**: Desestruture `defineProps` diretamente com valores padrão preservando a reatividade nativa.
-4. **Composables Reutilizáveis**: Extraia lógicas e estados compartilhados em funções `useFeature()` aceitando `MaybeRefOrGetter` e convertendo com `toValue()`.
-5. **Estado Global com Pinia**: Estruture stores globais utilizando a sintaxe *Setup Stores* (`defineStore('id', () => { ... })`).
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; nomes de código ficam como estão.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. Componente Moderno com `defineModel` e Props Destructure (Vue 3.5+)
+- **`<script setup lang="ts">`** com Composition API tipada.
+- **Props e eventos tipados**; `defineModel()` para bindings bidirecionais; desestruturação reativa de props (3.5+) com valores padrão.
+- **Composables** (`useAlgo()`) para lógica reutilizável, aceitando `MaybeRefOrGetter` e usando `toValue()`; retornam um objeto plano de `ref`s.
+- **Reatividade correta**: não desestruture `reactive` direto (use `toRefs`); `shallowRef` para coleções grandes e estáticas; `computed` é função pura, sem efeitos colaterais.
+- **Efeitos e limpeza**: `watch` quando a fonte é explícita, `watchEffect` quando é implícita; cancele requisições com `onWatcherCleanup` ou `onScopeDispose`.
+- **Estado global** com Pinia em *setup stores*; estado de servidor com uma biblioteca de dados (por exemplo, TanStack Query para Vue) ou o data layer do framework.
+- **Listas** com `key` estável; `v-html` só com conteúdo sanitizado (`-security`).
+- **Acessibilidade** com elementos semânticos e rótulos (`-design-system`).
+- **Testes**: Vitest com Vue Test Utils ou Testing Library; verificação de tipos com `vue-tsc`.
+
+---
+
+## 2. Exemplos
+
+### 2.1. Componente com `defineModel` e props reativas (Vue 3.5+)
+
 ```vue
 <script setup lang="ts">
 import { computed } from 'vue';
 
-// Vue 3.5: Desestruturação reativa com valores padrão sem perder reatividade
-const { label = 'Contador', max = 100 } = defineProps<{
-  label?: string;
+const { rotulo = 'Contador', max = 100 } = defineProps<{
+  rotulo?: string;
   max?: number;
 }>();
 
-// Vue 3.4+: Two-way binding direto com o v-model pai
-const count = defineModel<number>({ default: 0 });
+const contagem = defineModel<number>({ default: 0 });
+const atingiuMax = computed(() => contagem.value >= max);
 
-const isMaxReached = computed(() => count.value >= max);
-
-function increment() {
-  if (!isMaxReached.value) {
-    count.value++;
-  }
+function incrementar(): void {
+  if (!atingiuMax.value) contagem.value++;
 }
 </script>
 
 <template>
-  <div class="counter-box">
-    <label>{{ label }}: <strong>{{ count }}</strong></label>
-    <button @click="increment" :disabled="isMaxReached">
-      {{ isMaxReached ? 'Limite Atingido' : '+1' }}
+  <div>
+    <span>{{ rotulo }}: <strong>{{ contagem }}</strong></span>
+    <button type="button" :disabled="atingiuMax" @click="incrementar">
+      {{ atingiuMax ? 'Limite atingido' : '+1' }}
     </button>
   </div>
 </template>
 ```
 
-### 2.2. Composable Reativo Padronizado (`toValue` & Limpeza)
-```typescript
-import { ref, watchEffect, toValue, onWatcherCleanup, type MaybeRefOrGetter } from 'vue';
+### 2.2. Composable com cancelamento e sem corrida
 
-export function useFetchData<T>(urlSource: MaybeRefOrGetter<string>) {
-  const data = ref<T | null>(null);
-  const error = ref<Error | null>(null);
-  const isLoading = ref(false);
+```ts
+import { ref, shallowRef, toValue, watchEffect, onWatcherCleanup, type MaybeRefOrGetter } from 'vue';
+
+export function useFetch<T>(origem: MaybeRefOrGetter<string>) {
+  const dados = shallowRef<T | null>(null);
+  const erro = ref<Error | null>(null);
+  const carregando = ref(false);
 
   watchEffect(async () => {
-    const url = toValue(urlSource); // Extrai valor quer seja ref, getter ou string pura
-    isLoading.value = true;
-    error.value = null;
+    const url = toValue(origem);
+    const controle = new AbortController();
+    onWatcherCleanup(() => controle.abort()); // chame de forma síncrona, antes do primeiro await
 
-    const controller = new AbortController();
-    
-    // Vue 3.5: Limpa requisição anterior se a URL mudar antes da resposta
-    onWatcherCleanup(() => controller.abort());
-
+    carregando.value = true;
+    erro.value = null;
     try {
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) throw new Error(`Falha HTTP: ${res.status}`);
-      data.value = await res.json();
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        error.value = err;
-      }
+      const res = await fetch(url, { signal: controle.signal });
+      if (!res.ok) throw new Error(`Falha HTTP ${res.status}`);
+      dados.value = (await res.json()) as T; // valide com um schema se vier de fonte não confiável
+    } catch (e: unknown) {
+      if (e instanceof DOMException && e.name === 'AbortError') return; // requisição substituída
+      erro.value = e instanceof Error ? e : new Error(String(e));
     } finally {
-      isLoading.value = false;
+      if (!controle.signal.aborted) carregando.value = false;
     }
   });
 
-  return { data, error, isLoading };
+  return { dados, erro, carregando };
 }
 ```
 
----
-
-## 3. Armadilhas Críticas em Vue 3 (*Gotchas*)
-
-- ⚠️ **Desestruturar Objetos `reactive` Diretamente**: Fazer `const { count } = reactive({ count: 0 })` quebra a reatividade do Vue. Se precisar desestruturar, envolva o objeto em `toRefs()`.
-- ⚠️ **Reatividade Profunda em Coleções Gigantescas**: Utilizar `ref()` para listas de dezenas de milhares de itens estáticos (ex: logs de telemetria) cria proxies reativos para cada nó interno e consome muita memória. Utilize `shallowRef()` para grandes coleções estáticas.
-- ⚠️ **Mutação Indevida em `computed`**: Propriedades computadas devem ser funções puras de transformação de leitura. Nunca altere outros estados reativos dentro de um getter `computed()`.
+A requisição cancelada não altera o estado: só a mais recente atualiza `carregando`, evitando que uma resposta antiga desligue o indicador de uma nova.
 
 ---
 
-## 4. Padrão de Entrega do Agente
+## 3. Integrações
 
-Ao entregar código em Vue 3:
-1. Utilize sempre `<script setup lang="ts">`.
-2. Adote `defineModel()` para componentes com input/output de dados.
-3. Forneça composables com retorno tipado em formato de objeto plano contendo `ref`s desestruturáveis.
+`-tech-typescript` (tipos), `-design-system` (tokens e acessibilidade), `-testing` (testes), `-api-design` (contratos), `-security` (XSS), `-code-review` e `-devops`. Se alguma não existir, siga o padrão desta skill sem a integração.
+
+---
+
+## 4. Armadilhas
+
+- **Desestruturar `reactive` ou `props` sem os recursos corretos**: perde a reatividade (use `toRefs`, ou a desestruturação reativa do 3.5+).
+- **`ref` em coleções enormes e estáticas**: proxies profundos consomem memória; use `shallowRef`.
+- **Efeitos colaterais em `computed`.**
+- **Requisição sem cancelamento**: respostas antigas sobrescrevem as novas.
+- **`v-for` sem `key` ou com índice em lista mutável.**
+- **`v-html` com conteúdo não sanitizado.**
+- **`catch (e: any)`**: use `unknown` e estreite.
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Componentes e composables tipados, com estados de carregamento, vazio e erro, com links relativos.
+3. Resultado de testes, `vue-tsc` e lint, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-vue`, P1 a P3; fallback em lista no chat).

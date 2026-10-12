@@ -1,116 +1,249 @@
 ---
 name: -ai-engineering
-description: "Orienta a engenharia de aplicações com IA generativa e LLMs: Tool/Function Calling com schemas estritos (Pydantic/Zod), pipelines de RAG (chunking semântico, busca híbrida), Structured Outputs, guardrails e mitigação de alucinações."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python *), Bash(npm test *)
+description: "Orienta a engenharia de aplicações com LLMs: saídas estruturadas validadas, tool calling e agentes seguros, RAG (chunking, busca híbrida, reranking, permissões), avaliações (evals) com porta de regressão, defesa contra prompt injection, confiabilidade, custo e privacidade. Use sempre que o usuário pedir 'integre um LLM', 'tool calling', 'function calling', 'RAG', 'embeddings', 'agente', 'prompt', 'avalie as respostas', 'reduza alucinação' ou 'structured output', mesmo sem a expressão 'AI engineering'. NÃO use para segurança de aplicação em geral (isso é -security), contratos de API (isso é -api-design) nem para filas e arquitetura (isso é -system-design)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python -m pytest *), Bash(npm test *), Bash(npm run test *), Bash(npx vitest *)
 ---
 
-# Global Skill: AI Engineering, LLM Patterns & RAG Systems (Language-Agnostic)
+# AI Engineering: LLMs confiáveis em produção
 
-Esta skill orienta o desenvolvimento de software robusto integrado a Modelos de Linguagem de Larga Escala (LLMs), agentes autônomos e sistemas de Recuperação Aumentada por Geração (RAG). Ela estabelece padrões de engenharia para transformar respostas probabilísticas de IA em fluxos determinísticos, auditáveis e resilientes para produção.
+## 0. Regras de operação
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-ai-engineering``
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
----
+> 🧠 **Skill Ativa**: `-ai-engineering`
 
-## 1. Processo de Execução em Engenharia de IA
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-Ao projetar integrações com LLMs, agentes ou fluxos de recuperação:
+**Custo e dados externos exigem confirmação.** Rodar avaliações ou testes que chamam um provedor de LLM custa dinheiro e envia dados para fora. Confirme antes e prefira respostas gravadas ou fakes nos testes de rotina.
 
-1. **Saídas Estruturadas & Schemas Rígidos (Zero Texto Livre para Integrações)**:
-   - Toda comunicação entre o modelo e sistemas backend deve utilizar **Structured Outputs** validados por esquemas de tipagem estrita (**Pydantic v2** em Python, **Zod** em TypeScript/Node, ou **JSON Schema** nativo).
-   - Defina validações de limites, expressões regulares e campos opcionais explícitos.
-2. **Design de Ferramentas Idempotentes (*Tool / Function Calling*)**:
-   - Cada ferramenta fornecida ao agente deve ter nome semântico autoexplicativo, descrição rica e parâmetros com descrições detalhadas.
-   - Ferramentas de mutação crítica (pagamentos, deleção) devem implementar confirmação explícita ou *Human-in-the-loop*.
-   - Tratamento de erro resiliente: se a chamada da ferramenta falhar, retorne uma mensagem de erro clara como *tool response* para que o modelo possa se auto-corrigir.
-3. **Pipeline de RAG de Alta Precisão (Recuperação Aumentada)**:
-   - **Chunking Semântico**: Prefira quebras por parágrafo/seção lógica com sobreposição (*overlap* de 10% a 15%) em vez de quebras cegas por contagem de caracteres.
-   - **Busca Híbrida**: Combine busca vetorial densa (similaridade de cosseno em embeddings) com busca esparsa lexical (**BM25 / Full-Text Search**) para capturar jargões e códigos exatos.
-   - **Reranking**: Utilize modelos de reranking (Cohere, Cross-Encoders) nos top-N resultados antes de injetar os documentos no contexto do prompt.
-   - **Grounding & Citação**: Force o modelo a citar fontes exatas e responder *"Não encontrei informações nos documentos fornecidos"* quando o contexto for insuficiente.
-4. **Gerenciamento de Janela de Contexto & Sanitização de Prompts**:
-   - Monitore o consumo de tokens e aplique estratégias de *sliding window* ou resumo semântico para histórico de conversas longas.
-   - Isole instruções do sistema (*system prompt*) do conteúdo não confiável fornecido pelo usuário para prevenir ataques de **Prompt Injection**.
+**Detalhes de provedor mudam.** Modelos, limites, preços e parâmetros devem ser confirmados na documentação atual, não na memória. Mantenha o modelo configurável, com versão fixa, e siga o provedor e o framework que o projeto já usa.
+
+**A saída do modelo é entrada não confiável.** Valide, escape e nunca execute sem checagem. Argumentos de ferramentas também.
+
+**Segredos.** Chaves de API só no backend, nunca em prompts, no cliente ou em logs.
+
+**Evidência.** Escolhas de chunking, modelo e prompt se justificam com avaliações. Números como "10 a 15% de sobreposição" são ponto de partida, não regra.
+
+**Idioma.** O do usuário; nomes técnicos ficam como estão.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Modos de operação
 
-### 2.1. Tool Calling com Validação de Schema Estrito (TypeScript + Zod)
+| Modo | Quando |
+| :--- | :--- |
+| **Projetar** | Definir a arquitetura da integração (RAG, agente, ferramentas) |
+| **Implementar** | Escrever o código da integração |
+| **Avaliar** | Montar ou rodar avaliações (seção 6) |
+| **Revisar** | Auditar uma integração existente |
+
+---
+
+## 2. Workflow
+
+1. **Contexto**: provedor, framework, dados, usuários e permissões, requisitos de custo, latência e privacidade. Leia `ARCHITECTURE.md` e os ADRs.
+2. **Comece simples**: um prompt bem escrito com saída estruturada resolve muitos casos antes de RAG ou agentes.
+3. Aplique as seções 3 a 5 ao desenho.
+4. **Avaliações antes de otimizar** (seção 6).
+5. Cubra segurança (seção 7) e confiabilidade (seção 8).
+6. Registre as pendências (seção 10).
+
+---
+
+## 3. Saídas estruturadas
+
+- Na integração com o backend, use o recurso nativo do provedor (modo JSON schema ou tool use), com **validação sempre** (Pydantic v2, Zod ou JSON Schema).
+- Schemas com limites, enums e campos opcionais explícitos.
+- Falha de validação: no máximo 1 ou 2 novas tentativas, devolvendo o erro ao modelo; depois, falha controlada.
+- Texto livre é adequado nas respostas a pessoas, não nos dados que alimentam a lógica de negócio.
+- Prompts são código: versionados no repositório, em templates, e toda mudança roda as avaliações.
+
+---
+
+## 4. Ferramentas e agentes
+
+- **O modelo propõe, o sistema decide.** O que o sistema sabe (usuário da sessão, preços, permissões) nunca vem do modelo.
+- Nome e descrição claros, parâmetros descritos, **autorização por usuário** dentro da ferramenta e **chave de idempotência** nas escritas.
+- Ações irreversíveis ou financeiras: rascunho e **confirmação humana** antes de efetivar.
+- Erro de ferramenta volta ao modelo como resultado claro, para ele se corrigir, com limite de tentativas.
+- Agentes: limite de passos, de tempo e de custo; estado e memória explícitos; execução em sandbox quando houver código ou comandos.
+- Ferramentas de terceiros (por exemplo MCP) são não confiáveis: revise descrições e permissões, e conceda o mínimo.
+
+---
+
+## 5. RAG
+
+- **Chunking** por estrutura (títulos e seções) com tamanho e sobreposição calibrados por avaliação; metadados em cada chunk (fonte, versão, permissões).
+- **Busca híbrida**: vetorial mais lexical (BM25), com fusão por posição (**RRF**), seguida de **reranking** dos melhores candidatos.
+- **Permissões antes da recuperação**: filtre por usuário, grupo e tenant na própria busca. Sem isso, a resposta vaza documentos entre usuários.
+- **Grounding**: o modelo cita as fontes e responde que não encontrou quando o contexto é insuficiente.
+- **Embeddings** têm versão: trocar de modelo exige reindexar. Decida entre vetor no banco (`-sql`) e serviço dedicado com um ADR (`-adr`).
+- Mantenha o índice atualizado: reindexação por mudança de documento e remoção de conteúdo apagado.
+
+---
+
+## 6. Avaliações (evals)
+
+Sem avaliação, melhorias são opinião. A base:
+
+- **Conjunto de referência** versionado, com casos reais, de borda e adversariais, sem dados pessoais.
+- **Métricas de RAG**: recall@k e MRR da recuperação; fidelidade ao contexto e relevância da resposta na geração.
+- **Ferramentas e agentes**: escolha correta da ferramenta, argumentos corretos, número de passos.
+- **Juiz-LLM** com ressalvas: pode ter viés, então calibre contra amostras avaliadas por pessoas.
+- **Porta de regressão no CI** com limites mínimos; qualquer troca de modelo, prompt, chunking ou embedding roda as avaliações.
+- **Tráfego real**: amostre respostas de produção (com privacidade) para alimentar o conjunto.
+
+---
+
+## 7. Segurança
+
+Referência: OWASP Top 10 para aplicações com LLM; geral no `-security`.
+
+- **Prompt injection direta e indireta**: o texto de documentos recuperados, páginas e saídas de ferramentas também pode conter instruções hostis. Delimitar o conteúdo ajuda, mas não resolve sozinho.
+- **Privilégio mínimo** para ferramentas e credenciais do agente; o que o modelo não precisa fazer, ele não consegue fazer.
+- **Saída não confiável**: escape antes de renderizar em HTML, nunca monte SQL ou comandos com ela.
+- **Exfiltração**: bloqueie links e imagens markdown para domínios externos na saída renderizada.
+- **Humano no circuito** para ações destrutivas ou irreversíveis.
+- **Abuso**: rate limit e orçamento por usuário.
+
+---
+
+## 8. Confiabilidade, custo, privacidade e observabilidade
+
+- **Falhas**: timeout; retry com backoff e jitter só em erros transitórios (429, 5xx), respeitando `Retry-After`; fallback de modelo; tratamento de resposta truncada (motivo de parada) e de `max_tokens`.
+- **Custo**: orçamento de tokens por requisição e por usuário, cache de prompt e de resposta quando cabe, e histórico longo por janela deslizante ou resumo.
+- **Migração de modelo**: com versão fixa e avaliações, a troca é uma decisão medida.
+- **Privacidade**: PII redigida antes de enviar ao provedor, termos de retenção do provedor, LGPD.
+- **Observabilidade** (`-observability`): trace por chamada com versão do prompt e do modelo, tokens, custo, latência e motivo de parada. Não registre prompts completos nem PII sem política.
+
+---
+
+## 9. Exemplos de referência
+
+### 9.1. Ferramenta com schema estrito (TypeScript e Zod)
+
 ```typescript
 import { z } from 'zod';
 
-// 1. Schema rígido com validações determinísticas
-export const CreateOrderToolSchema = z.object({
-  customerId: z.string().uuid({ message: "O ID do cliente deve ser um UUID válido." }),
-  items: z.array(
-    z.object({
-      sku: z.string().regex(/^[A-Z]{3}-\d{4}$/, { message: "SKU deve seguir o formato ABC-1234." }),
-      quantity: z.number().int().positive({ message: "Quantidade deve ser inteira e positiva." }),
-      unitPrice: z.number().positive(),
-    })
-  ).min(1, { message: "O pedido deve conter ao menos 1 item." }),
-  shippingAddress: z.object({
-    street: z.string().min(5),
-    zipCode: z.string().regex(/^\d{5}-\d{3}$/, { message: "CEP no formato 00000-000." }),
-  }),
-});
+interface Sessao {
+  usuarioId: string;
+}
 
-export type CreateOrderParams = z.infer<typeof CreateOrderToolSchema>;
+// O modelo propõe; o sistema decide. Preço e cliente NÃO vêm do modelo.
+export const CriarPedidoArgs = z
+  .object({
+    itens: z
+      .array(
+        z.object({
+          sku: z.string().regex(/^[A-Z]{3}-\d{4}$/),
+          quantidade: z.number().int().positive().max(100),
+        }),
+      )
+      .min(1)
+      .max(50),
+    enderecoEntregaId: z.string().uuid(), // endereço já cadastrado do usuário
+  })
+  .strict();
 
-// 2. Definição da ferramenta para o LLM
-export const createOrderToolDefinition = {
-  name: "create_order",
-  description: "Registra um novo pedido de compra no sistema com itens, valores e endereço de entrega.",
-  parameters: zodToJsonSchema(CreateOrderToolSchema),
+export const definicaoFerramenta = {
+  name: 'criar_pedido',
+  description:
+    'Prepara um pedido com os itens informados. O pedido só é efetivado após a confirmação do usuário.',
+  // Zod 4: z.toJSONSchema. No Zod 3, use zod-to-json-schema. O formato varia por provedor.
+  parameters: z.toJSONSchema(CriarPedidoArgs),
 };
+
+export async function executarCriarPedido(args: unknown, sessao: Sessao): Promise<void> {
+  const dados = CriarPedidoArgs.parse(args); // argumentos do modelo são entrada não confiável
+  // 1. Autorizar: o endereço pertence a sessao.usuarioId?
+  // 2. Preços e disponibilidade vêm do catálogo, não do modelo.
+  // 3. Gravar como rascunho e pedir confirmação humana; efetivar com chave de idempotência.
+  void dados;
+  void sessao;
+}
 ```
 
-### 2.2. Pipeline de Busca Híbrida RAG com Reranker (Conceitual Python)
+### 9.2. Recuperação híbrida com permissões e RRF (Python, conceitual)
+
 ```python
-from typing import List, Dict, Any
+import asyncio
+from collections import defaultdict
+from typing import Any
 
-class HybridRAGPipeline:
-    def __init__(self, vector_store, lexical_index, reranker_client):
-        self.vector_store = vector_store
-        self.lexical_index = lexical_index
-        self.reranker = reranker_client
 
-    async def retrieve(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
-        # 1. Busca vetorial densa (semântica) e busca lexical BM25 (termos exatos)
-        dense_results = await self.vector_store.similarity_search(query, k=top_k * 2)
-        sparse_results = await self.lexical_index.search(query, k=top_k * 2)
+def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
+    """Fusão por posição (Reciprocal Rank Fusion)."""
+    scores: dict[str, float] = defaultdict(float)
+    for ranking in rankings:
+        for pos, doc_id in enumerate(ranking, start=1):
+            scores[doc_id] += 1.0 / (k + pos)
+    return sorted(scores, key=scores.get, reverse=True)
 
-        # 2. Desduplicação por ID do documento
-        combined = {doc["id"]: doc for doc in dense_results + sparse_results}.values()
 
-        # 3. Reranking com modelo de alta precisão
-        scored_docs = await self.reranker.rerank(
-            query=query, 
-            documents=[doc["text"] for doc in combined],
-            top_n=top_k
-        )
-        return scored_docs
+async def retrieve(query: str, usuario, top_k: int = 5) -> list[dict[str, Any]]:
+    # Permissões aplicadas NA busca, antes de recuperar
+    filtro = {"tenant": usuario.tenant_id, "acl": usuario.grupos}
+
+    densos, lexicais = await asyncio.gather(
+        vector_store.search(query, k=top_k * 4, filtro=filtro),
+        lexical_index.search(query, k=top_k * 4, filtro=filtro),
+    )
+
+    candidatos = {d["id"]: d for d in densos + lexicais}
+    ordem = rrf([[d["id"] for d in densos], [d["id"] for d in lexicais]])[: top_k * 4]
+
+    # O reranker recebe só os melhores candidatos da fusão
+    reranqueados = await reranker.rerank(
+        query, [candidatos[i]["text"] for i in ordem], top_n=top_k
+    )
+    return [candidatos[ordem[r.index]] for r in reranqueados]
 ```
 
 ---
 
-## 3. Armadilhas Críticas em Engenharia de IA (*Gotchas*)
+## 10. Registro via `-tasks` e integrações
 
-- ⚠️ **Confiar em JSON sem Validação de Schema**: Presumir que o modelo sempre retornará JSON com a estrutura solicitada. Sem `try/catch` e parser de schema, caracteres de escape ou alucinações de campos quebram a aplicação em produção.
-- ⚠️ **RAG com Chunks Grandes sem Overlap**: Chunks de 2.000 tokens perdem a especificidade semântica dos embeddings; chunks sem sobreposição cortam frases e raciocínios pela metade, degradando a resposta.
-- ⚠️ **Vazamento de Chaves de API no Frontend**: Invocar APIs de LLM diretamente do cliente web/mobile expondo a API Key. Todo tráfego deve passar por um gateway/backend seguro com rate-limiting.
-- ⚠️ **Execução Cega de Ações Destrutivas por Agentes**: Permitir que agentes excluam registros ou executem comandos de sistema sem barreira humana (*Human-in-the-loop*) ou confirmação reversível.
+Se houver pendências, pergunte ao final:
+
+> *"Deseja que eu registre as pendências e avaliações no `TASKS.md` do projeto?"*
+
+Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `ai-engineering`, links relativos e a prioridade: ferramenta destrutiva sem confirmação e chave exposta P0; falta de avaliação e de validação de schema P1; resiliência e custo P2; ajustes P3. **Fallback**: lista no chat.
+
+| Skill | Como se integra |
+| :--- | :--- |
+| `-security` | OWASP LLM Top 10, segredos e abuso |
+| `-api-design` | Endpoint, streaming e contratos |
+| `-testing` | Testes determinísticos com fakes ou respostas gravadas |
+| `-system-design` | Inferência assíncrona, filas e cache |
+| `-sql` | Vetores e busca no banco |
+| `-observability` | Traces, tokens e custo |
+| `-devops` | Porta de avaliação no CI |
+| `-adr` | Provedor, banco vetorial e estratégia de RAG |
+
+Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão Rigoroso de Entrega
+## 11. Armadilhas
 
-Ao implementar fluxos de IA:
-1. **Assinatura Obrigatória**: Iniciar a resposta com `> 🧠 **Skill Ativa**: -ai-engineering`.
-2. **Schemas Exaustivos**: Todo input/output de LLM para lógica de negócio deve possuir schema de validação (Pydantic/Zod).
-3. **Resiliência a Falhas**: Inclua tratamento explícito para timeouts de inferência, rate-limits do provedor (HTTP 429) e respostas truncadas.
-4. **Integração com Tarefas**: Ao finalizar integrações de IA, pergunte ao usuário se deseja registrar pendências ou avaliações de prompt em `TASKS.md` via `-task-management`.
+- **JSON sem validação de schema**: quebra com campos faltantes ou alucinados.
+- **Dados do sistema vindos do modelo**: preço, cliente e permissões decididos pelo modelo.
+- **RAG sem filtro de permissão**: vaza documentos entre usuários.
+- **Otimizar sem avaliação**: mudanças de chunking ou prompt viram opinião.
+- **Confiar em documentos recuperados**: injeção indireta.
+- **Ação destrutiva sem confirmação humana.**
+- **Chave de API no cliente.**
+- **Modelo sem versão fixa**: o comportamento muda sem aviso.
+- **Retry sem limite**: amplifica custo e falhas.
+- **Registrar prompts completos e PII em logs.**
+- **Juiz-LLM sem calibração**: mede o viés do juiz.
+
+---
+
+## 12. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Premissas declaradas (provedor, dados, permissões, requisitos) e o que precisa de confirmação na documentação atual.
+3. Arquivos criados ou alterados, com links relativos, e o resultado dos testes ou o motivo de não ter executado.
+4. Plano de avaliação e os riscos de segurança tratados.
+5. Pendências e a pergunta sobre o registro em tarefas (seção 10).

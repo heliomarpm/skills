@@ -1,198 +1,248 @@
 ---
-name: -task-management
-description: Gerencia, planeja, gera e atualiza tarefas do projeto no arquivo TASKS.md. Busca automaticamente em ./TASKS.md, ./agents/TASKS.md ou ./.agents/TASKS.md (com tolerância a TASK.md / task.md) para sincronizar o backlog, acompanhar o progresso e estruturar novas atividades.
+name: -tasks
+description: "Gerencia o backlog do projeto no arquivo TASKS.md: planeja, cria, decompõe, atualiza o status, audita contra o código e arquiva tarefas, com rastreabilidade para specs e para o discovery. Use sempre que o usuário falar de tarefas, backlog, TASKS.md, 'o que falta fazer', 'próximo passo', 'atualizar progresso', 'marcar como concluída', 'quebrar em tarefas' ou 'registrar pendências', e quando as skills -spec ou -discovery repassarem tarefas e débitos para registro. NÃO use para pedidos de código comuns em que o usuário não pediu para registrar ou acompanhar tarefas."
 allowed-tools: Read, Edit, Write, Grep, Glob
-disallowed-tools: Bash
 ---
 
-# Task Management Skill: Dynamic Project Backlog & Execution Tracking
+# Tasks: backlog vivo e rastreável em TASKS.md
 
-Esta skill padroniza o ciclo completo de planejamento, geração, decomposição e atualização contínua de tarefas de um projeto de software. Ela garante rastreabilidade técnica, foco de execução e histórico evolutivo consistente através do arquivo padrão **`TASKS.md`** (com tolerância a **`TASK.md`** / **`task.md`**).
+Padroniza o ciclo de planejamento, decomposição, execução e arquivamento de tarefas de um projeto no arquivo `TASKS.md`, com estado confiável, evidência de conclusão e vínculo com as specs e com o discovery.
 
+## 0. Regras de operação
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-task-management``
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
----
+> 🧠 **Skill Ativa**: `-tasks`
 
-## 1. Processo de Execução Estruturado (Workflow)
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-### 1.1. Descoberta e Resolução do Arquivo Alvo
+**Escopo de escrita.** Com a skill ativa (o usuário pediu para planejar, registrar ou atualizar tarefas), grave no `TASKS.md`. Durante outro trabalho (código, revisão, testes), não edite o arquivo por conta própria: ao final, ofereça registrar as pendências encontradas e aguarde a confirmação.
 
-Ao receber uma instrução para gerar, atualizar, verificar ou decompor tarefas no projeto, o agente **deve obrigatoriamente** adotar o padrão no **plural (`TASKS.md`)** e inspecionar a existência do arquivo na seguinte ordem de precedência:
+**Sem pendências ocultas.** Com a skill ativa, nenhuma pendência descoberta fica só no chat: registre no `TASKS.md` ou, se o usuário não quiser registrar, liste-a no resumo final.
 
-1. `./TASKS.md` (raiz do projeto)
-2. `./agents/TASKS.md` (pasta de contexto de agentes)
-3. `./.agents/TASKS.md` (pasta oculta de configuração de agentes)
+**Sem shell.** A skill não executa comandos. Para verificar o estado real use `Read`, `Grep` e `Glob`. Resultados de testes só valem se estiverem visíveis na conversa ou forem informados pelo usuário.
 
-#### Regras de Resolução:
-- **Arquivo Existente Encontrado**: Utilize o primeiro arquivo localizado na lista acima. **Nunca crie um segundo arquivo** em outro local se já existir um arquivo de tarefas em qualquer uma das localizações monitoradas.
-- **Tolerância a Singular (`TASK.md` / `task.md`)**: Caso não encontre nenhum `TASKS.md` (ou `tasks.md`), verifique se o projeto já adota `./TASK.md`, `./agents/TASK.md`, `./.agents/TASK.md` (ou versões em minúsculas como `./task.md`). Se algum existir, preserve a convenção encontrada para manter a compatibilidade.
-- **Criação Inicial (Quando nenhum arquivo existe)**: O padrão mandatório de criação é no **plural**:
-  - Se a pasta `./.agents/` existir, crie `./.agents/TASKS.md`.
-  - Se a pasta `./agents/` existir, crie `./agents/TASKS.md`.
-  - Caso contrário, crie diretamente na raiz do projeto: `./TASKS.md`.
+**Data.** Use a data do contexto da conversa. Se não estiver disponível, omita a data; nunca invente.
+
+**Idioma.** Siga o idioma do `TASKS.md` existente; sem arquivo, o da documentação do repositório; sem ela, o do pedido.
 
 ---
 
-### 1.2. Auditoria e Sincronização com a Base de Código
+## 1. Modos de operação
 
-Antes de adicionar ou modificar qualquer tarefa:
+Identifique o modo pelo pedido e diga qual está usando.
 
-1. **Leitura Prévia Obrigatória**: Leia o conteúdo integral do arquivo localizado. Jamais execute sobrescrita cega (*blind overwrite*).
-2. **Preservação do Histórico**: Mantenha anotações manuais, links, observações do desenvolvedor e o histórico de itens concluídos (`- [x]`).
-3. **Checagem de Fato com o Código**:
-   - Verifique se tarefas marcadas como pendentes já foram implementadas no repositório.
-   - Verifique se novas dependências, migrações ou quebras de contrato surgiram desde a última atualização.
-4. **Alinhamento de Escopo**: Valide se os itens propostos atendem ao objetivo atual do projeto sem introduzir complexidade desnecessária (*scope creep*).
-
----
-
-### 1.3. Decomposição e Quebra de Tarefas (Critérios INVEST)
-
-Tarefas devem ser granulares o suficiente para serem executadas com precisão e testadas de forma determinística:
-
-- **Independentes**: Minimizam acoplamento mútuo ou estabelecem dependências explícitas.
-- **Negociáveis / Claras**: Descrevem o objetivo técnico e o valor entregue.
-- **Estimáveis / Acessíveis**: Escopo delimitado a poucos arquivos ou a uma única responsabilidade lógica.
-- **Pequenas (Small)**: Devem poder ser implementadas e validadas em uma única iteração de trabalho.
-- **Testáveis (Testable)**: Possuem critérios claros de aceite (*Definition of Done - DoD*).
+| Modo | Quando | O que faz |
+| :--- | :--- | :--- |
+| **Planejar** | Criar tarefas novas ou o backlog inicial | Cria entradas completas (seção 3.3) |
+| **Atualizar** | Mudar estado ou progresso | Move a entrada de seção, ajusta contador e cabeçalho |
+| **Auditar** | "Sincronize com o código", "o que já foi feito?" | Compara backlog e código; corrige estados com evidência e lista as dúvidas |
+| **Decompor** | Tarefa grande ou vaga | Quebra em tarefas INVEST (seção 4.2) |
+| **Importar** | Plano de uma spec ou débitos do discovery | Cria entradas com origem e referência (seção 6) |
 
 ---
 
-### 1.4. Ciclo de Vida da Tarefa e Estados de Execução
+## 2. Resolução do arquivo alvo
 
-Utilize checkboxes Markdown padronizados para refletir o estado exato de cada item:
+Procure, nesta ordem, e use o primeiro encontrado:
 
-| Estado | Marcador | Significado | Ação do Agente |
-| :--- | :---: | :--- | :--- |
-| **Pendente** | `- [ ]` | Tarefa no backlog, aguardando início | Pronta para ser selecionada |
-| **Em Progresso** | `- [/]` | Trabalho ativo em desenvolvimento | Máximo de 1 a 2 tarefas simultâneas (limite WIP) |
-| **Concluída** | `- [x]` | Implementação e testes finalizados | Adicionar data/hora e referência aos arquivos alterados |
-| **Bloqueada** | `- [!]` ou `🚨` | Impedimento externo ou dependência pendente | Descrever a causa do bloqueio e a ação necessária |
-| **Cancelada** | `- [~]` | Escopo descartado ou substituído | Justificar sucintamente o motivo do cancelamento |
+1. `./TASKS.md`
+2. `./.agents/TASKS.md`
+3. `./agents/TASKS.md`
+4. `./docs/TASKS.md`
 
----
+**Variações aceitas**, para preservar a convenção do projeto: `TASK.md`, `tasks.md`, `task.md` nos mesmos locais. Em sistemas de arquivos que ignoram maiúsculas e minúsculas (Windows, macOS), `TASKS.md` e `tasks.md` são o mesmo arquivo; trate-os como um só. Se achar mais de um arquivo de tarefas, não crie outro: use o primeiro da ordem e avise o usuário da duplicidade.
 
-### 1.5. Atualização Cirúrgica e Persistência
+**Nunca crie um segundo arquivo** se qualquer um dos acima existir.
 
-Ao concluir uma etapa de trabalho ou ao planejar a próxima:
+**Criação (nenhum existe)**, sempre com o nome no plural `TASKS.md`:
 
-1. Localize o bloco exato no arquivo correspondente (`./TASKS.md`, `./agents/TASKS.md`, `./.agents/TASKS.md` ou arquivo legado em singular).
-2. Mude o status dos itens concluídos para `- [x]` e atualize o indicador de progresso no topo.
-3. Se novas pendências forem descobertas durante a implementação (bugs colaterais, necessidade de refatoração, débitos técnicos), registre-as imediatamente na seção correspondente de prioridade.
-4. Salve o arquivo mantendo a formatação limpa e links navegáveis com o esquema `file:///`.
+- Se a skill foi chamada pelo `-discovery` ou pelo `-spec`, use o diretório dos arquivos de contexto ou da spec.
+- Senão, se existirem arquivos de contexto (`AGENTS.md`, `CONTEXT.md`) em `./.agents/`, `./agents/` ou `./docs/`, use esse diretório.
+- Senão, use `./.agents/` ou `./agents/` se a pasta existir; caso contrário, a raiz `./`.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 3. Formato do arquivo
 
-### 2.1. Modelo Canônico do Arquivo `TASKS.md`
+### 3.1. Adaptação ao que existe
 
-```markdown
-# 📋 Project Tasks & Execution Backlog
+Se o `TASKS.md` já existe, **adapte-se ao formato dele**. Aplique o modelo desta skill somente em arquivo novo. Se o formato existente divergir muito (por exemplo, sem seções ou com marcadores próprios), pergunte antes de migrar; nunca reestruture por conta própria.
 
-> **Status Geral**: 🟡 Em Desenvolvimento  
-> **Progresso**: 3/8 concluídas (37%)  
-> **Última Atualização**: 2026-09-27  
-> **Arquivo**: `./TASKS.md`
+### 3.2. Estados
 
----
+Use apenas os checkboxes padrão `[ ]` e `[x]`, que renderizam em qualquer visualizador. O estado é dado pela **seção** em que a tarefa está:
 
-## 🎯 Meta da Iteração / Sprint Atual
-Implementar autenticação OAuth 2.1 com suporte a PKCE e proteção CSRF em APIs públicas.
+| Seção | Significado | Regra |
+| :--- | :--- | :--- |
+| Em progresso | Trabalho ativo | Limite de WIP: 2 por padrão, configurável no cabeçalho |
+| Bloqueadas | Impedimento externo ou dependência | Título com **[BLOQUEADA]** e linha `Bloqueio:` com causa e ação necessária |
+| Backlog | Pendente, ordenada por prioridade | Prioridade P0 a P3 em cada tarefa |
+| Concluídas recentemente | Feita, com evidência | `[x]`, data, arquivos e evidência |
+| Canceladas | Descartada ou substituída | Título com **[CANCELADA]** e justificativa curta |
 
----
+Prioridade é uma dimensão separada do estado: **P0** crítico (segurança, produção parada), **P1** alta, **P2** média, **P3** baixa (débitos e otimizações).
 
-## 🚀 1. Em Progresso (WIP - Limite: 2 tarefas)
+### 3.3. Campos de uma tarefa
 
-- [/] **T-004: Implementar middleware de validação do Code Challenge (PKCE)**
-  - **Ref**: [auth_middleware.ts](file:///src/middlewares/auth_middleware.ts)
-  - **Critérios de Aceite**:
-    - [x] Validar desafio SHA-256 com tempo constante (`timingSafeEqual`)
-    - [ ] Rejeitar requisições sem `code_verifier` válido
-    - [ ] Adicionar testes unitários com vetores da RFC 7636
+Toda tarefa tem: ID, prioridade, título, **origem** (`manual`, `bug`, `spec <id> / T-NN`, `adr ADR-NNNN` ou o nome da skill que a gerou, como `-discovery`, `-code-review`, `-testing`, `-refactor`, `-debug`, `-security`, `-devops`, `-sql`, `-observability`, `-api-design`, `-system-design`, `-ai-engineering`, `-design-system` e `-tech-*`), **dependências**, **referências** a arquivos e **critérios de aceite** (DoD) observáveis.
 
----
+- **IDs**: `T-NNN`, globais no arquivo, alocados como o maior ID existente (incluindo concluídas, canceladas e arquivadas) mais um. Nunca reutilize um ID.
+- **Links**: sempre relativos ao arquivo, com linha quando útil: `[arquivo.ts](./src/arquivo.ts#L45-L60)`. Nunca `file:///`.
 
-## 🚨 2. Bloqueadores & Alta Prioridade
+### 3.4. Cabeçalho e contador
 
-- [ ] **T-005: Corrigir vulnerabilidade de injeção de parâmetros no fluxo de callback**
-  - **Ref**: [callback_handler.ts](file:///src/handlers/callback_handler.ts#L45-L60)
-  - **Problema**: O parâmetro `redirect_uri` não é validado contra a whitelist pré-configurada.
-  - **Ação**: Implementar validação estrita de URI com esquema `https://`.
+O cabeçalho traz: meta atual, status geral, progresso, limite de WIP e data da última atualização.
 
----
+**Progresso** = concluídas ÷ (total − canceladas), arredondado para baixo, recalculado a partir das seções a cada escrita. Os arquivos arquivados não entram na conta.
 
-## 📋 3. Backlog de Tarefas Planejadas
+### 3.5. Tamanho e arquivamento
 
-### Etapa 1: Camada de Domínio e Contratos
-- [x] **T-001**: Definir DTOs imutáveis para Token Request e Token Response.
-- [x] **T-002**: Criar entidade `AuthorizationCode` com TTL e controle de uso único.
-- [ ] **T-003**: Implementar repositório Redis para armazenamento transitório de tokens.
-
-### Etapa 2: Endpoints e Integração
-- [ ] **T-006**: Criar endpoint `/oauth/v2/token` conforme especificação RFC 6749.
-- [ ] **T-007**: Configurar rota de revogação `/oauth/v2/revoke` (RFC 7009).
+Mantenha o `TASKS.md` com até ~300 linhas. Em "Concluídas recentemente" e "Canceladas", mantenha as últimas 10 entradas ou 30 dias. O excedente vai para `TASKS.archive.md` no mesmo diretório (avise ao criá-lo) ou, se o usuário preferir, é resumido em uma linha de histórico com a contagem. Nunca descarte um item sem registro.
 
 ---
 
-## 💡 4. Débitos Técnicos & Otimizações Futuras
+## 4. Workflow
 
-- [ ] **T-008**: Substituir chamadas síncronas de hash por biblioteca nativa Argon2id.
-- [ ] **T-009**: Adicionar métricas Prometheus de contagem de tokens emitidos e revogados.
+### 4.1. Leitura, auditoria e duplicatas
+
+1. **Leia o arquivo inteiro** antes de qualquer escrita. Nunca sobrescreva às cegas e preserve anotações, links e observações manuais.
+2. **Cheque o código**: tarefas pendentes que já parecem implementadas, novas dependências ou migrações, quebras de contrato desde a última atualização.
+3. **Procure duplicatas** antes de adicionar, inclusive entre concluídas e canceladas.
+4. **Valide o escopo**: o item atende ao objetivo atual sem aumentar a complexidade sem necessidade?
+
+### 4.2. Decomposição (INVEST)
+
+Tarefas devem ser independentes (ou com dependência explícita), claras, estimáveis, pequenas (uma iteração, poucos arquivos, uma responsabilidade) e testáveis (DoD observável). Ao decompor, a tarefa original vira um **épico**: lista os IDs das filhas e só é concluída quando todas forem.
+
+### 4.3. Atualização cirúrgica
+
+1. **Releia o arquivo imediatamente antes de gravar** (ele pode ter mudado). Faça edições pequenas e localizadas.
+2. Mova a tarefa para a seção do novo estado, mantendo a formatação existente.
+3. Recalcule o contador e a data no cabeçalho.
+4. Registre agora as pendências descobertas no caminho (bugs colaterais, refatorações, débitos), respeitando as regras da seção 0.
+
+### 4.4. Evidência de conclusão
+
+Só marque `[x]` com evidência:
+
+- Os arquivos esperados existem ou foram alterados (confirmado com `Read` ou `Grep`).
+- Os testes passaram, conforme resultado visível na conversa ou informado pelo usuário.
+
+Sem evidência de testes, pergunte ao usuário. Se ele confirmar a conclusão sem testes, marque `[x]` e acrescente "(testes não verificados)". Registre a evidência na própria tarefa.
 
 ---
 
-## ✅ 5. Concluído Recentemente
+## 5. Modelo de referência
 
-- [x] **T-000: Setup do ambiente de testes unitários com Vitest** *(Concluído em 2026-09-26)*
-  - **Arquivos**: [vitest.config.ts](file:///vitest.config.ts), [auth.test.ts](file:///tests/auth.test.ts)
-```
+Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 
----
+````markdown
+# Tarefas do Projeto
 
-### 2.2. Exemplo de Atualização Incremental Cirúrgica
+> Meta: autenticação OAuth 2.1 com PKCE e proteção CSRF nas APIs públicas
+> Status: em desenvolvimento | Progresso: 3/10 (30%) | WIP: 1/2 | Atualizado em: 2026-10-11
 
-Ao atualizar o progresso após a conclusão de uma tarefa:
+## Em progresso
+
+- [ ] **T-004 · P1 · Implementar middleware de validação do code challenge (PKCE)**
+  - Origem: spec 003 / T-02 | Dep.: T-003
+  - Ref: [auth_middleware.ts](./src/middlewares/auth_middleware.ts)
+  - DoD:
+    - [x] Validar desafio SHA-256 em tempo constante
+    - [ ] Rejeitar requisição sem `code_verifier` válido
+    - [ ] Testes unitários com os vetores da RFC 7636
+
+## Bloqueadas
+
+- [ ] **T-009 · P3 · [BLOQUEADA] Adicionar métricas Prometheus de tokens emitidos e revogados**
+  - Origem: discovery | Dep.: nenhuma
+  - Bloqueio: stack de observabilidade ainda não decidida. Ação: definir com a equipe.
+
+## Backlog
+
+- [ ] **T-005 · P0 · Validar `redirect_uri` contra a whitelist no callback**
+  - Origem: bug | Dep.: nenhuma
+  - Ref: [callback_handler.ts](./src/handlers/callback_handler.ts#L45-L60)
+  - DoD: URIs fora da whitelist ou sem `https://` retornam `400`; teste cobre os dois casos.
+- [ ] **T-003 · P1 · Repositório Redis para armazenamento transitório de tokens**
+  - Origem: spec 003 / T-01 | Dep.: nenhuma
+- [ ] **T-006 · P2 · Endpoint `/oauth/v2/token` (RFC 6749)**
+  - Origem: spec 003 / T-03 | Dep.: T-003, T-004
+- [ ] **T-007 · P2 · Rota de revogação `/oauth/v2/revoke` (RFC 7009)**
+  - Origem: spec 003 / T-04 | Dep.: T-006
+- [ ] **T-008 · P3 · Trocar o hash síncrono por Argon2id nativo**
+  - Origem: discovery | Dep.: nenhuma
+
+## Concluídas recentemente
+
+- [x] **T-002 · P1 · Entidade `AuthorizationCode` com TTL e uso único** (2026-10-09)
+  - Arquivos: [authorization_code.ts](./src/domain/authorization_code.ts)
+  - Evidência: testes passaram (informado pelo usuário)
+- [x] **T-001 · P1 · DTOs imutáveis de Token Request e Token Response** (2026-10-08)
+- [x] **T-000 · P2 · Setup de testes unitários com Vitest** (2026-10-07)
+  - Arquivos: [vitest.config.ts](./vitest.config.ts)
+
+## Canceladas
+
+(nenhuma)
+````
+
+### Exemplo de atualização: concluir a T-004
 
 ```diff
-- > **Progresso**: 2/8 concluídas (25%)  
-+ > **Progresso**: 3/8 concluídas (37%)  
+-> Status: em desenvolvimento | Progresso: 3/10 (30%) | WIP: 1/2 | Atualizado em: 2026-10-11
++> Status: em desenvolvimento | Progresso: 4/10 (40%) | WIP: 0/2 | Atualizado em: 2026-10-12
 
-## 🚀 1. Em Progresso (WIP - Limite: 2 tarefas)
+ ## Em progresso
+-
+-- [ ] **T-004 · P1 · Implementar middleware de validação do code challenge (PKCE)**
+-  - Origem: spec 003 / T-02 | Dep.: T-003
++
++(nenhuma)
 
--- [/] **T-003: Implementar repositório Redis para armazenamento transitório de tokens.**
-+- [/] **T-004: Implementar middleware de validação do Code Challenge (PKCE)**
-
-## ✅ 5. Concluído Recentemente
-
-++ [x] **T-003: Implementar repositório Redis para armazenamento transitório de tokens.** *(Concluído em 2026-09-27)*
-+  - **Arquivos**: [redis_token_store.ts](file:///src/storage/redis_token_store.ts)
+ ## Concluídas recentemente
++
++- [x] **T-004 · P1 · Implementar middleware de validação do code challenge (PKCE)** (2026-10-12)
++  - Arquivos: [auth_middleware.ts](./src/middlewares/auth_middleware.ts)
++  - Evidência: testes passaram (resultado na conversa)
 ```
 
 ---
 
-## 3. Armadilhas Críticas em Produção (*Gotchas*)
+## 6. Integração com outras skills
 
-- ⚠️ **Sobrescrita Cega (*Blind Overwrite*)**: Apagar o arquivo existente ou gerar um arquivo novo do zero quando já existia histórico, perdendo anotações, subtarefas e decisões registradas pelo desenvolvedor. **Sempre leia antes de editar.**
-- ⚠️ **Multiplicação de Arquivos Descoordenados**: Criar um `./TASKS.md` na raiz quando já existia um `./.agents/TASKS.md` ou `./agents/TASKS.md` (ou seus equivalentes singulares), causando fragmentação e tarefas conflitantes.
-- ⚠️ **WIP Excessivo (Ausência de Foco)**: Marcar 5 ou mais itens como "Em Progresso" simultaneamente. Mantenha no máximo 1 a 2 tarefas ativas para garantir fluxo e revisões incrementais.
-- ⚠️ **Tarefas Monolíticas e Vagas**: Itens como "Refatorar backend" ou "Ajustar testes". Toda tarefa deve ter escopo delimitado, arquivo de referência e critérios observáveis de conclusão.
-- ⚠️ **Dessincronização com o Código Real**: Marcar uma tarefa como concluída no markdown sem que os testes tenham passado ou sem que os arquivos tenham sido efetivamente gravados no disco.
+| Skill | Como se integra |
+| :--- | :--- |
+| `-discovery` | Recebe os débitos e lacunas já confirmados pelo usuário. Origem `discovery`, prioridade P3 por padrão (maior se houver risco claro), com deduplicação |
+| `-spec` | **Importar**: cada `T-NN` do plano da spec vira uma tarefa com ID global e origem `spec <id> / T-NN`, mantendo ordem e dependências. Aponte para a spec com link relativo em vez de copiar o conteúdo. Ao concluir as tarefas de uma spec, sugira ao usuário atualizar a rastreabilidade (coluna "Teste") e o status da spec; a edição da spec é da skill `-spec` |
+| `-testing` | A evidência de testes vem de lá; os critérios de aceite da spec alimentam o DoD |
+| `-git` | O ID da tarefa vai na branch e no rodapé `Refs:` do commit |
+| Demais skills (`-code-review`, `-refactor`, `-debug`, `-security`, `-devops`, `-sql`, `-observability`, `-api-design`, `-system-design`, `-adr`, `-ai-engineering`, `-design-system`, `-tech-*`) | Chamam o modo **Importar** com a origem própria e a prioridade P0 a P3 que definem; o `-tasks` deduplica e atribui os IDs globais |
+
+**Fallback**: se `-discovery` ou `-spec` não estiverem disponíveis, aceite as pendências como lista simples no chat e importe da mesma forma, com a origem informada pelo usuário.
 
 ---
 
-## 4. Padrão Rigoroso de Entrega
+## 7. Armadilhas
 
-Ao atuar sobre tarefas com esta skill, o agente deve garantir:
+- **Sobrescrita cega**: gerar o arquivo do zero e perder anotações e histórico. Sempre leia antes de editar.
+- **Arquivo duplicado**: criar `./TASKS.md` quando já existia outro em `.agents/`, `agents/`, `docs/` ou com nome singular.
+- **Concluir sem evidência**: marcar `[x]` sem conferir arquivos e testes.
+- **WIP excessivo**: acima do limite configurado, o foco se perde.
+- **Tarefa monolítica ou vaga**: "refatorar backend", "ajustar testes". Toda tarefa tem escopo, referência e DoD observável.
+- **ID reutilizado ou duplicado**: quebra a rastreabilidade entre spec, tarefa e commit.
+- **Tarefa duplicada**: não procurar semelhantes, inclusive nas concluídas e canceladas.
+- **Copiar a spec para dentro da tarefa**: gera divergência. Aponte para a spec.
+- **Contador desatualizado**: recalcule a cada escrita, conforme a seção 3.4.
+- **Arquivo que só cresce**: sem arquivamento, o `TASKS.md` vira ruído. Aplique a seção 3.5.
 
-1. **Resolução Determinística**: Seguir à risca a busca em cascata no plural como padrão:
-   - 1º `./TASKS.md` ➔ 2º `./agents/TASKS.md` ➔ 3º `./.agents/TASKS.md`.
-   - Com verificação de tolerância para `./TASK.md`, `./agents/TASK.md`, `./.agents/TASK.md` (e variações minúsculas como `task.md`) antes de criar novo.
-2. **Navegabilidade**: Todo apontamento para arquivos ou linhas deve utilizar links markdown navegáveis com o esquema `file:///`.
-3. **Consistência Numérica**: Atualizar o contador ou porcentagem de progresso no cabeçalho do documento a cada transição de status.
-4. **Sem Pendências Ocultas**: Nenhuma pendência descoberta durante revisões ou testes deve ficar apenas na conversa do chat; ela deve ser materializada no `TASKS.md` na seção adequada.
-5. **Transparência**: Informar ao usuário exatamente qual arquivo foi lido/modificado e resumir as alterações de status realizadas.
+---
+
+## 8. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivo lido e arquivo modificado, com link relativo, e se foi criado ou atualizado.
+3. Resumo das mudanças: tarefas criadas, movidas de estado, canceladas ou arquivadas, e o novo progresso.
+4. Pendências descobertas que não foram registradas, e dúvidas de auditoria que dependem do usuário.
+5. Quando houver tarefas ligadas a uma spec concluída, a sugestão de atualizar a rastreabilidade (seção 6).

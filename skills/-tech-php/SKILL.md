@@ -1,36 +1,47 @@
 ---
 name: -tech-php
-description: Orienta o desenvolvimento em PHP moderno. Use ao criar aplicações web, estruturar rotas, modelos de domínio, consultas seguras a banco de dados e APIs em PHP puro ou frameworks.
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *)
+description: "Orienta PHP moderno em PHP puro ou frameworks (Laravel, Symfony): strict_types, tipagem completa, enums e readonly, property hooks e visibilidade assimétrica quando a versão permite, PDO com prepared statements, hash de senhas, escape de saída, N+1, Composer, OPcache e análise estática. Use sempre que o usuário pedir 'código PHP', 'PDO', 'Laravel', 'Symfony', 'DTO em PHP', 'PHPStan' ou 'migre de versão do PHP', mesmo sem dizer 'PHP'. NÃO use para modelagem e SQL em si (isso é -sql), contratos de API (isso é -api-design) nem para segurança em profundidade (isso é -security)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *), Bash(vendor/bin/phpstan *), Bash(vendor/bin/php-cs-fixer fix --dry-run *)
 ---
 
-# Tech Skill: Modern PHP Specialist (PHP 8.3/8.4+)
+# PHP: tipado, seguro e previsível
 
-Diretrizes técnicas especializadas para desenvolvimento em PHP moderno corporativo, aplicáveis tanto a código em PHP puro quanto a frameworks como Laravel e Symfony.
+## 0. Regras de operação
 
+**Assinatura.** A primeira mensagem do fluxo começa com:
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-php``
+> 🧠 **Skill Ativa**: `-tech-php`
 
----
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-## 1. Processo de Execução de Engenharia PHP
+**Versão.** Leia `require.php` no `composer.json` e use só o que a versão suporta: propriedades `readonly` e enums (8.1), classes `readonly` (8.2), *property hooks* e visibilidade assimétrica (8.4). Em versões anteriores, valide no construtor. Recursos novos: confirme na documentação oficial.
 
-Ao implementar soluções em PHP:
+**Siga o projeto.** Respeite o framework, o padrão de estilo (PSR-12 ou PER) e o nível do PHPStan já adotados.
 
-1. **Ativação de Tipagem Estrita**: Inicie 100% dos arquivos `.php` com `declare(strict_types=1);`.
-2. **Modelagem de Domínio com DTOs e Property Hooks**: Utilize recursos do PHP 8.4 (*Property Hooks* e *Asymmetric Visibility*) para criar DTOs e entidades imutáveis e auto-validadas.
-3. **Acesso Seguro a Banco (PDO / ORM)**: Utilize exclusivamente *Prepared Statements* com `bindValue` parametrizado no PDO e previna problemas N+1 em ORMs com *Eager Loading*.
-4. **Segurança de Entrada e Saída**: Valide payloads na borda e aplique `htmlspecialchars()` com codificação UTF-8 explícita em todas as saídas HTML.
-5. **Otimização de Produção**: Configure o autoloader do Composer com `--classmap-authoritative` e ative o OPcache nos contêineres de produção.
+**Modos.** Escrever, Revisar e Atualizar versão.
+
+**Idioma.** O do usuário; nomes de código seguem o projeto.
 
 ---
 
-## 2. Snippets Canônicos de Referência
+## 1. Princípios
 
-### 2.1. PHP 8.4 Property Hooks, Asymmetric Visibility e DTO Imutável
+- **`declare(strict_types=1);`** em todo arquivo; tipos em propriedades, parâmetros e retornos; `===` em vez de `==`.
+- **Modelagem**: enums, `readonly`, promoção de propriedades no construtor, `match`. Atenção: classes `readonly` **não** podem ter *property hooks*.
+- **Banco**: PDO com `ERRMODE_EXCEPTION` e `ATTR_EMULATE_PREPARES => false`, sempre com *prepared statements*; N+1 evitado com carregamento antecipado (`with()` no Eloquent, *fetch join* no Doctrine). Para modelagem e consultas, `-sql`.
+- **Saída**: `htmlspecialchars($texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')` ou mecanismo de template com escape automático.
+- **Senhas**: `password_hash` e `password_verify` (Argon2id ou o padrão atual), nunca hash rápido (`-security`).
+- **Dinheiro**: inteiros em centavos, `bcmath` ou uma biblioteca de valores monetários; nunca `float`.
+- **Erros**: exceções, sem o operador `@`; logs PSR-3; `display_errors` desligado em produção.
+- **Produção**: `composer install --no-dev --optimize-autoloader --classmap-authoritative`, `composer.lock` versionado e OPcache ativo.
+- **Qualidade**: PHPStan no nível mais alto viável, formatação automática, testes com PHPUnit ou Pest (`-testing`).
+
+---
+
+## 2. Exemplos
+
+### 2.1. DTO com property hook e visibilidade assimétrica (PHP 8.4)
+
 ```php
 <?php
 
@@ -40,33 +51,35 @@ namespace App\Domain\DTO;
 
 use InvalidArgumentException;
 
-final readonly class CreateUserDTO
+final class CriarUsuarioDTO
 {
-    // PHP 8.4: Property Hooks para validação limpa integrada à propriedade
-    public string $email {
+    // Leitura pública, escrita só dentro da classe; o hook valida e normaliza
+    public private(set) string $email {
         set {
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                throw new InvalidArgumentException("Endereço de e-mail inválido: {$value}");
+                throw new InvalidArgumentException("E-mail inválido: {$value}");
             }
             $this->email = mb_strtolower(trim($value));
         }
     }
 
-    // PHP 8.4: Visibilidade assimétrica (leitura pública, escrita privada)
-    public private(set) string $name;
+    public private(set) string $nome;
 
-    public function _construct(string $name, string $email)
+    public function __construct(string $nome, string $email)
     {
-        if (mb_strlen(trim($name)) < 2) {
-            throw new InvalidArgumentException("O nome deve ter pelo menos 2 caracteres.");
+        if (mb_strlen(trim($nome)) < 2) {
+            throw new InvalidArgumentException('O nome deve ter ao menos 2 caracteres.');
         }
-        $this->name = trim($name);
+        $this->nome = trim($nome);
         $this->email = $email;
     }
 }
 ```
 
-### 2.2. Repositório Seguro com PDO e Prepared Statements
+Em PHP 8.3 ou anterior, valide no construtor e use propriedades `readonly`.
+
+### 2.2. Conexão e repositório com PDO
+
 ```php
 <?php
 
@@ -74,41 +87,65 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Repository;
 
+use App\Domain\DTO\CriarUsuarioDTO;
+use DateTimeImmutable;
+use DateTimeZone;
 use PDO;
-use App\Domain\DTO\CreateUserDTO;
 
-final class PDOUserRepository
+// Conexão (credenciais vindas do ambiente, nunca do código)
+// $pdo = new PDO($dsn, $usuario, $senha, [
+//     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+//     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+//     PDO::ATTR_EMULATE_PREPARES   => false,
+// ]);
+
+final class PdoUsuarioRepository
 {
-    public function _construct(private readonly PDO $pdo) {}
+    public function __construct(private readonly PDO $pdo) {}
 
-    public function create(CreateUserDTO $dto): int
+    public function criar(CriarUsuarioDTO $dto): int
     {
-        $sql = "INSERT INTO users (name, email, created_at) VALUES (:name, :email, NOW())";
-        $stmt = $this->pdo->prepare($sql);
-        
-        // Parametrização segura contra SQL Injection
-        $stmt->bindValue(':name', $dto->name, PDO::PARAM_STR);
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO usuarios (nome, email, criado_em) VALUES (:nome, :email, :criado_em)'
+        );
+        $stmt->bindValue(':nome', $dto->nome, PDO::PARAM_STR);
         $stmt->bindValue(':email', $dto->email, PDO::PARAM_STR);
+        $stmt->bindValue(
+            ':criado_em',
+            (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s'),
+            PDO::PARAM_STR,
+        );
         $stmt->execute();
 
-        return (int) $this->pdo->lastInsertId();
+        return (int) $this->pdo->lastInsertId(); // PostgreSQL: informe o nome da sequence
     }
 }
 ```
 
 ---
 
-## 3. Armadilhas Críticas em PHP (*Gotchas*)
+## 3. Integrações
 
-- ⚠️ **Ausência de `declare(strict_types=1)`**: Sem essa declaração no topo do arquivo, o PHP converte tipos silenciosamente (ex: a string `"123"` é aceita em um parâmetro tipado como `int`), gerando comportamentos imprevisíveis.
-- ⚠️ **Concatenação em Consultas SQL**: Concatenar variáveis diretamente na string de query mesmo que pareçam seguras abre vetores graves de SQL Injection. Use sempre *Prepared Statements*.
-- ⚠️ **N+1 Queries em Eloquent / Doctrine**: Iterar sobre uma coleção executando acessos a relacionamentos em loops sem `with(['relacao'])` gera centenas de consultas desnecessárias ao banco de dados.
+`-sql` (modelagem e consultas), `-security` (senhas, sessões, uploads), `-api-design`, `-testing`, `-observability`, `-devops`, `-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 4. Padrão de Entrega do Agente
+## 4. Armadilhas
 
-Ao entregar código em PHP:
-1. Declare `declare(strict_types=1);` no início de cada arquivo.
-2. Especifique tipos explícitos para todas as propriedades, parâmetros e retornos.
-3. Garanta que o código siga as normas PSR-12/PER e passe na análise do PHPStan (Nível 8+).
+- **Sem `strict_types`**: conversões silenciosas (`"123"` aceito como `int`).
+- **SQL por concatenação**: injeção, mesmo em variáveis que "parecem seguras".
+- **N+1 em Eloquent ou Doctrine**: relacionamentos acessados dentro de laços.
+- **`==` com comparação frouxa**: resultados surpreendentes entre tipos.
+- **`@` para silenciar erros** e `display_errors` ligado em produção.
+- **`unserialize` ou `include` com dados do usuário.**
+- **`float` para dinheiro.**
+- **Classe `readonly` com property hooks**: combinação inválida.
+
+---
+
+## 5. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado.
+2. Código com `strict_types`, tipos completos e compatível com a versão do projeto, com links relativos.
+3. Resultado de testes, PHPStan e estilo, ou o motivo de não ter executado.
+4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `-tasks` (modo Importar, origem `tech-php`, P1 a P3; fallback em lista no chat).

@@ -1,100 +1,229 @@
 ---
 name: -testing
-description: Fornece diretrizes agnósticas de planejamento e automação de testes (Unitários, Integração, Contrato e E2E), padrão AAA, Test Data Builders, esperas ativas determinísticas e isolamento de mocks.
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(pnpm test *), Bash(yarn test *), Bash(pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(gradle test *), Bash(composer test *)
+description: "Orienta o planejamento, a escrita, a execução e a auditoria de testes automatizados (unitários, integração, contrato e E2E), de forma agnóstica a linguagem: padrão AAA, Test Data Builders, dublês, determinismo, esperas ativas, isolamento de estado e pirâmide de testes. Use sempre que o usuário pedir 'escreva testes', 'testes unitários, de integração ou E2E', 'aumente a cobertura', 'TDD', 'teste instável (flaky)', 'gere os testes a partir dos critérios de aceite' ou 'caracterize este código antes de refatorar', mesmo sem a palavra 'testing'. NÃO use para diagnosticar um bug em produção (isso é -debug), para revisar a qualidade de um diff (isso é -code-review) nem para configurar ferramentas específicas de uma stack (isso é a -tech-* correspondente)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run test *), Bash(pnpm test *), Bash(pnpm run test *), Bash(yarn test *), Bash(npx vitest *), Bash(npx jest *), Bash(pytest *), Bash(python -m pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(gradle test *), Bash(./gradlew test *), Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *), Bash(cargo test *), Bash(flutter test *)
 ---
 
-# Global Skill: Enterprise Test Automation Strategy (Language-Agnostic)
+# Testing: estratégia e automação de testes
 
-> **Escopo Global**: Esta skill é **estritamente agnóstica a linguagem e framework**. Seus conceitos, estruturas (AAA) e heurísticas aplicam-se a qualquer ecossistema (C#, Java, Python, TypeScript, PHP, Go, Rust, Dart, etc.).
+Conceitos, estruturas e heurísticas aplicáveis a qualquer linguagem. As ferramentas concretas vêm do projeto ou da skill `-tech-*` da stack.
 
+## 0. Regras de operação
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-testing``
+**Assinatura.** A primeira mensagem do fluxo começa com:
+
+> 🧠 **Skill Ativa**: `-testing`
+
+As mensagens seguintes do mesmo fluxo não repetem a assinatura.
+
+**Siga o projeto.** Use o framework, as bibliotecas de asserção, a estrutura de pastas e as convenções de nome que o projeto já adota. Não introduza framework novo sem perguntar.
+
+**Honestidade.** Nunca enfraqueça uma asserção, remova um caso ou ajuste o teste só para ficar verde. Se o teste revela um defeito no código de produção, reporte o defeito e não altere o código sem pedido.
+
+**Evidência de execução.** Não afirme que testes passaram sem tê-los executado. Registre comando, resultado e contagem. Se não puder executar (sem runner, sem Docker, sem permissão), diga isso explicitamente.
+
+**Ambiente seguro.** Nunca rode testes de integração ou E2E contra produção ou banco compartilhado. Confira as variáveis de conexão antes, avise se o teste for destrutivo e verifique se o Docker está disponível antes de usar Testcontainers.
+
+**Idioma.** Os nomes e comentários dos testes seguem o idioma do projeto; a conversa, o do usuário.
 
 ---
 
-## 1. Processo Universal de Execução de Testes
+## 1. Modos de operação
 
-1. **Mapeamento de Cenários & Limites**: Identifique o caminho feliz (*happy path*), casos de borda (*boundary values*: nulos, limites numéricos, vazios) e cenários de falha (*unhappy path*).
-2. **Criação de Test Data Builders & Fixtures**: Centralize a instanciação de dados de domínio em geradores reutilizáveis com valores padrão válidos.
-3. **Estruturação no Padrão AAA**: Separe visualmente cada teste nos blocos *Arrange* (Preparar), *Act* (Agir) e *Assert* (Verificar).
-4. **Isolamento e Limpeza de Estado**: Mocks, bancos de teste e variáveis de ambiente devem ser limpos ou revertidos após cada execução (`tearDown` / `afterEach`).
-5. **Determinismo Absoluto**: Elimine pausas com tempo fixo (`sleep`) e isole o teste do relógio do sistema usando *Clock Mocks / Fake Timers*.
+Identifique o modo pelo pedido e diga qual está usando.
+
+| Modo | Quando | O que faz |
+| :--- | :--- | :--- |
+| **Planejar** | Definir estratégia para uma feature ou módulo | Mapeia cenários e níveis, sem escrever código |
+| **Escrever** | Criar testes para código ou comportamento definido | Escreve, executa e reporta |
+| **Auditar** | Avaliar a suíte existente | Aponta lacunas, testes instáveis, asserções fracas e acoplamentos |
+| **Gerar da spec** | "Gere os testes dos critérios de aceite" | Um ou mais testes por `CA-NN` (seção 3) |
+| **Caracterizar** | Antes de refatorar código legado sem testes | Fixa o comportamento atual (seção 7.2) |
 
 ---
 
-## 2. Padrão Estrutural AAA e Test Data Builder (Universal)
+## 2. Workflow
 
-*(O exemplo conceitual abaixo ilustra a estrutura que deve ser adaptada para a biblioteca de teste do projeto ativo: xUnit, pytest, Pest, Vitest, JUnit, etc.).*
+1. **Contexto do projeto**: leia `AGENTS.md`, `GUIDELINE.md` e `TESTING.md` (se existirem), a configuração de testes e alguns testes existentes. As convenções do projeto prevalecem sobre as regras genéricas.
+2. **Mapeamento de cenários**: caminho feliz, valores de borda (nulos, vazios, limites numéricos) e caminhos de falha. Cada regra de negócio relevante tem pelo menos um caso de erro.
+3. **Escolha do nível** (seção 4): teste cada regra no nível mais barato que dê confiança.
+4. **Dados de teste**: centralize em builders com valores padrão válidos (seção 5.3).
+5. **Escrita** no padrão AAA, com um comportamento por teste (seção 5).
+6. **Execução**: rode primeiro o arquivo novo e depois a suíte relevante. Registre o resultado.
+7. **Registro de lacunas**: se sobraram cenários não cobertos, siga a seção 8.
 
-```
-// 1. Test Data Builder reutilizável
+Testes com mais de ~20 linhas vão para arquivos do projeto, nunca despejados no chat.
+
+---
+
+## 3. Gerar testes a partir da spec
+
+- Cada critério de aceite `CA-NN` da spec (skill `-spec`) vira um ou mais testes. O Given/When/Then do critério mapeia direto para Arrange/Act/Assert.
+- O nome do teste ou um comentário cita o ID (`CA-01`), e o critério referencia o requisito que cobre (`RF-01`).
+- Cubra, para cada requisito relevante, o caminho feliz e ao menos um caso de erro.
+- Ao concluir, informe quais critérios ficaram cobertos e quais não, e sugira ao usuário atualizar a coluna "Teste" da tabela de rastreabilidade da spec (a edição é da skill `-spec`).
+
+---
+
+## 4. Níveis de teste e pirâmide
+
+| Nível | Escopo | Isolamento e infraestrutura |
+| :--- | :--- | :--- |
+| **Unitário** | Regras de negócio, domínio, algoritmos e cálculos | 100% isolado; I/O substituído por dublês; executa em milissegundos |
+| **Integração** | Repositórios, filas, cache e clientes de APIs externas | Banco e filas efêmeros reais (Testcontainers ou equivalente); APIs simuladas em fronteira (WireMock, MSW); brokers de mensageria, com testes de consumidor idempotente e de reentrega de mensagens |
+| **Contrato** | Compatibilidade de APIs entre consumidor e provedor | Testes baseados em schema contra o OpenAPI (veja `-api-design`) ou consumer-driven |
+| **E2E** | Jornadas críticas pela UI ou pela API completa | Ambiente o mais próximo possível de produção |
+
+**Estratégia da pirâmide**: muitos testes unitários, uma camada menor de integração e contrato, e poucos E2E. Uma regra de negócio é testada no nível mais baixo que a exercite; a integração verifica a cola (consultas, mapeamento, transações), não repete a regra.
+
+**E2E**: apenas jornadas críticas; seletores estáveis (papéis de acessibilidade ou `data-testid`); dados preparados por API, não pela UI; artefatos de falha (trace, screenshot) habilitados.
+
+---
+
+## 5. Padrões de escrita
+
+### 5.1. Estrutura AAA
+
+```text
+// Test Data Builder reutilizável
 Classe UsuarioBuilder:
     usuario = { id: "usr-1", nome: "Ana Silva", email: "ana@exemplo.com", ativo: verdadeiro }
     comEmail(novoEmail) -> altera email e retorna self
-    comoInativo() -> altera ativo para falso e retorna self
-    build() -> retorna cópia imutável do usuario
+    comoInativo()       -> altera ativo para falso e retorna self
+    build()             -> retorna cópia imutável do usuario
 
-// 2. Caso de Teste com Padrão AAA
-Teste "deve enviar email de boas-vindas quando usuario for ativo":
-    // Arrange: Preparar dados e dublês de teste
-    servicoEmailMock = novo MockServicoEmail(sucesso = verdadeiro)
-    servicoNotificacao = novo ServicoNotificacao(servicoEmailMock)
+// Caso de teste com AAA
+Teste "envia email de boas-vindas quando o usuário está ativo (CA-01)":
+    // Arrange
+    servicoEmail = novo FakeServicoEmail()
+    servico = novo ServicoNotificacao(servicoEmail)
     usuario = novo UsuarioBuilder().build()
 
-    // Act: Executar estritamente a unidade sob teste
-    resultado = servicoNotificacao.enviarBoasVindas(usuario)
+    // Act
+    resultado = servico.enviarBoasVindas(usuario)
 
-    // Assert: Validações ricas e específicas
+    // Assert
     verifique(resultado.sucesso == verdadeiro)
-    verifique(servicoEmailMock.chamadasEnvio == 1)
-    verifique(servicoEmailMock.destinatario == usuario.email)
+    verifique(servicoEmail.enviados == [{ para: usuario.email, modelo: "boas-vindas" }])
 ```
 
+### 5.2. Convenções
+
+- Um comportamento por teste, sem `if` nem laços no corpo. Para valores de borda, use testes parametrizados.
+- Nome descreve comportamento e condição ("rejeita pedido sem itens"), não o método testado.
+- Teste a API pública observável, não métodos privados nem detalhes de implementação.
+- Asserções específicas: valide status, dados e efeitos exatos, não apenas "não nulo".
+- Snapshot só para saídas estáveis, e revise o diff do snapshot.
+
+### 5.3. Dados de teste
+
+Builders, object mothers ou factories com valores padrão válidos. Sem fixtures mutáveis compartilhadas entre testes. Para banco, escolha o isolamento conforme o paralelismo: rollback por transação, limpeza por teste ou contêiner por suíte.
+
+### 5.4. Dublês
+
+| Tipo | Uso |
+| :--- | :--- |
+| Stub | Retorna respostas prontas |
+| Fake | Implementação simples funcional (repositório em memória) |
+| Spy | Registra chamadas para verificação posterior |
+| Mock | Verifica interações esperadas |
+
+Prefira fakes ou dependências reais em memória para código do próprio projeto. Use mocks apenas nas fronteiras (rede, relógio, sistema de arquivos). Não teste o mock, e não mocke o que não controla sem uma camada de adaptação.
+
+### 5.5. Determinismo e esperas ativas
+
+Teste instável (*flaky*) não se resolve com retry: corrija a causa ou isole e registre uma tarefa.
+
+- **Tempo**: relógio injetável ou fake timers. Nunca dependa do relógio do sistema.
+- **Aleatoriedade**: semente fixa. **Fuso e locale**: fixos no teste.
+- **Ordem e paralelismo**: nenhum teste depende da execução de outro.
+- **Esperas**: substitua `sleep` por espera ativa com timeout.
+
+```text
+funcao esperarAte(condicao, timeoutMs = 2000, intervaloMs = 20):
+    limite = agora() + timeoutMs
+    enquanto agora() < limite:
+        se condicao(): retornar
+        dormir(intervaloMs)
+    falhar("condição não atendida em " + timeoutMs + " ms")
+```
+
+### 5.6. Isolamento e limpeza
+
+Mocks, banco de teste e variáveis de ambiente são redefinidos após cada teste (`tearDown`, `afterEach`). O teste deixa o ambiente como o encontrou.
+
 ---
 
-## 3. Matriz Universal de Níveis de Teste
+## 6. Cobertura
 
-| Nível | Escopo | Isolamento / Infraestrutura | Mapeamento Poliglota de Ferramentas |
-| :--- | :--- | :--- | :--- |
-| **Unitário** | Lógica de negócios, domínio, algoritmos e cálculos. | 100% isolado. I/O substituído por dublês (Stubs/Mocks). | xUnit, pytest, Vitest, Jest, Pest, JUnit, flutter_test |
-| **Integração** | Repositórios com banco de dados, filas e APIs externas. | Bancos e filas efêmeros reais (Testcontainers); APIs simuladas (WireMock, MSW). | Testcontainers (Java, .NET, Python, Node, Go), WebApplicationFactory |
-| **Ponta a Ponta (E2E)** | Jornadas críticas e fluxos completos do usuário pela UI. | Ambiente integrado o mais próximo possível de produção. | Playwright, Cypress, Patrol (mobile), Maestro |
+Cobertura não é meta. Use cobertura de ramos nos módulos críticos, respeite os limites já configurados no projeto e interprete o relatório por risco, não por percentual. Teste de mutação é opcional e tem prioridade baixa.
 
 ---
 
-## 4. Armadilhas Críticas em Testes (*Gotchas*)
+## 7. Casos especiais
 
-- ⚠️ **Test Leakage (Vazamento de Estado)**: Mocks não redefinidos ou dados residuais em bancos compartilhados causam falhas aleatórias dependendo da ordem dos testes.
-- ⚠️ **Testar Detalhes Internos em Vez de Comportamento**: Acoplar asserções a métodos privados quebra os testes durante refatorações válidas. Teste apenas a API pública observável.
-- ⚠️ **Asserções Fracas/Falsos Positivos**: Checagens genéricas de não-nulo deixam passar respostas com erros de servidor não tratados. Valide status e dados exatos.
+### 7.1. Teste de regressão de bug
 
----
+Escreva o teste que reproduz o bug, confirme que ele **falha pelo motivo certo** e só então conserte. O conserto é implementação; o diagnóstico de causa raiz é da skill `-debug`.
 
-## 5. Padrão de Entrega do Agente
+### 7.2. Testes de caracterização (antes de refatorar)
 
-Ao entregar testes automatizados:
-1. Siga a estrutura AAA com convenções descritivas de nomenclatura.
-2. Utilize o framework e bibliotecas de asserção oficiais da linguagem do projeto.
-3. Garanta que testes unitários executem em milissegundos sem depender de rede ou disco real.
+Fixam o comportamento atual, inclusive o questionável, para que a refatoração (`-refactor`) não o altere sem querer. Parta de entradas reais ou representativas, registre as saídas observadas e sinalize comportamentos suspeitos sem corrigi-los.
 
 ---
 
-## 6. 📝 Acompanhamento de Cobertura com `-task-management` (Sempre ao Final)
+## 8. Integração com outras skills e registro de lacunas
 
-Sempre ao término do planejamento, escrita ou auditoria da estratégia de testes, se houver cenários críticos, testes de integração ou gaps da pirâmide de testes não implementados na sessão, **pergunte obrigatoriamente ao usuário ao final da resposta**:
+Se sobraram cenários, testes de integração ou lacunas da pirâmide, pergunte ao final:
 
-> *"Identifiquei cenários e lacunas de teste que ainda precisam ser cobertos. Deseja que eu registre essas tarefas de teste no arquivo `TASKS.md` do projeto?"*
+> *"Identifiquei cenários e lacunas de teste que ainda precisam ser cobertos. Deseja que eu os registre no `TASKS.md` do projeto?"*
 
-Ao receber a confirmação do usuário (ou se instruído a registrar automaticamente):
-1. **Ativação da Skill**: Acione a skill **`-task-management`** para atualizar o backlog de testes.
-2. **Localização em Cascata**: A skill `-task-management` buscará por `./TASKS.md` ➔ `./agents/TASKS.md` ➔ `./.agents/TASKS.md` (com tolerância a `TASK.md` / `task.md`).
-3. **Mapeamento de Prioridades de Teste**:
-   - `🚨 1. Bloqueadores / Alta Prioridade`: Testes unitários para regras financeiras e testes de regressão para bugs críticos descobertos em produção.
-   - `⚠️ 2. Média Prioridade`: Testes de integração com banco de dados/filas efêmeras e validação de contratos de API.
-   - `💡 3. Baixa Prioridade / Otimização`: Testes de carga, testes de mutação e refatoração de fixtures antigas.
-   - `✅ 4. Concluído recentemente`: Suítes de teste criadas, executadas e validadas com sucesso na sessão com `- [x]`.
-4. **Navegabilidade**: Toda tarefa deve indicar o arquivo de teste correspondente ou o componente a ser testado com links `[arquivo.ext](file:///...)`.
+Com a confirmação, acione a skill `-tasks` (modo Importar). Cada tarefa leva origem `testing` e link relativo para o arquivo de teste ou o componente. Mapeamento de prioridade:
+
+| Lacuna | Prioridade |
+| :--- | :--- |
+| Regra financeira ou regressão crítica | P0 |
+| Integração e contrato | P1 |
+| E2E | P2 |
+| Carga, mutação e refatoração de fixtures | P3 |
+
+**Fallback**: se `-tasks` não estiver disponível, apresente a lista no chat com prioridade, local e critério.
+
+| Skill | Como se integra |
+| :--- | :--- |
+| `-spec` | Fonte dos critérios de aceite e da rastreabilidade |
+| `-tasks` | Registro de lacunas; consome o resultado dos testes como evidência de conclusão |
+| `-code-review` | Avalia qualidade, determinismo e cobertura dos testes de um diff |
+| `-refactor` | Usa os testes de caracterização |
+| `-api-design` | Define o contrato verificado nos testes de contrato |
+| `-security` | Casos negativos de autorização (por exemplo, acesso a recurso de outro usuário) |
+| `-sql` | Estratégia de teste de consultas e migrations |
+| `-system-design` | Testes de idempotência, de falha e de reentrega com broker real ou emulado |
+| `-debug` | O teste de regressão do bug é escrito aqui; a causa raiz é investigada lá |
+| `-tech-*` | Framework, runner e utilitários da stack; sem a skill, use os padrões desta |
+
+---
+
+## 9. Armadilhas
+
+- **Afirmar sucesso sem executar**: sempre registre comando e resultado.
+- **Enfraquecer o teste para passar**: reduzir asserção ou remover caso esconde o defeito.
+- **Vazamento de estado**: mocks não restaurados ou dados residuais causam falhas dependentes da ordem.
+- **Testar detalhes internos**: acopla o teste à implementação e quebra em refatorações válidas.
+- **Asserções fracas**: "não nulo" deixa passar respostas erradas.
+- **Excesso de mocks**: o teste verifica o mock, não o comportamento.
+- **Reimplementar a lógica de produção no teste**: o teste repete o bug junto com o código.
+- **`sleep` e relógio real**: lentidão e instabilidade. Use espera ativa e relógio injetado.
+- **Banco compartilhado ou de produção**: resultados imprevisíveis e risco real.
+- **Cobertura como meta**: testes sem asserção inflam o número.
+- **Vários comportamentos por teste**: a falha não diz o que quebrou.
+
+---
+
+## 10. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivos de teste criados ou alterados, com links relativos.
+3. Resultado da execução (comando, passou ou falhou, contagem) ou o motivo de não ter executado.
+4. Cobertura dos critérios de aceite, quando houver spec: quais `CA-NN` estão cobertos.
+5. Lacunas restantes e a pergunta sobre o registro em tarefas (seção 8).
