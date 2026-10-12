@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.3.0](https://github.com/heliomarpm/skills/compare/v1.2.0...v1.3.0) (2026-10-12)
+
+
+### Features
+
+* add -tasks skill definition for project backlog management ([bed0b2f](https://github.com/heliomarpm/skills/commit/bed0b2ffba2069e15c3b9983c7bd653b51ecc6fd))
+
 # [1.2.0](https://github.com/heliomarpm/skills/compare/v1.1.0...v1.2.0) (2026-10-12)
 
 
