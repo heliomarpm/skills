@@ -19,13 +19,8 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 * add semantic release GitHub Actions workflow for automated releases ([842fc95](https://github.com/heliomarpm/skills/commit/842fc95600499fc3831786821f05b2c1d15cde46))
 
-# 📦 Changelog
 
-Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
-
-O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
-
-# 1.0.0 (2026-10-08)
+## [1.0.0](https://github.com/heliomarpm/skills/commits/v1.0.0) (2026-10-08)
 
 
 ### Features
@@ -45,7 +40,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.7.0] - 2026-10-08
+## [0.7.0] (2026-10-08)
 
 ### Adicionado
 - **Nova Skill Global de Interfaces e UI/UX (`-design-system`)**:
@@ -66,7 +61,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.6.1] - 2026-09-30
+## [0.6.1] (2026-09-30)
 
 ### Adicionado
 - **Permissões Declarativas e Sandboxing**: Adição dos metadados `allowed-tools` e `disallowed-tools` no YAML frontmatter de todas as 25 skills para controle fino de segurança e automação inteligente.
@@ -83,7 +78,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.6.0] - 2026-09-30
+## [0.6.0] (2026-09-30)
 
 ### Adicionado
 - **Skill Global de Git e Releases (`_git-workflow`)**:
@@ -94,7 +89,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.5.0] - 2026-09-27
+## [0.5.0] (2026-09-27)
 
 ### Adicionado
 - **5 Novas Skills Especializadas** (expandindo a toolbox para 25 skills):
@@ -109,7 +104,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.4.0] - 2026-09-27
+## [0.4.0] (2026-09-27)
 
 ### Adicionado
 - **Skill Estrutural de Exploração e Memória (`_discovery`)**:
@@ -120,7 +115,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.3.0] - 2026-09-27
+## [0.3.0] (2026-09-27)
 
 ### Modificado
 - **Padronização de Namespace com Prefixo `_`**:
@@ -133,7 +128,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.2.0] - 2026-09-27
+## [0.2.0] (2026-09-27)
 
 ### Adicionado
 - **Skill de Gestão Dinâmica de Tarefas (`_task-management`)**:
@@ -147,7 +142,7 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.
 
 ---
 
-## [0.1.0] - 2026-08-22
+## [0.1.0] (2026-08-22)
 
 ### Adicionado
 - **Lançamento Inicial da Toolbox de Engenharia Agêntica**:
