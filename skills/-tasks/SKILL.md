@@ -140,8 +140,8 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 ````markdown
 # Tarefas do Projeto
 
-> Meta: autenticação OAuth 2.1 com PKCE e proteção CSRF nas APIs públicas
-> Status: em desenvolvimento | Progresso: 3/10 (30%) | WIP: 1/2 | Atualizado em: 2026-10-11
+> **Meta:** autenticação OAuth 2.1 com PKCE e proteção CSRF nas APIs públicas
+> **Status:** em desenvolvimento | **Progresso:** 3/10 (30%) | **WIP:** 1/2 | **Atualizado em:** 2026-10-11
 
 ## Em progresso
 
@@ -161,18 +161,28 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 
 ## Backlog
 
-- [ ] **T-005 · P0 · Validar `redirect_uri` contra a whitelist no callback**
-  - Origem: bug | Dep.: nenhuma
-  - Ref: [callback_handler.ts](./src/handlers/callback_handler.ts#L45-L60)
-  - DoD: URIs fora da whitelist ou sem `https://` retornam `400`; teste cobre os dois casos.
+### Baixa Prioridade
+
+- [ ] **T-010 · P3 · Documentar o fluxo de autenticação no README**
+  - Origem: discovery | Dep.: nenhuma
+
+### Média Prioridade
+
 - [ ] **T-003 · P1 · Repositório Redis para armazenamento transitório de tokens**
   - Origem: spec 003 / T-01 | Dep.: nenhuma
-- [ ] **T-006 · P2 · Endpoint `/oauth/v2/token` (RFC 6749)**
-  - Origem: spec 003 / T-03 | Dep.: T-003, T-004
 - [ ] **T-007 · P2 · Rota de revogação `/oauth/v2/revoke` (RFC 7009)**
   - Origem: spec 003 / T-04 | Dep.: T-006
 - [ ] **T-008 · P3 · Trocar o hash síncrono por Argon2id nativo**
   - Origem: discovery | Dep.: nenhuma
+
+### Alta Prioridade
+
+- [ ] **T-005 · P0 · Validar `redirect_uri` contra a whitelist no callback**
+  - Origem: bug | Dep.: nenhuma
+  - Ref: [callback_handler.ts](./src/handlers/callback_handler.ts#L45-L60)
+  - DoD: URIs fora da whitelist ou sem `https://` retornam `400`; teste cobre os dois casos.
+- [ ] **T-006 · P2 · Endpoint `/oauth/v2/token` (RFC 6749)**
+  - Origem: spec 003 / T-03 | Dep.: T-003, T-004
 
 ## Concluídas recentemente
 
