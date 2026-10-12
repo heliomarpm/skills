@@ -86,6 +86,9 @@ Skills com etapas, pontos de aprovação e integração entre si. Ordem típica:
 | `-git` | Commits atômicos, PRs, histórico e conflitos | Ao commitar, abrir PR, atualizar branch, limpar histórico ou desfazer algo. Não para pipelines | "Prepare o commit e a PR desta mudança no padrão do projeto." |
 | `-debug` | Causa raiz de bugs, correção mínima e teste de regressão | Erro, stack trace, comportamento inesperado, regressão ou falha só em produção ou CI | "Este endpoint retorna 500 de forma intermitente; ache a causa e corrija." |
 
+> 💡 **[Guia prático com exemplo de uso do -spec (SDD)](docs/GUIA_PRATICO_SDD.md)**
+
+
 ## 2. Domínios e práticas
 
 Guias consultados conforme o assunto da tarefa.
