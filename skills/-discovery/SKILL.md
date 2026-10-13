@@ -229,7 +229,7 @@ src/
 Stack detectada: TypeScript, Node.js e PostgreSQL. Use `-tech-typescript`, `-tech-nodejs`, `-sql`, `-api-design` e `-testing`.
 
 ## Decisões críticas
-- [ADR-0005](./docs/adr/0005-transactional-outbox.md): Transactional Outbox para eventos financeiros.
+- [ADR-0005](./docs/adr/ADR-0005.md): Transactional Outbox para eventos financeiros.
 
 ## Antes de concluir uma tarefa
 Rodar lint e testes (comandos em [CONTEXT.md](./CONTEXT.md)).

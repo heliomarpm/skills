@@ -62,14 +62,14 @@ Não escreva para escolhas locais, baratas e reversíveis, nem para estilo de c�
 > *(ou informe outro caminho de sua preferência)*"*
 
 Em execução não interativa use `docs/adr/`.
-- **Arquivo**: `NNNN-titulo-em-kebab-case.md`. O número é o maior existente mais um, incluindo os substituídos; nunca reutilize nem renumere.
+- **Arquivo**: `ADR-NNNN.md` (ex.: `ADR-0001.md`, `ADR-0002.md`). O número `NNNN` é sequencial com 4 dígitos a partir do maior existente mais um, incluindo os substituídos; nunca reutilize nem renumere.
 - **Índice**: mantenha `README.md` na pasta, atualizado a cada criação ou mudança de status:
 
 ````markdown
 | Nº | Título | Status | Data |
 | :--- | :--- | :--- | :--- |
-| [0005](./0005-transactional-outbox.md) | Transactional Outbox para eventos financeiros | Aceito | 2026-09-27 |
-| [0003](./0003-kafka-como-broker.md) | Kafka como broker de eventos | Substituído por 0009 | 2026-03-02 |
+| [ADR-0005](./ADR-0005.md) | Transactional Outbox para eventos financeiros | Aceito | 2026-09-27 |
+| [ADR-0003](./ADR-0003.md) | Kafka como broker de eventos | Substituído por ADR-0009 | 2026-03-02 |
 ````
 
 - **`DECISIONS.md`** (do `-discovery`): se a pasta de ADRs existe, ele vira apenas um índice que aponta para os ADRs, sem duplicar conteúdo. Sem a pasta, usa entradas curtas neste mesmo formato.
@@ -95,9 +95,9 @@ Em execução não interativa use `docs/adr/`.
 | Aceito | Vigente |
 | Rejeitado | Avaliado e descartado (mantenha o registro) |
 | Obsoleto | Já não se aplica, sem substituto |
-| Substituído por NNNN | Trocado por outro ADR |
+| Substituído por ADR-NNNN | Trocado por outro ADR |
 
-**Substituir**: crie o ADR novo com a linha `Substitui: NNNN` e, no antigo, altere apenas o status (`Substituído por MMMM`) e os links. O texto original permanece.
+**Substituir**: crie o ADR novo com a linha `Substitui: ADR-NNNN` e, no antigo, altere apenas o status (`Substituído por ADR-NNNN`) e os links. O texto original permanece.
 
 ---
 
