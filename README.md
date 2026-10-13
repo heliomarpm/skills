@@ -1,7 +1,7 @@
 <div id="top" align="center">
   <h1>🧠 Antigravity & Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-   [![Skills](https://img.shields.io/badge/Skills-29%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+   [![Skills](https://img.shields.io/badge/Skills-31%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
    [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
    [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
    [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
@@ -33,7 +33,7 @@ Para garantir total transparência e permitir auditar imediatamente se a skill c
 
 ## 🏛️ Arquitetura do Repositório
 
-Todas as 29 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
+Todas as 31 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
 
 ```text
 ./skills/
@@ -41,6 +41,7 @@ Todas as 29 habilidades residem centralizadas no diretório `skills/`, padroniza
 ├── -ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
 ├── -api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
 ├── -challenge/             # Stress-Test Intelectual, Árvore de Decisão e Entrevista Socrática
+├── -changelog/             # Histórico Keep a Changelog, SemVer e Detecção de Automações
 ├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
 ├── -debug/                 # Detecção de Causa Raiz, Testes de Regressão e Correção Mínima
 ├── -design-system/         # Tokens Semânticos, WCAG 2.2 AA (A11y), Estados de UI e Componentes
@@ -48,6 +49,7 @@ Todas as 29 habilidades residem centralizadas no diretório `skills/`, padroniza
 ├── -discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
 ├── -git/                   # Trunk-Based, Rebase Interativo e Conventional Commits
 ├── -observability/         # OpenTelemetry, SLI/SLO, Graceful Shutdown e Debug de Heap
+├── -readme/                # Documentação de Entrada Baseada em Evidências e Manifestos
 ├── -refactor/              # Testes de Caracterização e Padrões de Refatoração
 ├── -security/              # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
 ├── -spec/                  # Spec-Driven Development, Estruturação de SPEC.md e Contratos
@@ -79,7 +81,7 @@ Skills com etapas, pontos de aprovação e integração entre si. Ordem típica:
 | Skill | Foco | Quando usar? | Exemplo de uso (prompt) |
 | :--- | :--- | :--- | :--- |
 | `-discovery` 🔒 | Mapear um repositório e gerar os documentos de contexto (`CONTEXT.md`, `AGENTS.md` e outros, conforme o repositório) | Ao entrar num projeto novo ou legado, ou ao atualizar o contexto. Só por pedido explícito | "Faça o discovery deste repositório e crie os arquivos de contexto para os assistentes de IA." |
-| `-challenge` | Entrevista socrática, árvore de decisões, premissas e riscos | Antes de especificar ou codificar, quando a ideia ainda precisa de stress-test ("grill me") | "Questione meu plano de migração e aponte o que estou esquecendo antes de escrevermos a spec." |
+| `-challenge` | Questionar um plano, decisão ou ideia em rodadas, com recomendação própria | Antes de especificar ou decidir, para testar o raciocínio. Não para esclarecer um pedido simples (isso o `-spec` já faz) | "Me questione sobre este plano de migração antes de eu escrever a spec." |
 | `-spec` | Especificação testável e rastreável, aprovada antes do código | Feature nova ou mudança que altera comportamento, contrato ou dados. Não para bug simples ou ajuste trivial | "Crie a especificação da cobrança recorrente antes de iniciarmos o código." |
 | `-tasks` | Backlog vivo em `TASKS.md` | Planejar, quebrar, atualizar ou auditar tarefas, e receber as pendências das outras skills | "Gere o backlog da sprint em TASKS.md e marque a T-002 como em progresso." |
 | `-code-review` | Revisão em dois eixos: especificação e qualidade | Antes do merge de um PR ou diff, ou para auditar um módulo existente. Não para corrigir o código | "Faça o code review do diff em relação à main e aponte os débitos técnicos." |
@@ -87,6 +89,8 @@ Skills com etapas, pontos de aprovação e integração entre si. Ordem típica:
 | `-testing` | Estratégia e automação de testes | Escrever, auditar ou gerar testes a partir dos critérios da spec, e tratar testes instáveis | "Escreva os testes dos critérios de aceite da spec 003." |
 | `-git` | Commits atômicos, PRs, histórico e conflitos | Ao commitar, abrir PR, atualizar branch, limpar histórico ou desfazer algo. Não para pipelines | "Prepare o commit e a PR desta mudança no padrão do projeto." |
 | `-debug` | Causa raiz de bugs, correção mínima e teste de regressão | Erro, stack trace, comportamento inesperado, regressão ou falha só em produção ou CI | "Este endpoint retorna 500 de forma intermitente; ache a causa e corrija." |
+| `-readme` 🔒	| `README.md` de um repositório, a partir de evidências, preservando o texto da equipe	| Quando o `README` não existe ou está desatualizado. Só por pedido explícito	| "Atualize o README deste repositório com a stack e os comandos atuais." |
+| `-changelog` 🔒	| `CHANGELOG.md` no formato Keep a Changelog, a partir de commits e tags | Ao preparar uma release ou quando o CHANGELOG está desatualizado. Só por pedido explícito; não edita arquivo gerado por automação | "Atualize o CHANGELOG com as mudanças desde a última tag." |
 
 > 💡 **[Guia prático com exemplo de uso do -spec (SDD)](docs/GUIA_PRATICO_SDD.md)**
 
@@ -135,8 +139,8 @@ O Antigravity adota o padrão de **Divulgação Progressiva (*Progressive Disclo
    - A maioria das skills é ativada dinamicamente quando o próprio prompt do usuário traz indícios suficientes da tarefa (ex: ao pedir uma refatoração, testes unitários, query SQL ou desenvolvimento em React 19).
    - Não é necessário que o usuário digite o nome da skill explicitamente; as palavras-chave da intenção disparam a leitura sob demanda (*Just-in-Time*).
 2. **Ativação Restrita (🔒 Exclusivamente Explícita)**:
-   - Skills estruturais e de varredura ampla (como **`-discovery`**) **NUNCA são ativadas por inferência implícita**.
-   - Elas exigem pedido expresso do usuário (ex: *"faça o discovery do projeto"*, *"mapeie o repositório"*), prevenindo varreduras acidentais ou desperdício de tokens em tarefas pontuais de codificação.
+   - Skills estruturais e de varredura ampla (como **`-discovery`**, **`-readme`** e **`-changelog`**) **NUNCA são ativadas por inferência implícita**.
+   - Elas exigem pedido expresso do usuário (ex: *"faça o discovery do projeto"*, *"atualize o README"*, *"prepare o changelog"*), prevenindo varreduras acidentais ou desperdício de tokens em tarefas pontuais de codificação.
 3. **Assinatura Obrigatória**:
    - Toda resposta gerada sob uma skill inicia assinando no topo: `> 🧠 **Skill Ativa**: -nome-da-skill`.
 
@@ -203,7 +207,7 @@ Cada skill declara no frontmatter o campo `allowed-tools`, que **pré-aprova** a
 - **Pedem confirmação** (de propósito, fora do pré-aprovado): operações que alteram o mundo ou reescrevem histórico, como `git push`, `rebase`, `reset`, merge de PR, `terraform apply`, `docker push` e publicação de release.
 - **Sem `Bash`**: skills conceituais (`-tasks`, `-api-design`, `-system-design`, `-sql`, `-observability`, `-design-system`). Algumas só leem o histórico do Git (`-adr`, `-spec`).
 - **Modos somente leitura, por regra da skill**: `-code-review` só lê e registra pendências via `-tasks`, com confirmação; `-security` só edita no modo Corrigir, com aprovação. É uma instrução da skill, não um bloqueio técnico.
-- **Ativação explícita**: `-discovery` usa `disable-model-invocation: true` e só roda quando o usuário a invoca.
+- **Ativação explícita**: `-discovery`, `-readme` e `-changelog` usam `disable-model-invocation: true` e só rodam quando o usuário as invoca expressamente.
 
 > Para um bloqueio técnico real, use regras de `deny` nas configurações do cliente.
 
