@@ -140,7 +140,7 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 ````markdown
 # Tarefas do Projeto
 
-> **Meta:** autenticação OAuth 2.1 com PKCE e proteção CSRF nas APIs públicas
+> **Meta:** autenticação OAuth 2.1 com PKCE e proteção CSRF nas APIs públicas\
 > **Status:** em desenvolvimento | **Progresso:** 3/10 (30%) | **WIP:** 1/2 | **Atualizado em:** 2026-10-11
 
 ## Em progresso
