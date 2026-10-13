@@ -85,7 +85,7 @@ Prioridade é uma dimensão separada do estado: **P0** crítico (segurança, pro
 
 ### 3.3. Campos de uma tarefa
 
-Toda tarefa tem: ID, prioridade, título, **origem** (`manual`, `bug`, `spec <id> / T-NN`, `adr ADR-NNNN` ou o nome da skill que a gerou, como `-discovery`, `-code-review`, `-testing`, `-refactor`, `-debug`, `-security`, `-devops`, `-sql`, `-observability`, `-api-design`, `-system-design`, `-ai-engineering`, `-design-system` e `-tech-*`), **dependências**, **referências** a arquivos e **critérios de aceite** (DoD) observáveis.
+Toda tarefa tem: ID, prioridade, título, **origem** (`manual`, `bug`, `spec <id> / T-NN`, `adr ADR-NNN` ou o nome da skill que a gerou, como `-discovery`, `-code-review`, `-testing`, `-refactor`, `-debug`, `-security`, `-devops`, `-sql`, `-observability`, `-api-design`, `-system-design`, `-ai-engineering`, `-design-system` e `-tech-*`), **dependências**, **referências** a arquivos e **critérios de aceite** (DoD) observáveis.
 
 - **IDs**: `T-NNN`, globais no arquivo, alocados como o maior ID existente (incluindo concluídas, canceladas e arquivadas) mais um. Nunca reutilize um ID.
 - **Links**: sempre relativos ao arquivo, com linha quando útil: `[arquivo.ts](./src/arquivo.ts#L45-L60)`. Nunca `file:///`.

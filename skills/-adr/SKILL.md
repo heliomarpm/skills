@@ -62,14 +62,14 @@ Não escreva para escolhas locais, baratas e reversíveis, nem para estilo de c�
 > *(ou informe outro caminho de sua preferência)*"*
 
 Em execução não interativa use `docs/adr/`.
-- **Arquivo**: `ADR-NNNN.md` (ex.: `ADR-0001.md`, `ADR-0002.md`). O número `NNNN` é sequencial com 4 dígitos a partir do maior existente mais um, incluindo os substituídos; nunca reutilize nem renumere.
+- **Arquivo**: `ADR-NNN.md` (ex.: `ADR-001.md`, `ADR-002.md`). O número `NNN` é sequencial com 3 dígitos a partir do maior existente mais um, incluindo os substituídos; nunca reutilize nem renumere.
 - **Índice**: mantenha `README.md` na pasta, atualizado a cada criação ou mudança de status:
 
 ````markdown
 | Nº | Título | Status | Data |
 | :--- | :--- | :--- | :--- |
-| [ADR-0005](./ADR-0005.md) | Transactional Outbox para eventos financeiros | Aceito | 2026-09-27 |
-| [ADR-0003](./ADR-0003.md) | Kafka como broker de eventos | Substituído por ADR-0009 | 2026-03-02 |
+| [ADR-005](./ADR-005.md) | Transactional Outbox para eventos financeiros | Aceito | 2026-09-27 |
+| [ADR-003](./ADR-003.md) | Kafka como broker de eventos | Substituído por ADR-009 | 2026-03-02 |
 ````
 
 - **`DECISIONS.md`** (do `-discovery`): se a pasta de ADRs existe, ele vira apenas um índice que aponta para os ADRs, sem duplicar conteúdo. Sem a pasta, usa entradas curtas neste mesmo formato.
@@ -95,9 +95,9 @@ Em execução não interativa use `docs/adr/`.
 | Aceito | Vigente |
 | Rejeitado | Avaliado e descartado (mantenha o registro) |
 | Obsoleto | Já não se aplica, sem substituto |
-| Substituído por ADR-NNNN | Trocado por outro ADR |
+| Substituído por ADR-NNN | Trocado por outro ADR |
 
-**Substituir**: crie o ADR novo com a linha `Substitui: ADR-NNNN` e, no antigo, altere apenas o status (`Substituído por ADR-NNNN`) e os links. O texto original permanece.
+**Substituir**: crie o ADR novo com a linha `Substitui: ADR-NNN` e, no antigo, altere apenas o status (`Substituído por ADR-NNN`) e os links. O texto original permanece.
 
 ---
 
@@ -112,7 +112,7 @@ Para uma decisão já implementada, parta do código, do histórico (`git log`) 
 ### 7.1. Formato curto
 
 ````markdown
-# ADR-0007: Usar UUIDv7 como identificador de pedidos
+# ADR-007: Usar UUIDv7 como identificador de pedidos
 
 > Status: Proposto | Data: 2026-10-11
 
@@ -130,7 +130,7 @@ Adotar UUIDv7 gerado na aplicação.
 ### 7.2. Formato completo
 
 ````markdown
-# ADR-0005: Transactional Outbox para eventos financeiros
+# ADR-005: Transactional Outbox para eventos financeiros
 
 > Status: Proposto | Data: 2026-09-27
 > Decisores: Arquitetura e Backend | Substitui: n/a
@@ -171,7 +171,7 @@ Se o ADR tem etapas de implementação, pergunte ao final:
 
 > *"Deseja que eu registre as etapas de implementação desta decisão no `TASKS.md` do projeto?"*
 
-Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `adr ADR-NNNN`, links relativos e a prioridade: P1 para etapas que desbloqueiam as demais, P2 para as outras e P3 para a revisão futura da decisão. **Fallback**: lista no chat.
+Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `adr ADR-NNN`, links relativos e a prioridade: P1 para etapas que desbloqueiam as demais, P2 para as outras e P3 para a revisão futura da decisão. **Fallback**: lista no chat.
 
 | Skill | Como se integra |
 | :--- | :--- |
