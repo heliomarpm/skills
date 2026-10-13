@@ -1,7 +1,7 @@
 <div id="top" align="center">
   <h1>🧠 Antigravity & Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-   [![Skills](https://img.shields.io/badge/Skills-28%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+   [![Skills](https://img.shields.io/badge/Skills-29%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
    [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
    [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
    [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
@@ -33,13 +33,14 @@ Para garantir total transparência e permitir auditar imediatamente se a skill c
 
 ## 🏛️ Arquitetura do Repositório
 
-Todas as 28 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
+Todas as 29 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
 
 ```text
 ./skills/
 ├── -adr/                   # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
 ├── -ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
 ├── -api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
+├── -challenge/             # Stress-Test Intelectual, Árvore de Decisão e Entrevista Socrática
 ├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
 ├── -debug/                 # Detecção de Causa Raiz, Testes de Regressão e Correção Mínima
 ├── -design-system/         # Tokens Semânticos, WCAG 2.2 AA (A11y), Estados de UI e Componentes
@@ -73,11 +74,12 @@ Todas as 28 habilidades residem centralizadas no diretório `skills/`, padroniza
 
 ### 1. Fluxo de trabalho
 
-Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery`, `-spec`, `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
+Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery`, `-challenge` (ideação e decisões), `-spec`, `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
 
 | Skill | Foco | Quando usar? | Exemplo de uso (prompt) |
 | :--- | :--- | :--- | :--- |
 | `-discovery` 🔒 | Mapear um repositório e gerar os documentos de contexto (`CONTEXT.md`, `AGENTS.md` e outros, conforme o repositório) | Ao entrar num projeto novo ou legado, ou ao atualizar o contexto. Só por pedido explícito | "Faça o discovery deste repositório e crie os arquivos de contexto para os assistentes de IA." |
+| `-challenge` | Entrevista socrática, árvore de decisões, premissas e riscos | Antes de especificar ou codificar, quando a ideia ainda precisa de stress-test ("grill me") | "Questione meu plano de migração e aponte o que estou esquecendo antes de escrevermos a spec." |
 | `-spec` | Especificação testável e rastreável, aprovada antes do código | Feature nova ou mudança que altera comportamento, contrato ou dados. Não para bug simples ou ajuste trivial | "Crie a especificação da cobrança recorrente antes de iniciarmos o código." |
 | `-tasks` | Backlog vivo em `TASKS.md` | Planejar, quebrar, atualizar ou auditar tarefas, e receber as pendências das outras skills | "Gere o backlog da sprint em TASKS.md e marque a T-002 como em progresso." |
 | `-code-review` | Revisão em dois eixos: especificação e qualidade | Antes do merge de um PR ou diff, ou para auditar um módulo existente. Não para corrigir o código | "Faça o code review do diff em relação à main e aponte os débitos técnicos." |
