@@ -54,7 +54,16 @@ Se o pedido for vago, apresente no chat um **esboço de escopo** (objetivo, dent
 ### 2.3. Destino da spec
 
 - Se o repositório já adota um local (`SPEC.md`, `.agents/specs/`, `docs/specs/`), use-o.
-- Se não houver nenhum, pergunte uma vez. Em execução não interativa, use `docs/specs/`.
+- Se não houver nenhum, pergunte uma vez:
+
+> *"Onde prefere criar a especificação?*  
+> *1. Na pasta de documentação (`docs/specs/`)*  
+> *2. Na pasta oculta de configuração (`.agents/specs/`)*  
+> *3. Na pasta de agentes (`agents/specs/`)*  
+> *4. Na raiz como arquivo único (`SPEC.md`)*  
+> *(ou informe outro caminho de sua preferência)*"*
+
+Em execução não interativa, use `docs/specs/`.
 - Padrão de nome: `<NNN>-<feature-em-kebab-case>.md`, com `NNN` sequencial a partir das specs existentes. Uma spec por feature.
 
 ### 2.4. Geração

@@ -90,7 +90,12 @@ Seja cirúrgico e guiado por metadados. Não leia arquivos de código inteiros s
 
 Antes de gravar qualquer arquivo, apresente em **uma única mensagem**: o que foi detectado (stack e estilo em uma linha), os arquivos que pretende criar ou atualizar (com o motivo de cada um e dos que foram descartados), o destino e o idioma. Pergunte uma vez:
 
-> *"Posso seguir com este plano? Se não houver arquivos de contexto no repositório, onde prefere criá-los: 1) raiz (`./`), 2) `./.agents/`, 3) `./agents/`, 4) `./docs/`, ou outro caminho? Quer também o ponteiro `CLAUDE.md` com `@AGENTS.md`?"*
+> *"Posso seguir com este plano? Se não houver arquivos de contexto no repositório, onde prefere criá-los?*  
+> *1. Na raiz do projeto (`./`)*  
+> *2. Na pasta oculta de configuração (`./.agents/`)*  
+> *3. Na pasta de agentes (`./agents/`)*  
+> *4. Na pasta de documentação (`./docs/`)*  
+> *(ou informe outro caminho de sua preferência). Quer também o ponteiro `CLAUDE.md` com `@AGENTS.md`?"*
 
 Pule a pergunta de destino nos cenários A e C. Pule o plano inteiro se o usuário já especificou os arquivos e o destino no pedido ou se a execução for não interativa.
 

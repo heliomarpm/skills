@@ -52,7 +52,16 @@ Não escreva para escolhas locais, baratas e reversíveis, nem para estilo de c�
 
 ## 3. Localização, nome e índice
 
-- **Pasta**: detecte a existente (`docs/adr`, `adr`, `docs/decisions`, `doc/adr`, `architecture/decisions`). Sem nenhuma, pergunte uma vez; em execução não interativa use `docs/adr/`.
+- **Pasta**: detecte a existente (`docs/adr`, `adr`, `docs/decisions`, `doc/adr`, `architecture/decisions`). Sem nenhuma, pergunte uma vez:
+
+> *"Onde prefere salvar os ADRs?*  
+> *1. Na pasta de documentação (`docs/adr/`)*  
+> *2. Na pasta raiz de ADR (`adr/`)*  
+> *3. Na pasta de decisões (`docs/decisions/`)*  
+> *4. Na pasta de arquitetura (`architecture/decisions/`)*  
+> *(ou informe outro caminho de sua preferência)*"*
+
+Em execução não interativa use `docs/adr/`.
 - **Arquivo**: `NNNN-titulo-em-kebab-case.md`. O número é o maior existente mais um, incluindo os substituídos; nunca reutilize nem renumere.
 - **Índice**: mantenha `README.md` na pasta, atualizado a cada criação ou mudança de status:
 

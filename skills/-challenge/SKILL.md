@@ -37,6 +37,7 @@ A **fronteira** é o conjunto de decisões cujos pré-requisitos já estão reso
 - Pergunte a fronteira de uma vez, com **3 a 5, no máximo ~7 perguntas por rodada**. Priorize as decisões caras de reverter, de maior risco ou que destravam mais ramos.
 - Decisões de baixo impacto podem ser **assumidas** em vez de perguntadas, desde que apareçam no registro como `(assumido)`.
 - Numere as perguntas e dê a sua recomendação. Formule cada uma de modo que "sim" aceite a recomendação.
+- Ao apresentar opções ou alternativas em uma pergunta, liste-as de forma numerada em linhas separadas (1., 2., 3...) com descrição sucinta, facilitando a escolha direta pelo usuário.
 - Uma pergunta que depende de outra ainda aberta na mesma rodada fica para a rodada seguinte.
 - Respostas parciais: trate as respondidas e mantenha as demais na fronteira.
 - Depois de cada rodada, mostre um **registro** curto: decidido, assumido, em aberto.
