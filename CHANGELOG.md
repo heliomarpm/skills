@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.4.0](https://github.com/heliomarpm/skills/compare/v1.3.0...v1.4.0) (2026-10-13)
+
+
+### Features
+
+* **skills:** ✨ adicionar skill -challenge para stress-test de ideias ([7f9efb4](https://github.com/heliomarpm/skills/commit/7f9efb484add497165708259b2af87487dd88da4))
+
 # [1.3.0](https://github.com/heliomarpm/skills/compare/v1.2.0...v1.3.0) (2026-10-12)
 
 
