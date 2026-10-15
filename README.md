@@ -1,82 +1,35 @@
 <div id="top" align="center">
-  <h1>🧠 Antigravity & Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-   [![Skills](https://img.shields.io/badge/Skills-31%20Specialized-blueviolet?style=for-the-badge&logo=openai)](./skills/)
-   [![Environment](https://img.shields.io/badge/Environment-Antigravity%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
-   [![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog-orange?style=for-the-badge)](./CHANGELOG.md)
-   [![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green?style=for-the-badge)](https://github.com/)
+   <img src="./logo.png" width="256" alt="Logo"/>
+   <h1> Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
+
+   [![Skills](https://img.shields.io/badge/31%20Skills-PT--BR-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+   [![Environment](https://img.shields.io/badge/Environment-Copilot%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
    [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
-  <div class="badges">
+   <div class="badges">
 
-  [![GitHub Sponsors][url-github-sponsors-badge]][url-github-sponsors]
-  [![PayPal][url-paypal-badge]][url-paypal]
-  [![Ko-fi][url-kofi-badge]][url-kofi]
-  [![Liberapay][url-liberapay-badge]][url-liberapay]
+   [![GitHub Sponsors][url-github-sponsors-badge]][url-github-sponsors]
+   [![PayPal][url-paypal-badge]][url-paypal]
+   [![Ko-fi][url-kofi-badge]][url-kofi]
+   [![Liberapay][url-liberapay-badge]][url-liberapay]
     
-  </div>
+   </div>
 </div>
 
-> Repositório central para versionamento, desenvolvimento e catalogação de **Habilidades de Agente (Agent Skills)** voltadas para engenharia de software de alto nível com assistentes como **Google Antigravity**, **Gemini**, **Claude Code** e IDEs agênticas.
+---
+
+Repositório central para versionamento, desenvolvimento e catalogação de **Habilidades de Agente (Agent Skills)** voltadas para engenharia de software com assistentes como **Google Antigravity**, **Gemini**, **Claude Code** e IDEs agênticas.
 
 ---
 
-## 🛡️ Assinatura Obrigatória de Resposta
+## 1. 📚 Catálogo de Habilidades e Exemplos de Uso
 
-Para garantir total transparência e permitir auditar imediatamente se a skill correta foi ativada, **todas as skills deste repositório assinam obrigatoriamente a primeira linha da resposta**:
+As skills ficam em `skills/`, cada uma em uma pasta iniciada por `-` (evita colisão de nomes e facilita a identificação visual). Elas se dividem em três grupos:
 
-```markdown
-> 🧠 **Skill Ativa**: `-nome-da-skill`
-```
+### 1.1. Fluxo de trabalho
 
----
-
-## 🏛️ Arquitetura do Repositório
-
-Todas as 31 habilidades residem centralizadas no diretório `skills/`, padronizadas com o prefixo `-` para evitar colisões de namespace e facilitar a identificação visual:
-
-```text
-./skills/
-├── -adr/                   # C4 Model em Mermaid, ADRs e Post-Mortems de Incidente
-├── -ai-engineering/        # LLMs, RAG, Function Calling, Semantic Search e Embeddings
-├── -api-design/            # Contratos OpenAPI 3.1, Idempotência e Webhooks HMAC
-├── -challenge/             # Stress-Test Intelectual, Árvore de Decisão e Entrevista Socrática
-├── -changelog/             # Histórico Keep a Changelog, SemVer e Detecção de Automações
-├── -code-review/           # Revisão Bidimensional (Spec vs Standards) em Subagentes
-├── -debug/                 # Detecção de Causa Raiz, Testes de Regressão e Correção Mínima
-├── -design-system/         # Tokens Semânticos, WCAG 2.2 AA (A11y), Estados de UI e Componentes
-├── -devops/                # Docker Multi-stage, CI/CD GitHub Actions e OIDC
-├── -discovery/             # Onboarding, Engenharia de Contexto e Memória de IA (Explícita)
-├── -git/                   # Trunk-Based, Rebase Interativo e Conventional Commits
-├── -observability/         # OpenTelemetry, SLI/SLO, Graceful Shutdown e Debug de Heap
-├── -readme/                # Documentação de Entrada Baseada em Evidências e Manifestos
-├── -refactor/              # Testes de Caracterização e Padrões de Refatoração
-├── -security/              # OAuth 2.1/OIDC, Argon2id, RBAC/ABAC e OWASP
-├── -spec/                  # Spec-Driven Development, Estruturação de SPEC.md e Contratos
-├── -sql/                   # Modelagem Relacional, Keyset Pagination e EXPLAIN
-├── -system-design/         # Transactional Outbox, Mensageria e Cache
-├── -tasks/                 # Gestão Dinâmica, Decomposição e Atualização de TASKS.md
-├── -tech-angular/          # Angular 18/19+, Signals, Resource API e @defer
-├── -tech-dotnet/           # C# 13, .NET 9, HybridCache e Lock nativo
-├── -tech-flutter/          # Dart 3+, Riverpod 2.x, Isolates e RepaintBoundary
-├── -tech-golang/           # Go 1.22+, Goroutines/Channels, sync.ErrGroup e log/slog
-├── -tech-java/             # Java 21+ LTS, Virtual Threads/Loom, Spring Boot 3.x e JPA
-├── -tech-nodejs/           # Node 20+ LTS, ESM, Streams e AbortController
-├── -tech-php/              # PHP 8.4 Property Hooks, Asymmetric Visibility e PDO
-├── -tech-python/           # Python 3.12/3.13, PEP 695 Generics e Pydantic v2
-├── -tech-react/            # React 19, useActionState, TanStack Query e Zustand
-├── -tech-typescript/       # TypeScript 5.x, TSX, Generics e Type Assertions
-├── -tech-vue/              # Vue 3.5 defineModel, Props Destructure e Pinia
-└── -testing/               # Pirâmide de Testes, Padrão AAA e Data Builders
-```
-
----
-
-## 📚 Catálogo de Habilidades e Exemplos de Uso
-
-### 1. Fluxo de trabalho
-
-Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery`, `-challenge` (ideação e decisões), `-spec`, `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
+Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery`, `-challenge` (opcional), `-spec`, `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
 
 | Skill | Foco | Quando usar? | Exemplo de uso (prompt) |
 | :--- | :--- | :--- | :--- |
@@ -89,13 +42,14 @@ Skills com etapas, pontos de aprovação e integração entre si. Ordem típica:
 | `-testing` | Estratégia e automação de testes | Escrever, auditar ou gerar testes a partir dos critérios da spec, e tratar testes instáveis | "Escreva os testes dos critérios de aceite da spec 003." |
 | `-git` | Commits atômicos, PRs, histórico e conflitos | Ao commitar, abrir PR, atualizar branch, limpar histórico ou desfazer algo. Não para pipelines | "Prepare o commit e a PR desta mudança no padrão do projeto." |
 | `-debug` | Causa raiz de bugs, correção mínima e teste de regressão | Erro, stack trace, comportamento inesperado, regressão ou falha só em produção ou CI | "Este endpoint retorna 500 de forma intermitente; ache a causa e corrija." |
-| `-readme` 🔒	| `README.md` de um repositório, a partir de evidências, preservando o texto da equipe	| Quando o `README` não existe ou está desatualizado. Só por pedido explícito	| "Atualize o README deste repositório com a stack e os comandos atuais." |
-| `-changelog` 🔒	| `CHANGELOG.md` no formato Keep a Changelog, a partir de commits e tags | Ao preparar uma release ou quando o CHANGELOG está desatualizado. Só por pedido explícito; não edita arquivo gerado por automação | "Atualize o CHANGELOG com as mudanças desde a última tag." |
-
-> 💡 **[Guia prático com exemplo de uso do -spec (SDD)](docs/GUIA_PRATICO_SDD.md)**
+| `-readme` 🔒 | README.md de um repositório, a partir de evidências, preservando o texto da equipe | Quando o README não existe ou está desatualizado. Só por pedido explícito | "Atualize o README deste repositório com a stack e os comandos atuais." |
+| `-changelog` 🔒 | CHANGELOG.md no formato Keep a Changelog, a partir de commits e tags | Ao preparar uma release ou quando o CHANGELOG está desatualizado. Só por pedido explícito; não edita arquivo gerado por automação | "Atualize o CHANGELOG com as mudanças desde a última tag." |
 
 
-## 2. Domínios e práticas
+***🔒 indica ativação exclusivamente explícita.***
+> 💡 **[Guia prático com exemplo de uso do `-spec` (SDD)](GUIA_PRATICO_SDD.md)**
+
+### 1.2. Domínios e práticas
 
 Guias consultados conforme o assunto da tarefa.
 
@@ -111,7 +65,7 @@ Guias consultados conforme o assunto da tarefa.
 | `-design-system` | Tokens, acessibilidade WCAG 2.2 AA e API de componentes | Criar tokens, projetar componentes, auditar acessibilidade ou migrar valores fixos para tokens | "Modele os tokens semânticos com tema escuro e um botão acessível." |
 | `-ai-engineering` | Integração com LLMs: saídas estruturadas, ferramentas, RAG e avaliações | Integrar um LLM, criar agentes ou RAG, ou medir a qualidade das respostas | "Implemente um RAG com busca híbrida, filtro de permissões e um conjunto de avaliação." |
 
-## 3. Stacks (`-tech-*`)
+### 1.3. Stacks (`-tech-*`)
 
 Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta. Regras de tipagem em `-tech-typescript`.
 
@@ -131,131 +85,185 @@ Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta.
 
 ---
 
-## ⚡ Como as Skills Funcionam e Política de Ativação
+## 🔄 Fluxo típico
 
-O Antigravity adota o padrão de **Divulgação Progressiva (*Progressive Disclosure*)** com duas modalidades claras de ativação:
+```mermaid
+flowchart LR
+  D["-discovery"] --> C["-challenge (opcional)"]
+  C --> S["-spec"]
+  S --> T["-tasks"]
+  T --> I["Implementação<br/>-testing e -tech-*"]
+  I --> R["-code-review"]
+  R --> G["-git (opcional)"]
+```
 
-1. **Ativação Contextual Inteligente (Implícita)**:
-   - A maioria das skills é ativada dinamicamente quando o próprio prompt do usuário traz indícios suficientes da tarefa (ex: ao pedir uma refatoração, testes unitários, query SQL ou desenvolvimento em React 19).
-   - Não é necessário que o usuário digite o nome da skill explicitamente; as palavras-chave da intenção disparam a leitura sob demanda (*Just-in-Time*).
-2. **Ativação Restrita (🔒 Exclusivamente Explícita)**:
-   - Skills estruturais e de varredura ampla (como **`-discovery`**, **`-readme`** e **`-changelog`**) **NUNCA são ativadas por inferência implícita**.
-   - Elas exigem pedido expresso do usuário (ex: *"faça o discovery do projeto"*, *"atualize o README"*, *"prepare o changelog"*), prevenindo varreduras acidentais ou desperdício de tokens em tarefas pontuais de codificação.
-3. **Assinatura Obrigatória**:
-   - Toda resposta gerada sob uma skill inicia assinando no topo: `> 🧠 **Skill Ativa**: -nome-da-skill`.
+As demais skills entram conforme o assunto da tarefa: `-sql`, `-security`, `-api-design`, `-system-design`, `-debug`, `-refactor` e assim por diante.
 
 ---
 
-## 🔗 Instalação e Sincronização Local
+## ⚡ Como as skills funcionam
 
-### Vinculação com o Antigravity / Gemini CLI
+O repositório adota a **divulgação progressiva** (*progressive disclosure*): o assistente lê a descrição de cada skill e só carrega o conteúdo completo quando a tarefa pede.
 
-Para conectar este repositório ao diretório de configuração global do assistente:
+1. **Ativação contextual (implícita)**: a maioria das skills é acionada quando o pedido traz indícios suficientes da tarefa (uma refatoração, testes, uma consulta SQL, um componente React). O usuário não precisa citar o nome da skill. Cada `description` traz os gatilhos e também o que a skill **não** cobre, apontando para a skill certa.
+2. **Ativação restrita (🔒 exclusivamente explícita)**: `-discovery`, `-readme` e `-changelog` só rodam por pedido expresso (por exemplo, *"faça o discovery do projeto"*, *"atualize o README"*, *"prepare o changelog"*). Isso evita varreduras amplas e alterações de documentos públicos por inferência.
+3. **Assinatura**: a **primeira mensagem do fluxo** começa com `> 🧠 **Skill Ativa**: -nome-da-skill`, para auditar que a skill certa foi ativada. As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-#### No Windows (PowerShell):
+---
+
+## 🏛️ Estrutura do repositório
+
+```text
+skills/
+├── -adr/              ├── -tech-angular/
+├── -ai-engineering/   ├── -tech-dotnet/
+├── -api-design/       ├── -tech-flutter/
+├── -challenge/        ├── -tech-golang/
+├── -changelog/        ├── -tech-java/
+├── -code-review/      ├── -tech-nodejs/
+├── -debug/            ├── -tech-php/
+├── -design-system/    ├── -tech-python/
+├── -devops/           ├── -tech-react/
+├── -discovery/        ├── -tech-typescript/
+├── -git/              ├── -tech-vue/
+├── -observability/    └── -testing/
+├── -readme/
+├── -refactor/
+├── -security/
+├── -spec/
+├── -sql/
+├── -system-design/
+└── -tasks/
+```
+
+Cada pasta contém um `SKILL.md`. Material de apoio extenso fica em `references/` dentro da skill e é lido só quando necessário (por exemplo, `-git/references/windows-utf8.md`).
+
+---
+
+## 🔗 Instalação e sincronização local
+
+Vincule cada skill ao diretório de skills do seu cliente. O diretório varia: confirme na documentação do seu assistente. Exemplos comuns: Claude Code em `~/.claude/skills`, Antigravity/Gemini em `~/.gemini/config/skills` ou pasta comum para quase todos os agentes em `~/.agents/skills`.
+
+Vincular **cada skill** (e não a pasta `skills/` inteira) evita um nível extra de aninhamento, que alguns clientes não varrem.
+
+### Windows (PowerShell)
+
+`Junction` não exige PowerShell elevado nem o Modo de Desenvolvedor.
+
 ```powershell
-# Criação de link simbólico para a pasta de skills
-New-Item -ItemType SymbolicLink -Path "$HOME\.gemini\config\skills\repo-skills" -Target "${workspaceFolder}/skills"
+# Ajuste para o diretório de skills do seu cliente
+$destino = "$HOME\.claude\skills" # ou \.agent\skills, \.gemini\skills, \.codex\skills, etc.
+New-Item -ItemType Directory -Force $destino | Out-Null
+
+Get-ChildItem .\skills -Directory | ForEach-Object {
+  New-Item -ItemType Junction -Path (Join-Path $destino $_.Name) -Target $_.FullName
+}
 ```
 
-#### No Linux / macOS:
+### Linux e macOS
+
 ```bash
-ln -s "$(pwd)/skills" "$HOME/.gemini/config/skills/repo-skills"
+# Ajuste para o diretório de skills do seu cliente
+destino="$HOME/.claude/skills" # ou .agents/skills, .gemini/skills, .codex/skills, etc.
+mkdir -p "$destino"
+
+for d in skills/-*/; do
+  n=$(basename "$d")
+  ln -sfn "$PWD/skills/$n" "$destino/$n"
+done
 ```
+
+> ⚠️ Nomes que começam com `-` são lidos como opção em comandos de terminal. Use `./-adr` ou `--`: `cd ./-adr`, `rm -- -adr`.
 
 ---
 
-## 🏗️ Padrão de Construção de Novas Skills
+## 🏗️ Padrão de construção de novas skills
 
-Cada skill deve ser criada sob uma pasta própria iniciada por `-` contendo obrigatoriamente um arquivo **`SKILL.md`** estruturado nos **4 Pilares do Padrão Ouro**:
+Cada skill é uma pasta iniciada por `-` com um `SKILL.md`:
 
 ```markdown
 ---
-name: -tech-nome-da-skill
-description: "Descrição concisa contendo as palavras-chave e gatilhos exatos para ativação."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run *)
-disallowed-tools: Bash  # (Opcional) Bloqueia terminal em skills puramente documentais/design
+name: -nome-da-skill
+description: "O que faz, os gatilhos exatos e o 'NÃO use para ...' apontando a skill certa."
+allowed-tools: Read, Grep, Glob, Bash(comando específico *)
+disable-model-invocation: true   # somente em skills de ativação explícita
 ---
 
-# Título da Skill
+# Título
 
-> [!IMPORTANT]
-> ### 🛡️ Assinatura Obrigatória da Conversa (Primeira Ação)
-> Toda resposta gerada sob a orientação desta skill **DEVE ser obrigatoriamente iniciada** identificando a skill em uso no topo absoluto da mensagem:
-> `> 🧠 **Skill Ativa**: `-tech-nome-da-skill``
-
----
-
-## 1. Processo de Execução Estruturado (Workflow)
-Etapas analíticas e de validação antes de alterar código.
-
-## 2. Snippets Canônicos de Referência
-Exemplos práticos e modernos da tecnologia.
-
-## 3. Armadilhas em Produção (Gotchas)
-Checklist de armadilhas comuns (vazamentos, deadlocks, concorrência).
-
-## 4. Padrão Rigoroso de Entrega
-Requisitos obrigatórios de entrega (tipagem, testes, sem TODOs).
+## 0. Regras de operação → (assinatura na primeira mensagem, escopo de escrita, evidência, idioma)
+## 1. Modos de operação
+## 2. Workflow
+## 3. Exemplos e modelos
+## 4. Integrações e registro via `-tasks`
+## 5. Armadilhas
+## 6. Padrão de entrega
 ```
 
-### 🔒 Gestão de Permissões (`allowed-tools`)
+Diretrizes: a `description` concentra os gatilhos e as exclusões; o conteúdo parte do projeto (lê o contexto e as versões do manifesto antes de agir); toda afirmação tem evidência; comandos só se rastreáveis a um manifesto ou workflow; a skill indica o que **não** faz e para onde encaminhar.
 
-Cada skill declara no frontmatter o campo `allowed-tools`, que **pré-aprova** apenas o que ela usa no dia a dia, eliminando confirmações repetitivas. O campo não bloqueia as demais ferramentas: o que não está listado segue o fluxo normal de permissão do cliente e pede confirmação.
+### 🔒 Gestão de permissões (`allowed-tools`)
 
-- **Pré-aprovado**: leitura, busca, edição de arquivos (nas skills que escrevem) e comandos específicos de teste, build, tipos e lint de cada stack (por exemplo `npx vitest *`, `go test *`, `dotnet build *`). Não usamos curingas amplos como `npm run *`, `npx *` ou `python *`, que executam código arbitrário.
+O campo `allowed-tools` **pré-aprova** apenas o que a skill usa no dia a dia, eliminando confirmações repetitivas. Ele não bloqueia as demais ferramentas: o que não está listado segue o fluxo normal de permissão do cliente e pede confirmação.
+
+- **Pré-aprovado**: leitura, busca, edição de arquivos (nas skills que escrevem) e comandos específicos de teste, build, tipos e lint (por exemplo `npx vitest *`, `go test *`, `dotnet build *`). Não usamos curingas amplos como `npm run *`, `npx *` ou `python *`, que executam código arbitrário.
 - **Pedem confirmação** (de propósito, fora do pré-aprovado): operações que alteram o mundo ou reescrevem histórico, como `git push`, `rebase`, `reset`, merge de PR, `terraform apply`, `docker push` e publicação de release.
 - **Sem `Bash`**: skills conceituais (`-tasks`, `-api-design`, `-system-design`, `-sql`, `-observability`, `-design-system`). Algumas só leem o histórico do Git (`-adr`, `-spec`).
 - **Modos somente leitura, por regra da skill**: `-code-review` só lê e registra pendências via `-tasks`, com confirmação; `-security` só edita no modo Corrigir, com aprovação. É uma instrução da skill, não um bloqueio técnico.
-- **Ativação explícita**: `-discovery`, `-readme` e `-changelog` usam `disable-model-invocation: true` e só rodam quando o usuário as invoca expressamente.
+- **Ativação explícita**: `-discovery`, `-readme` e `-changelog` usam `disable-model-invocation: true`.
 
-> Para um bloqueio técnico real, use regras de `deny` nas configurações do cliente.
+> Para um bloqueio técnico real, use regras de `deny` nas configurações do cliente. O comportamento de `allowed-tools` e de `disable-model-invocation` pode variar entre clientes e versões: confirme no seu.
 
 ---
 
-## 🤝 Padrão de Commits (Conventional Commits)
+## 🤝 Padrão de commits (Conventional Commits)
 
 Utilize mensagens semânticas ao commitar melhorias ou novas skills:
 
-| Prefixo | Exemplo |
-| :--- | :--- |
-| `feat(skill)` | `feat(-tech-react): adiciona regras para React 19 Actions` |
-| `fix(skill)` | `fix(-debug): corrige exemplo de detecção de causa raiz` |
-| `docs` | `docs: atualiza catálogo do README com exemplos de uso` |
-| `refactor` | `refactor(-observability): aprimora diretrizes de observabilidade` |
-
+| Prefixo       | Exemplo                                                            |
+| ------------- | ------------------------------------------------------------------ |
+| `feat(skill)` | `feat(-tech-react): adiciona regras para React 19 Actions`         |
+| `fix(skill)`  | `fix(-debug): corrige exemplo de detecção de causa raiz`           |
+| `docs`        | `docs: atualiza o catálogo com exemplos de uso`                    |
+| `refactor`    | `refactor(-observability): aprimora diretrizes de observabilidade` |
 
 ---
 
-## 🤝 Contribuições & Suporte
+## 🙌 Contribuições e suporte
 
-- Quer contribuir com uma nova stack ou melhoria? Veja nosso [Guia de Contribuição](docs/CONTRIBUTING.md).
-- Precisa de ajuda ou encontrou um problema? Consulte nosso [Suporte](docs/SUPPORT.md) ou abra uma [Issue](https://github.com/heliomarpm/skills/issues).
-- Leia o [Código de Conduta](docs/CODE_OF_CONDUCT.md).
+Existem várias formas de contribuir:
 
-Obrigado a todos que já contribuíram para o projeto!
+- ⭐ Marcar o repositório com uma estrela
+- 🐞 Relatar bugs
+- 💡 Sugerir funcionalidades ou novas stacks
+- 🧾 Melhorar a documentação
+- 📢 Compartilhar o projeto
 
-<a href="https://github.com/heliomarpm/skills/graphs/contributors" target="_blank">
-<img src="https://contrib.nn.ci/api?repo=heliomarpm/skills&no_bot=true" />
-</a>
+Para propor uma skill ou melhoria, veja o [Guia de Contribuição](https://github.com/heliomarpm/skills/blob/main/docs/CONTRIBUTING.md).\
+Se precisar de ajuda ou encontrou um problema, consulte o [Suporte](https://github.com/heliomarpm/skills/blob/main/docs/SUPPORT.md) ou abra uma [Issue](https://github.com/heliomarpm/skills/issues). Leia também o [Código de Conduta](https://github.com/heliomarpm/skills/blob/main/docs/CODE_OF_CONDUCT.md).
 
-###### Criado com [contrib.nn](https://contrib.nn.ci/?repo=heliomarpm/skills&no_bot=true).
+Obrigado a todos que já contribuíram:
 
-Dito isso, existem várias maneiras de contribuir para este projeto, como:
+[![Contribuidores](https://contrib.nn.ci/api?repo=heliomarpm/skills&no_bot=true)](https://github.com/heliomarpm/skills/graphs/contributors)
 
-⭐ Marcando o repositório com uma estrela (star) \
-🐞 Relatando bugs \
-💡 Sugerindo funcionalidades \
-🧾 Melhorando a documentação \
-📢 Compartilhando este projeto e recomendando-o aos seus amigos
+###### Criado com [contrib.nn](https://contrib.nn.ci/?repo=heliomarpm/skills&no_bot=true)
+
+---
+
+## 💖 Apoie o projeto
+
+[![GitHub Sponsors][url-github-sponsors-badge]][url-github-sponsors]
+[![PayPal][url-paypal-badge]][url-paypal]
+[![Ko-fi][url-kofi-badge]][url-kofi]
+[![Liberapay][url-liberapay-badge]][url-liberapay]
 
 ---
 
 ## 📄 Licença
 
-Distribuído sob a licença [MIT](LICENSE) © [Heliomar P. Marques](https://github.com/heliomarpm). <a href="#top">🔝</a>
+Distribuído sob a licença [MIT](LICENSE) © [Heliomar P. Marques](https://github.com/heliomarpm).\
+Sinta-se livre para utilizar, customizar e estender estas habilidades nos seus ambientes de desenvolvimento. [🔝](#top)
 
-Sinta-se livre para utilizar, customizar e estender estas habilidades nos seus ambientes de desenvolvimento.
 
 ----
 <!-- Sponsor badges -->
