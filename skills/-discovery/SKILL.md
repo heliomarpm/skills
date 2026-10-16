@@ -55,8 +55,6 @@ Nomes padrão abaixo. Use um nome alternativo apenas se ele já existir no repos
 | `GUIDELINE.md` | `GUIDELINES.md`, `CONTRIBUTING.md` (apenas leitura e complemento, nunca sobrescrita) |
 | `TASKS.md` | `TASK.md` |
 
-**Ponteiro para Claude Code.** Se `AGENTS.md` for o arquivo canônico e não existir `CLAUDE.md`, proponha criar um `CLAUDE.md` contendo apenas `@AGENTS.md`. Crie somente se o usuário aceitar no plano de entrega.
-
 **Modo parcial.** Se o usuário pedir arquivos específicos ("gere só o PRD.md e o ARCHITECTURE.md"), gere apenas esses, mas execute a varredura necessária para eles.
 
 ---
@@ -95,7 +93,7 @@ Antes de gravar qualquer arquivo, apresente em **uma única mensagem**: o que fo
 > *2. Na pasta oculta de configuração (`./.agents/`)*  
 > *3. Na pasta de agentes (`./agents/`)*  
 > *4. Na pasta de documentação (`./docs/`)*  
-> *(ou informe outro caminho de sua preferência). Quer também o ponteiro `CLAUDE.md` com `@AGENTS.md`?"*
+> *(ou informe outro caminho de sua preferência)."*
 
 Pule a pergunta de destino nos cenários A e C. Pule o plano inteiro se o usuário já especificou os arquivos e o destino no pedido ou se a execução for não interativa.
 
