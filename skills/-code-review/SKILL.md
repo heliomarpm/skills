@@ -102,7 +102,7 @@ Quando houver spec, inclua no relatório a tabela de cobertura: requisito, onde 
 
 1. **Segurança (OWASP)**: segredos no código, SQL parametrizado, validação de entrada, autorização antes da execução, exposição de dados sensíveis em respostas e logs.
 2. **Performance e recursos**: N+1, I/O bloqueante, paginação em listagens, liberação de streams, listeners e conexões, concorrência e condições de corrida.
-3. **Dados e APIs**: migrations seguras (expand and contract), retrocompatibilidade de contratos públicos, formato de erro padronizado (RFC 7807).
+3. **Dados e APIs**: migrations seguras (expand and contract), retrocompatibilidade de contratos públicos, formato de erro padronizado (RFC 9457).
 4. **Design e camadas**: violações de SRP e DIP, dependências na direção errada, quebra das camadas definidas em `ARCHITECTURE.md`, tratamento de erros consistente, logs úteis e sem dados sensíveis.
 5. **Testes**: o comportamento novo tem teste? É determinístico? Cobre caminho feliz e erro? Cita o ID do critério de aceite? Como a skill não executa testes, "build ou testes quebrados" só vira Crítico com evidência (resultado de CI via `gh pr checks` ou saída informada pelo usuário).
 6. **Code smells detectáveis em revisão** (catálogo do Fowler; o catálogo completo e as correções ficam com `-refactor`): Mysterious Name, Duplicated Code, Long Function, Large Class, Feature Envy, Data Clumps, Primitive Obsession, Shotgun Surgery, Divergent Change, Speculative Generality, Middle Man, Refused Bequest, Mutable Data. Reporte só o que aparece no diff e limite a severidade a Menor, salvo se o smell estiver causando um defeito.
