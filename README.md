@@ -3,7 +3,7 @@
    <img src="./logo.png" width="256" alt="Logo"/>
    <h1> Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-   [![Skills](https://img.shields.io/badge/31%20Skills-PT--BR-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+   [![Skills](https://img.shields.io/badge/32%20Skills-PT--BR-blueviolet?style=for-the-badge&logo=openai)](./skills/)
    [![Environment](https://img.shields.io/badge/Environment-Copilot%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
    [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
