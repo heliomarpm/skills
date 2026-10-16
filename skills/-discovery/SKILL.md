@@ -82,7 +82,7 @@ Seja cirúrgico e guiado por metadados. Não leia arquivos de código inteiros s
 4. **Dados e integrações**: ORMs (Prisma, Entity Framework, SQLAlchemy, Eloquent), migrations, schemas SQL, filas, cache e APIs externas críticas.
 5. **Engenharia e governança**: linters e formatadores (`eslint`, `prettier`, `.editorconfig`, analyzers), tipagem estrita, pipelines (`.github/workflows/`, `.gitlab-ci.yml`), templates de PR e issue.
 6. **Produto e domínio**: `README`, `docs/`, rotas, telas, nomes de entidades, CHANGELOG, ADRs existentes. Fonte principal do `PRD.md`, do `GLOSSARY.md` e do `DECISIONS.md`.
-7. **Histórico git** (somente leitura): `git log` para detectar o padrão real de commits (Conventional Commits ou não), áreas mais ativas e tempo desde a última mudança; `git remote` para o link do repositório; `git rev-parse --short HEAD` para registrar o commit base.
+7. **Histórico git** (somente leitura): `git log` para detectar o padrão real de commits (Conventional Commits ou não), áreas mais ativas e tempo desde a última mudança; `git remote` para o link do repositório.
 
 **Monorepos.** Gere os arquivos globais na raiz. Para pacotes com stack ou regras próprias, gere um `AGENTS.md` curto (até ~60 linhas) dentro do pacote, que herda o da raiz. Liste os pacotes na tabela de topologia do `CONTEXT.md`.
 
@@ -113,11 +113,10 @@ Apresente o resumo conforme a seção 6. Se houver débitos ou lacunas identific
 
 ### 3.1. Preservação e merge
 
-- Texto escrito por humanos é sagrado. Nunca apague nem reescreva trechos existentes sem aprovação.
-- As seções geradas pela skill ficam entre marcadores `<!-- discovery:start:ID -->` e `<!-- discovery:end:ID -->`. Em atualizações, edite somente o conteúdo dentro dos marcadores.
-- Conteúdo humano é qualquer coisa fora dos marcadores, ou dentro de `<!-- manual:start -->` e `<!-- manual:end -->`. Nunca altere esses trechos.
-- Arquivo preexistente **sem marcadores**: não reescreva. Adicione as seções novas com marcadores, preserve o restante intacto e, se houver contradição entre o texto existente e o código, não resolva sozinho: registre como "Conflito" no resumo final.
-- Ao atualizar, compare o commit base do cabeçalho com o `HEAD` atual e informe o que mudou desde então.
+- Texto escrito por humanos é sagrado. Nunca apague nem reescreva seções ou notas existentes sem aprovação.
+- **Seções da equipe**: qualquer seção cujo título a skill não gera, e em particular `## Notas da Equipe`, é da equipe e nunca é alterada. Em atualizações, a skill modifica apenas as seções que ela mesma gera (identificadas pelos títulos dos modelos, como `## Stack` e `## Comandos`).
+- Arquivo preexistente: não reescreva do zero. Adicione ou atualize as seções necessárias, preserve o restante intacto e, se houver contradição entre o texto existente e o código, não resolva sozinho: registre como "Conflito" no resumo final.
+- Ao atualizar, verifique o que mudou no código e no histórico git recente e atualize as seções correspondentes.
 
 ### 3.2. Concisão
 
@@ -134,12 +133,17 @@ Só inclua um comando se ele for rastreável a um manifesto, `Makefile`, `justfi
 
 Escreva os artefatos no idioma já usado nos documentos existentes do repositório. Sem documentos, use o idioma do README; se também não houver, use o idioma do pedido do usuário. Mantenha termos técnicos, nomes de comandos e de código em seu idioma original.
 
-### 3.5. Cabeçalho obrigatório
+### 3.5. Estrutura obrigatória de todo arquivo gerado
 
-Todo arquivo gerado começa com o título e esta linha:
+Todo arquivo começa com o título e a data de atualização, e termina com a seção `## Notas da Equipe`, com o texto fixo abaixo (criada vazia e nunca alterada em atualizações):
 
 ```
-> Gerado por -discovery | Commit base: `<hash curto>` | Atualizado em: <AAAA-MM-DD> | Idioma: <código>
+> Atualizado em: <YYYY-MM-DD>
+
+...
+
+## Notas da Equipe
+*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
 ```
 
 ---
@@ -153,25 +157,20 @@ Os modelos mostram estrutura e nível de detalhe. Os valores são ilustrativos. 
 ````markdown
 # Contexto do Projeto: Gateway de Pagamentos
 
-> Gerado por -discovery | Commit base: `a1b2c3d` | Atualizado em: 2026-10-11 | Idioma: pt-BR
+> Atualizado em: 2026-10-11
 
-<!-- discovery:start:proposito -->
 ## Propósito
 Serviço de processamento de transações (PIX, cartão, boleto), com idempotência de cobranças e webhooks assinados com HMAC.
-<!-- discovery:end:proposito -->
 
-<!-- discovery:start:stack -->
 ## Stack
 
 | Componente | Tecnologia | Versão | Origem |
 | :--- | :--- | :--- | :--- |
-| Runtime | Node.js | 20 LTS | `package.json` (engines) |
-| Web | Fastify | 4.x | `package.json` |
-| Banco | PostgreSQL via Prisma | 16 | `docker-compose.yml` |
-| Testes | Vitest | 2.x | `package.json` |
-<!-- discovery:end:stack -->
+| Runtime | Node.js | <versão> | `package.json` (engines) |
+| Web | Fastify | <versão> | `package.json` |
+| Banco | PostgreSQL via Prisma | <versão> | `docker-compose.yml` |
+| Testes | Vitest | <versão> | `package.json` |
 
-<!-- discovery:start:comandos -->
 ## Comandos
 
 | Ação | Comando | Origem |
@@ -181,9 +180,7 @@ Serviço de processamento de transações (PIX, cartão, boleto), com idempotên
 | Testes | `npm run test` | `package.json` (scripts) |
 | Migrar | `npm run db:migrate` | `package.json` (scripts) |
 | Deploy | não verificado | n/d |
-<!-- discovery:end:comandos -->
 
-<!-- discovery:start:topologia -->
 ## Topologia de pastas
 
 ```text
@@ -193,9 +190,7 @@ src/
 ├── infrastructure/  # Repositórios, clientes externos
 └── presentation/    # Rotas e controllers
 ```
-<!-- discovery:end:topologia -->
 
-<!-- discovery:start:indice -->
 ## Índice da documentação
 
 | Documento | Conteúdo |
@@ -203,7 +198,9 @@ src/
 | [AGENTS.md](./AGENTS.md) | Regras para IAs |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Módulos e fluxos |
 | [DATA.md](./DATA.md) | Dados e integrações |
-<!-- discovery:end:indice -->
+
+## Notas da Equipe
+*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
 ````
 
 ### 4.2. `AGENTS.md`
@@ -211,12 +208,11 @@ src/
 ````markdown
 # Diretrizes para Assistentes de IA
 
-> Gerado por -discovery | Commit base: `a1b2c3d` | Atualizado em: 2026-10-11 | Idioma: pt-BR
+> Atualizado em: 2026-10-11
 
-<!-- discovery:start:regras -->
 ## Regras obrigatórias
 1. Tipagem estrita: não use `any`; modele contratos de API. (Origem: `tsconfig.json`, `strict: true`)
-2. Erros no formato RFC 7807 (Problem Details). (Origem: `src/presentation/errors`)
+2. Erros no formato Problem Details (RFC 9457). (Origem: `src/presentation/errors`)
 3. Commits no padrão Conventional Commits. (Origem: histórico git e `commitlint.config.js`)
 4. Mutações financeiras exigem o cabeçalho `Idempotency-Key`.
 
@@ -233,24 +229,23 @@ Stack detectada: TypeScript, Node.js e PostgreSQL. Use `-tech-typescript`, `-tec
 
 ## Antes de concluir uma tarefa
 Rodar lint e testes (comandos em [CONTEXT.md](./CONTEXT.md)).
-<!-- discovery:end:regras -->
 
-<!-- manual:start -->
-<!-- Notas e regras escritas pela equipe. A skill não altera este bloco. -->
-<!-- manual:end -->
+## Notas da Equipe
+*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
 ````
 
-### 4.3. Estrutura dos demais arquivos
+As seções **Skills aplicáveis** e **Decisões críticas** são opcionais: a primeira mapeia a stack detectada às skills que existirem no ambiente (liste só essas); a segunda linka os ADRs aceitos que restringem o código.
 
-Cada um segue o cabeçalho da seção 3.5 e seções com marcadores. Conteúdo mínimo esperado:
+### 4.3. Artefatos condicionais
 
-- **`ARCHITECTURE.md`**: estilo arquitetural e justificativa observável; diagrama de componentes em Mermaid (um só, enxuto); fluxo da requisição ou do caso de uso principal; tabela de módulos com responsabilidade e dependências; pontos de extensão; riscos arquiteturais observados. Para modelagem C4 completa ou decisões de desenho, aponte o `-system-design`.
-- **`AGENTS.md`** (seções adicionais): **Skills aplicáveis**, que mapeia a stack detectada às skills existentes no ambiente (`-tech-*`, `-sql`, `-api-design`, `-testing`, `-security`, `-devops`; liste só as que existirem); e **Decisões críticas**, com links para os ADRs aceitos que restringem o código.
+Para cada artefato aprovado no plano de entrega, siga o cabeçalho e o rodapé da seção 3.5 e inclua, no mínimo:
+
+- **`ARCHITECTURE.md`**: estilo arquitetural e justificativa observável; diagrama de componentes em Mermaid (um só, enxuto); fluxo da requisição ou do caso de uso principal; tabela de módulos com responsabilidade e dependências; pontos de extensão; riscos arquiteturais observados. Para C4 completo ou decisões de desenho, aponte o `-system-design`.
 - **`DATA.md`**: banco e ferramenta de migração; 5 a 10 entidades centrais com papel e relacionamentos; mensageria e cache; sistemas externos (autenticação, pagamentos, APIs terceiras) com onde são chamados.
 - **`PRD.md`** (retroativo): problema e proposta de valor `(inferido)`; usuários e personas (`(inferido)` ou `[A CONFIRMAR]`); funcionalidades existentes derivadas de rotas, telas e comandos, cada uma com status (implementada, parcial, não verificada) e o arquivo de origem; fora de escopo observado; métricas de sucesso (`[A CONFIRMAR]` salvo se documentadas); perguntas abertas. Nunca invente objetivos de negócio.
 - **`GUIDELINE.md`**: nomenclatura; organização de código; tratamento de erros e logs; git (commits, branches, PR, revisão); estilo e linters; política para adicionar dependências. Cada padrão tem uma linha de justificativa e a origem (arquivo de configuração ou histórico).
 - **`TESTING.md`**: frameworks; como rodar (comando e origem); estrutura e convenções de nomes; tipos de teste presentes; cobertura se mensurável; lacunas.
-- **`OPERATIONS.md`**: ambientes; variáveis de ambiente (apenas nomes, com descrição); jobs de CI/CD e o que cada um faz; processo de deploy; observabilidade e logs; Docker/IaC relevantes.
+- **`OPERATIONS.md`**: ambientes; variáveis de ambiente (apenas nomes, com descrição); jobs de CI/CD e o que cada um faz; processo de deploy; observabilidade e logs; Docker e IaC relevantes.
 - **`DECISIONS.md`**: se existe uma pasta de ADRs, vira apenas um índice (link, título e status de cada ADR), sem duplicar conteúdo; sem a pasta, uma entrada por decisão no formato do `-adr` (ID, contexto, decisão, consequências e origem: histórico git ou `(inferido)`). ADRs retroativos completos são criados pelo `-adr`, não por esta skill.
 - **`GLOSSARY.md`**: termo, definição curta, onde aparece no código.
 
