@@ -29,13 +29,14 @@ As skills ficam em `skills/`, cada uma em uma pasta iniciada por `-` (evita coli
 
 ### 1.1. Fluxo de trabalho
 
-Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery`, `-challenge` (opcional), `-spec`, `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
+Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery` (projeto existente), `-challenge` (opcional), `-spec`, `-bootstrap` (projeto novo), `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
 
 | Skill | Foco | Quando usar? | Exemplo de uso (prompt) |
 | :--- | :--- | :--- | :--- |
 | `-discovery` 🔒 | Mapear um repositório e gerar os documentos de contexto (`CONTEXT.md`, `AGENTS.md` e outros, conforme o repositório) | Ao entrar num projeto novo ou legado, ou ao atualizar o contexto. Só por pedido explícito | "Faça o discovery deste repositório e crie os arquivos de contexto para os assistentes de IA." |
 | `-challenge` | Questionar um plano, decisão ou ideia em rodadas, com recomendação própria | Antes de especificar ou decidir, para testar o raciocínio. Não para esclarecer um pedido simples (isso o `-spec` já faz) | "Me questione sobre este plano de migração antes de eu escrever a spec." |
 | `-spec` | Especificação testável e rastreável, aprovada antes do código | Feature nova ou mudança que altera comportamento, contrato ou dados. Não para bug simples ou ajuste trivial | "Crie a especificação da cobrança recorrente antes de iniciarmos o código." |
+| `-bootstrap` 🔒 | Criar a base de um projeto novo em repositório vazio (estrutura, qualidade, CI e contexto), com plano aprovado | Ao iniciar um projeto do zero, depois de decidir a stack e o escopo. Só por pedido explícito; não para repositórios com código (`-discovery`) | "Inicie o projeto conforme a spec do MVP e os ADRs: estrutura, testes, CI e documentos de contexto." |
 | `-tasks` | Backlog vivo em `TASKS.md` | Planejar, quebrar, atualizar ou auditar tarefas, e receber as pendências das outras skills | "Gere o backlog da sprint em TASKS.md e marque a T-002 como em progresso." |
 | `-code-review` | Revisão em dois eixos: especificação e qualidade | Antes do merge de um PR ou diff, ou para auditar um módulo existente. Não para corrigir o código | "Faça o code review do diff em relação à main e aponte os débitos técnicos." |
 | `-refactor` | Reestruturar sem mudar o comportamento | Código legado ou complexo, com rede de testes. Não para bug nem funcionalidade nova | "Refatore este módulo legado criando testes de caracterização antes de alterar a estrutura." |
@@ -89,12 +90,14 @@ Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta.
 
 ```mermaid
 flowchart LR
-  D["-discovery"] --> C["-challenge (opcional)"]
-  C --> S["-spec"]
+  D["-discovery (projeto existente)"] --> CO["-challenge (opcional)"] --> S["-spec"]
+  C["-challenge (projeto novo)"] --> S
+  S -.->|projeto novo| B["-bootstrap"]
   S --> T["-tasks"]
+  B --> T
   T --> I["Implementação<br/>-testing e -tech-*"]
   I --> R["-code-review"]
-  R --> G["-git (opcional)"]
+  R --> G["-git"]
 ```
 
 As demais skills entram conforme o assunto da tarefa: `-sql`, `-security`, `-api-design`, `-system-design`, `-debug`, `-refactor` e assim por diante.
@@ -106,7 +109,7 @@ As demais skills entram conforme o assunto da tarefa: `-sql`, `-security`, `-api
 O repositório adota a **divulgação progressiva** (*progressive disclosure*): o assistente lê a descrição de cada skill e só carrega o conteúdo completo quando a tarefa pede.
 
 1. **Ativação contextual (implícita)**: a maioria das skills é acionada quando o pedido traz indícios suficientes da tarefa (uma refatoração, testes, uma consulta SQL, um componente React). O usuário não precisa citar o nome da skill. Cada `description` traz os gatilhos e também o que a skill **não** cobre, apontando para a skill certa.
-2. **Ativação restrita (🔒 exclusivamente explícita)**: `-discovery`, `-readme` e `-changelog` só rodam por pedido expresso (por exemplo, *"faça o discovery do projeto"*, *"atualize o README"*, *"prepare o changelog"*). Isso evita varreduras amplas e alterações de documentos públicos por inferência.
+2. **Ativação restrita (🔒 exclusivamente explícita)**: `-discovery`, `-bootstrap`, `-readme` e `-changelog` só rodam por pedido expresso (por exemplo, *"faça o discovery do projeto"*, *"atualize o README"*, *"prepare o changelog"*). Isso evita varreduras amplas e alterações de documentos públicos por inferência.
 3. **Assinatura**: a **primeira mensagem do fluxo** começa com `> 🧠 **Skill Ativa**: -nome-da-skill`, para auditar que a skill certa foi ativada. As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ---
@@ -115,25 +118,22 @@ O repositório adota a **divulgação progressiva** (*progressive disclosure*): 
 
 ```text
 skills/
-├── -adr/              ├── -tech-angular/
-├── -ai-engineering/   ├── -tech-dotnet/
-├── -api-design/       ├── -tech-flutter/
-├── -challenge/        ├── -tech-golang/
-├── -changelog/        ├── -tech-java/
-├── -code-review/      ├── -tech-nodejs/
-├── -debug/            ├── -tech-php/
-├── -design-system/    ├── -tech-python/
-├── -devops/           ├── -tech-react/
-├── -discovery/        ├── -tech-typescript/
-├── -git/              ├── -tech-vue/
-├── -observability/    └── -testing/
-├── -readme/
-├── -refactor/
-├── -security/
-├── -spec/
-├── -sql/
-├── -system-design/
-└── -tasks/
+├── -adr/              ├── -spec/
+├── -ai-engineering/   ├── -sql/
+├── -api-design/       ├── -system-design/
+├── -bootstrap/        ├── -tasks/
+├── -challenge/        ├── -tech-angular/
+├── -changelog/        ├── -tech-dotnet/
+├── -code-review/      ├── -tech-flutter/
+├── -debug/            ├── -tech-golang/
+├── -design-system/    ├── -tech-java/
+├── -devops/           ├── -tech-nodejs/
+├── -discovery/        ├── -tech-php/
+├── -git/              ├── -tech-python/
+├── -observability/    ├── -tech-react/
+├── -readme/           ├── -tech-typescript/
+├── -refactor/         ├── -tech-vue/
+├── -security/         └── -testing/
 ```
 
 Cada pasta contém um `SKILL.md`. Material de apoio extenso fica em `references/` dentro da skill e é lido só quando necessário (por exemplo, `-git/references/windows-utf8.md`).
@@ -210,13 +210,13 @@ O campo `allowed-tools` **pré-aprova** apenas o que a skill usa no dia a dia, e
 - **Pedem confirmação** (de propósito, fora do pré-aprovado): operações que alteram o mundo ou reescrevem histórico, como `git push`, `rebase`, `reset`, merge de PR, `terraform apply`, `docker push` e publicação de release.
 - **Sem `Bash`**: skills conceituais (`-tasks`, `-api-design`, `-system-design`, `-sql`, `-observability`, `-design-system`). Algumas só leem o histórico do Git (`-adr`, `-spec`).
 - **Modos somente leitura, por regra da skill**: `-code-review` só lê e registra pendências via `-tasks`, com confirmação; `-security` só edita no modo Corrigir, com aprovação. É uma instrução da skill, não um bloqueio técnico.
-- **Ativação explícita**: `-discovery`, `-readme` e `-changelog` usam `disable-model-invocation: true`.
+- **Ativação explícita**: `-discovery`, `-bootstrap`, `-readme` e `-changelog` usam `disable-model-invocation: true`.
 
 > Para um bloqueio técnico real, use regras de `deny` nas configurações do cliente. O comportamento de `allowed-tools` e de `disable-model-invocation` pode variar entre clientes e versões: confirme no seu.
 
 ---
 
-## 🤝 Padrão de commits (Conventional Commits)
+## 🙌 Padrão de commits (Conventional Commits)
 
 Utilize mensagens semânticas ao commitar melhorias ou novas skills:
 
@@ -229,7 +229,7 @@ Utilize mensagens semânticas ao commitar melhorias ou novas skills:
 
 ---
 
-## 🙌 Contribuições e suporte
+## 🤝 Contribuições e suporte
 
 Existem várias formas de contribuir:
 
@@ -250,7 +250,9 @@ Obrigado a todos que já contribuíram:
 
 ---
 
-## 💖 Apoie o projeto
+## 💵 Apoie o Projeto
+
+Se você gosta do projeto, considere fazer uma doação ao desenvolvedor via GitHub Sponsors, Ko-fi, PayPal ou Liberapay — a escolha é sua. 😉
 
 [![GitHub Sponsors][url-github-sponsors-badge]][url-github-sponsors]
 [![PayPal][url-paypal-badge]][url-paypal]
@@ -261,7 +263,7 @@ Obrigado a todos que já contribuíram:
 
 ## 📄 Licença
 
-Distribuído sob a licença [MIT](LICENSE) © [Heliomar P. Marques](https://github.com/heliomarpm).\
+Distribuído sob a licença [MIT](https://github.com/heliomarpm/skills/blob/main/LICENSE) © [Heliomar P. Marques](https://github.com/heliomarpm).\
 Sinta-se livre para utilizar, customizar e estender estas habilidades nos seus ambientes de desenvolvimento. [🔝](#top)
 
 

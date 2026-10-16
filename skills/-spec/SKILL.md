@@ -171,6 +171,8 @@ Specs `implementada` continuam vivas: qualquer mudança futura de comportamento 
 | `-api-design` | Quando a seção de contratos for não trivial |
 | `-tasks` | Ao fim do plano de implementação, **com confirmação do usuário**, para registrar as tarefas |
 | `-testing` | Após a aprovação, para gerar testes a partir dos critérios de aceite |
+| `-challenge` | Antes da spec, para testar a ideia em profundidade; o resumo vira insumo dos requisitos e das premissas |
+| `-bootstrap` | Em projeto novo, cria a base depois da spec aprovada; a spec do MVP define o escopo dela |
 | `-sql` | Seção de modelo de dados: esquema, constraints, migrações e plano de rollback |
 | `-security` | Requisitos de segurança (autenticação, autorização, dados sensíveis) |
 | `-system-design` | Quando a feature exige arquitetura nova ou integração entre serviços |
