@@ -34,7 +34,10 @@ A **fronteira** é o conjunto de decisões cujos pré-requisitos já estão reso
 
 ## 2. Rodadas
 
-- Pergunte a fronteira de uma vez, com **3 a 5, no máximo ~7 perguntas por rodada**. Priorize as decisões caras de reverter, de maior risco ou que destravam mais ramos.
+- **Quantidade flexível (de 1 a no máximo ~7 perguntas por rodada)**:
+  - Faça **uma pergunta por vez** sempre que a resposta puder influenciar, bifurcar ou invalidar decisões seguintes da árvore, garantindo que a próxima pergunta seja mais assertiva.
+  - Perguntas independentes da fronteira podem ser agrupadas na mesma rodada, respeitando o limite de **no máximo ~7 perguntas por rodada**.
+  - Priorize as decisões caras de reverter, de maior risco ou que destravam mais ramos.
 - Decisões de baixo impacto podem ser **assumidas** em vez de perguntadas, desde que apareçam no registro como `(assumido)`.
 - Numere as perguntas e dê a sua recomendação. Formule cada uma de modo que "sim" aceite a recomendação.
 - Ao apresentar opções ou alternativas em uma pergunta, liste-as de forma numerada em linhas separadas (1., 2., 3...) com descrição sucinta, facilitando a escolha direta pelo usuário.
@@ -89,7 +92,8 @@ Ofereça, sem executar: `-spec` (funcionalidade), `-adr` (decisão técnica), `-
 ## 6. Armadilhas
 
 - **Perguntar o que dá para descobrir**: gasta a paciência do usuário.
-- **Rodadas enormes**: cansam e escondem o que importa. Respeite o limite e priorize por impacto.
+- **Perguntas dependentes no mesmo lote**: fazer várias perguntas ao mesmo tempo quando uma resposta invalida ou bifurca as seguintes gera desperdício. Se a decisão afeta a próxima, pergunte uma por vez.
+- **Rodadas enormes**: cansam e escondem o que importa. Respeite o limite de até ~7 perguntas e priorize por impacto.
 - **Recomendações que só concordam**: tire o valor do exercício.
 - **Assumir em silêncio**: toda suposição vai para o registro.
 - **Agir antes da confirmação**: escrever spec ou código nesta skill.
