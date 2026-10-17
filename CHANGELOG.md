@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.7.0](https://github.com/heliomarpm/skills/compare/v1.6.0...v1.7.0) (2026-10-17)
+
+
+### Features
+
+* **skills:** ✨ adicionar skill -alignment ([24586ef](https://github.com/heliomarpm/skills/commit/24586efe5956b4daa113f254bd87bd88c3a8fa24))
+
 # [1.6.0](https://github.com/heliomarpm/skills/compare/v1.5.0...v1.6.0) (2026-10-16)
 
 
