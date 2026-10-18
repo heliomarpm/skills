@@ -27,6 +27,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 ## 1. Princípios
 
 - **`declare(strict_types=1);`** em todo arquivo; tipos em propriedades, parâmetros e retornos; `===` em vez de `==`.
+- **Strings e interpolação**: use sempre interpolação de strings com aspas duplas por padrão (`"Olá, {$nome}"`) em vez de concatenação (`'Olá, ' . $nome`). Use chaves explícitas (`{$var}`, `{$obj->prop}`) para clareza e consistência (evite `${var}`, descontinuada no PHP 8.2); para textos multilinhas ou blocos extensos, use *heredoc* (`<<<TEXT ... TEXT;`) em vez de concatenar quebras de linha; reserve a concatenação com ponto (`.`) apenas para expressões complexas que não possam ser interpoladas diretamente.
 - **Modelagem**: enums, `readonly`, promoção de propriedades no construtor, `match`. Atenção: classes `readonly` **não** podem ter *property hooks*.
 - **Banco**: PDO com `ERRMODE_EXCEPTION` e `ATTR_EMULATE_PREPARES => false`, sempre com *prepared statements*; N+1 evitado com carregamento antecipado (`with()` no Eloquent, *fetch join* no Doctrine). Para modelagem e consultas, `-sql`.
 - **Saída**: `htmlspecialchars($texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')` ou mecanismo de template com escape automático.
@@ -140,6 +141,7 @@ final class PdoUsuarioRepository
 - **`unserialize` ou `include` com dados do usuário.**
 - **`float` para dinheiro.**
 - **Classe `readonly` com property hooks**: combinação inválida.
+- **Concatenação excessiva com `.`** onde a interpolação `"...{$var}..."` ou *heredoc* (`<<<TEXT`) tornaria o código mais limpo e legível (ou uso da sintaxe obsoleta `${var}`).
 
 ---
 
