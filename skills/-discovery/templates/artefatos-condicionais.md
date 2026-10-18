@@ -131,7 +131,7 @@ graph TD
 - Validação de entrada: <onde e como ocorre>
 
 ## Tratamento de Erros e Logs
-- Formato de erro exposto: <RFC 7807 Problem Details ou padrão customizado>
+- Formato de erro exposto: <RFC 9457 Problem Details ou padrão customizado>
 - Biblioteca e formato de logs: <JSON estruturado, biblioteca utilizada>
 
 ## Git e Versionamento

@@ -81,7 +81,7 @@ Isole o defeito estrutural específico e aplique o movimento correspondente. O `
 | Middle Man | Remove Middle Man |
 | Speculative Generality | Inline Function, Collapse Hierarchy |
 
-**Direção das transformações**: SRP, OCP e DIP orientam as escolhas; não são meta de pureza. Do Clean Code, só o que é verificável: nomes que revelam intenção, funções com uma responsabilidade, fluxo plano e tratamento de erro consistente. O formato de erro (RFC 7807) é do `-api-design` e a observabilidade, do `-observability`.
+**Direção das transformações**: SRP, OCP e DIP orientam as escolhas; não são meta de pureza. Do Clean Code, só o que é verificável: nomes que revelam intenção, funções com uma responsabilidade, fluxo plano e tratamento de erro consistente. O formato de erro (RFC 9457) é do `-api-design` e a observabilidade, do `-observability`.
 
 ### 4.1. Condicional repetido por tipo
 
