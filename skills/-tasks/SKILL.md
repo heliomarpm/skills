@@ -289,3 +289,4 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 4. Pendências descobertas que não foram registradas, e dúvidas de auditoria que dependem do usuário.
 5. Quando houver tarefas ligadas a uma spec concluída, a sugestão de atualizar a rastreabilidade (seção 6).
 6. No modo Refinar: o relatório de prontidão e as correções propostas, que dependem da sua confirmação.
+7. Confirmação final do usuário sobre as alterações propostas, se aplicável.

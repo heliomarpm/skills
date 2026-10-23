@@ -218,3 +218,4 @@ Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `refact
 3. Resumo das transformações aplicadas, com links relativos para os arquivos.
 4. Resultado da validação (testes, build, tipos, lint) ou o motivo de não ter executado.
 5. Pendências e a pergunta sobre o registro em tarefas (seção 8).
+6. Links para commits atômicos e mensagens claras, se houver integração com `-git`.

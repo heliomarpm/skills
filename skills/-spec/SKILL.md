@@ -258,3 +258,4 @@ depende-de: []
 4. Resumo de poucas linhas do que a spec define, mais premissas e perguntas em aberto.
 5. Pedido de revisão com aprovação explícita. Nenhum código de implementação antes dela.
 6. Após a aprovação: status atualizado, plano de implementação disponível para tarefas e indicação das skills de apoio que se aplicam.
+7. Confirmação final do usuário sobre as alterações propostas, se aplicável.
