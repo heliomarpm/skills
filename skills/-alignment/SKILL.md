@@ -29,7 +29,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Não altera os artefatos.** A skill **propõe** mudanças na spec e nos ADRs; só aplica com a aprovação do usuário e por meio do `-spec` e do `-adr`.
 
-**Escrita.** Somente o documento de alinhamento, em `docs/alinhamento/` ou na pasta já adotada pelo projeto. Se não existir, pergunte o destino uma vez.
+**Escrita.** Somente o documento de alinhamento, em `docs/alignments/` ou na pasta já adotada pelo projeto. Se não existir, pergunte o destino uma vez.
 
 **Data.** A do contexto da conversa; sem ela, omita.
 
@@ -101,7 +101,7 @@ O documento tem **versão** e **status** no cabeçalho: `Rascunho`, `Enviado`, `
 
 ## 6. Formato e entrega
 
-- **Markdown** em `docs/alinhamento/<id-da-spec>-<tema>.md`.
+- **Markdown** em `docs/alignments/<id-da-spec>-<tema>.md`.
 - **Word, PDF ou apresentação**: converta somente a pedido, se o ambiente tiver ferramentas de documento. Para apresentação, ofereça antes um **roteiro de 5 a 8 slides** (título e pontos de cada um), com a mesma estrutura do documento.
 
 ### Modelo
