@@ -5,6 +5,14 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.8.0](https://github.com/heliomarpm/skills/compare/v1.7.0...v1.8.0) (2026-10-23)
+
+
+### Features
+
+* **changelog:** 📝 refatorar skill para gerar histórico baseado em tags ([221b1ca](https://github.com/heliomarpm/skills/commit/221b1cac41efdcb576ea379470b061043ce9bad6))
+* **skills:** 📝 adicionar confirmação final do usuário no padrão de entrega ([d36f17f](https://github.com/heliomarpm/skills/commit/d36f17f039340221ee07a2b4c891a1d06d7e8077))
+
 # [1.7.0](https://github.com/heliomarpm/skills/compare/v1.6.0...v1.7.0) (2026-10-17)
 
 
