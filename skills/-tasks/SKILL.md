@@ -1,6 +1,6 @@
 ---
 name: -tasks
-description: "Gerencia o backlog do projeto no arquivo TASKS.md: planeja, cria, decompõe, atualiza o status, audita contra o código e arquiva tarefas, com rastreabilidade para specs e para o discovery. Use sempre que o usuário falar de tarefas, backlog, TASKS.md, 'o que falta fazer', 'próximo passo', 'atualizar progresso', 'marcar como concluída', 'quebrar em tarefas' ou 'registrar pendências', e quando as skills -spec ou -discovery repassarem tarefas e débitos para registro. NÃO use para pedidos de código comuns em que o usuário não pediu para registrar ou acompanhar tarefas."
+description: "Gerencia o backlog do projeto no arquivo TASKS.md: planeja, cria, decompõe, atualiza o status, audita contra o código, verifica a prontidão para construir (refinamento) e arquiva tarefas, com rastreabilidade para specs e para o discovery. Use sempre que o usuário falar de tarefas, backlog, TASKS.md, 'o que falta fazer', 'próximo passo', 'atualizar progresso', 'marcar como concluída', 'quebrar em tarefas', 'refine o backlog', 'as tarefas estão prontas?' ou 'registrar pendências', e quando as skills -spec ou -discovery repassarem tarefas e débitos para registro. NÃO use para pedidos de código comuns em que o usuário não pediu para registrar ou acompanhar tarefas."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -38,6 +38,7 @@ Identifique o modo pelo pedido e diga qual está usando.
 | **Atualizar** | Mudar estado ou progresso | Move a entrada de seção, ajusta contador e cabeçalho |
 | **Auditar** | "Sincronize com o código", "o que já foi feito?" | Compara backlog e código; corrige estados com evidência e lista as dúvidas |
 | **Decompor** | Tarefa grande ou vaga | Quebra em tarefas INVEST (seção 4.2) |
+| **Refinar** | "As tarefas estão prontas?", antes de iniciar a execução | Verifica a prontidão (seção 4.5) e propõe correções, sem alterar nada sem confirmação |
 | **Importar** | Plano de uma spec ou débitos do discovery | Cria entradas com origem e referência (seção 6) |
 
 ---
@@ -75,7 +76,7 @@ Use apenas os checkboxes padrão `[ ]` e `[x]`, que renderizam em qualquer visua
 
 | Seção | Significado | Regra |
 | :--- | :--- | :--- |
-| Em progresso | Trabalho ativo | Limite de WIP: 2 por padrão, configurável no cabeçalho |
+| Em progresso | Trabalho ativo | Limite de WIP: 2 por padrão, configurável no cabeçalho; conferir prontidão (seção 4.5) |
 | Bloqueadas | Impedimento externo ou dependência | Título com **[BLOQUEADA]** e linha `Bloqueio:` com causa e ação necessária |
 | Backlog | Pendente, ordenada por prioridade | Prioridade P0 a P3 em cada tarefa |
 | Concluídas recentemente | Feita, com evidência | `[x]`, data, arquivos e evidência |
@@ -118,7 +119,7 @@ Tarefas devem ser independentes (ou com dependência explícita), claras, estim�
 ### 4.3. Atualização cirúrgica
 
 1. **Releia o arquivo imediatamente antes de gravar** (ele pode ter mudado). Faça edições pequenas e localizadas.
-2. Mova a tarefa para a seção do novo estado, mantendo a formatação existente.
+2. Mova a tarefa para a seção do novo estado, mantendo a formatação existente. Ao mover para **Em progresso**, confira se a tarefa está pronta (seção 4.5); se houver lacunas, alerte o usuário e ofereça refinar antes.
 3. Recalcule o contador e a data no cabeçalho.
 4. Registre agora as pendências descobertas no caminho (bugs colaterais, refatorações, débitos), respeitando as regras da seção 0.
 
@@ -130,6 +131,32 @@ Só marque `[x]` com evidência:
 - Os testes passaram, conforme resultado visível na conversa ou informado pelo usuário.
 
 Sem evidência de testes, pergunte ao usuário. Se ele confirmar a conclusão sem testes, marque `[x]` e acrescente "(testes não verificados)". Registre a evidência na própria tarefa.
+
+### 4.5. Refinamento (prontidão para construir)
+
+No modo **Refinar**, avalie cada tarefa pendente (Backlog e Bloqueadas) contra esta lista de prontidão (*Definition of Ready*):
+
+| Critério | Pronta quando |
+| :--- | :--- |
+| Critério de aceite | O DoD é observável e testável (não "melhorar" nem "ajustar") |
+| Escopo | Cabe em uma iteração, poucos arquivos, uma responsabilidade (INVEST) |
+| Referências | Há links para o arquivo, a rota ou o componente afetado |
+| Dependências | Explícitas, e já concluídas ou com ordem definida |
+| Origem | Se vem de uma spec, ela está `aprovada` (não `rascunho`) |
+| Dúvidas | Sem `[A CONFIRMAR]` nem pergunta em aberto |
+| Prioridade | P0 a P3 definida |
+| Tamanho | Estimativa só se o time a usa (campo opcional) |
+
+Entregue um relatório e **não altere nada sem confirmação**:
+
+```text
+| Tarefa | Pronta? | Lacunas                 | Correção proposta           |
+| T-012  | não     | sem critério de aceite  | Propor um DoD observável    |
+| T-015  | não     | grande demais           | Decompor em duas tarefas    |
+| T-016  | sim     | n/d                     | n/d                         |
+```
+
+Com a confirmação, aplique as correções (acrescentar o DoD, usar o modo Decompor, ajustar a prioridade). Ao escolher a próxima tarefa a iniciar, prefira as prontas; se o usuário quiser começar uma que não está pronta, avise e ofereça refinar antes. Não exija estimativa de quem não a usa.
 
 ---
 
@@ -226,6 +253,7 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 | :--- | :--- |
 | `-discovery` | Recebe os débitos e lacunas já confirmados pelo usuário. Origem `discovery`, prioridade P3 por padrão (maior se houver risco claro), com deduplicação |
 | `-spec` | **Importar**: cada `T-NN` do plano da spec vira uma tarefa com ID global e origem `spec <id> / T-NN`, mantendo ordem e dependências. Aponte para a spec com link relativo em vez de copiar o conteúdo. Ao concluir as tarefas de uma spec, sugira ao usuário atualizar a rastreabilidade (coluna "Teste") e o status da spec; a edição da spec é da skill `-spec` |
+| `-challenge` | Dúvidas em aberto de uma tarefa podem ser resolvidas com uma sessão de questionamento antes de refiná-la |
 | `-testing` | A evidência de testes vem de lá; os critérios de aceite da spec alimentam o DoD |
 | `-git` | O ID da tarefa vai na branch e no rodapé `Refs:` do commit |
 | Demais skills (`-code-review`, `-refactor`, `-debug`, `-security`, `-devops`, `-sql`, `-observability`, `-api-design`, `-system-design`, `-adr`, `-ai-engineering`, `-design-system`, `-tech-*`) | Chamam o modo **Importar** com a origem própria e a prioridade P0 a P3 que definem; o `-tasks` deduplica e atribui os IDs globais |
@@ -247,6 +275,10 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 - **Contador desatualizado**: recalcule a cada escrita, conforme a seção 3.4.
 - **Arquivo que só cresce**: sem arquivamento, o `TASKS.md` vira ruído. Aplique a seção 3.5.
 
+- **Refinar alterando sem confirmação**: o relatório de prontidão é uma proposta.
+- **Exigir estimativa** de um time que não a usa.
+- **Aprovar como pronta uma tarefa com critério vago.**
+
 ---
 
 ## 8. Padrão de entrega
@@ -256,3 +288,4 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 3. Resumo das mudanças: tarefas criadas, movidas de estado, canceladas ou arquivadas, e o novo progresso.
 4. Pendências descobertas que não foram registradas, e dúvidas de auditoria que dependem do usuário.
 5. Quando houver tarefas ligadas a uma spec concluída, a sugestão de atualizar a rastreabilidade (seção 6).
+6. No modo Refinar: o relatório de prontidão e as correções propostas, que dependem da sua confirmação.
