@@ -3,7 +3,7 @@
    <img src="./logo.png" width="256" alt="Logo"/>
    <h1> Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-   [![Skills](https://img.shields.io/badge/33%20Skills-PT--BR-blueviolet?style=for-the-badge&logo=openai)](./skills/)
+   [![Skills](https://img.shields.io/badge/34%20Skills-PT--BR-blueviolet?style=for-the-badge&logo=openai)](./skills/)
    [![Environment](https://img.shields.io/badge/Environment-Copilot%20%7C%20Gemini%20%7C%20Claude-0052CC?style=for-the-badge)](https://github.com/)
    [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
@@ -29,11 +29,12 @@ As skills ficam em `skills/`, cada uma em uma pasta iniciada por `-` (evita coli
 
 ### 1.1. Fluxo de trabalho
 
-Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery` (projeto existente), `-challenge` (opcional), `-spec`, `-alignment` (confirmação com o cliente), `-bootstrap` (projeto novo), `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
+Skills com etapas, pontos de aprovação e integração entre si. Ordem típica: `-discovery` (projeto existente), `-assessment` (avaliação e diagnóstico), `-challenge` (opcional), `-spec`, `-alignment` (confirmação com o cliente), `-bootstrap` (projeto novo), `-tasks`, implementação (com `-testing` e as `-tech-*`), `-code-review`, `-git`.
 
 | Skill | Foco | Quando usar? | Exemplo de uso (prompt) |
 | :--- | :--- | :--- | :--- |
 | `-discovery` 🔒 | Mapear um repositório e gerar os documentos de contexto (`CONTEXT.md`, `AGENTS.md` e outros, conforme o repositório) | Ao entrar num projeto novo ou legado, ou ao atualizar o contexto. Só por pedido explícito | "Faça o discovery deste repositório e crie os arquivos de contexto para os assistentes de IA." |
+| `-assessment` 🔒 | Avaliar um projeto como um todo e recomendar melhorias, evoluções e novas funcionalidades com evidências e prioridade | Ao diagnosticar a saúde do projeto, planejar roadmap ou buscar melhorias estruturais. Só por pedido explícito | "Avalie este projeto, aponte os maiores riscos, quick wins e sugira melhorias." |
 | `-challenge` | Questionar um plano, decisão ou ideia em rodadas, com recomendação própria | Antes de especificar ou decidir, para testar o raciocínio. Não para esclarecer um pedido simples (isso o `-spec` já faz) | "Me questione sobre este plano de migração antes de eu escrever a spec." |
 | `-spec` | Especificação testável e rastreável, aprovada antes do código | Feature nova ou mudança que altera comportamento, contrato ou dados. Não para bug simples ou ajuste trivial | "Crie a especificação da cobrança recorrente antes de iniciarmos o código." |
 | `-alignment` 🔒 | Documento em linguagem não técnica para confirmar o entendimento com o cliente, a partir da spec e dos ADRs | Com a spec em rascunho, antes de construir, e para registrar as respostas do cliente. Só por pedido explícito. Não para propostas comerciais | "Gere o documento de alinhamento da spec 004 para o cliente confirmar." |
@@ -91,7 +92,8 @@ Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta.
 
 ```mermaid
 flowchart LR
-  D["-discovery (projeto existente)"] --> CO["-challenge (opcional)"] --> S["-spec"]
+  D["-discovery (projeto existente)"] --> AS["-assessment (opcional)"] --> CO["-challenge (opcional)"] --> S["-spec"]
+  D -.->|direto| CO
   C["-challenge (projeto novo)"] --> S
   S -.->|confirmar com o cliente| A["-alignment"]
   S -.->|projeto novo| B["-bootstrap"]
@@ -111,7 +113,7 @@ As demais skills entram conforme o assunto da tarefa: `-sql`, `-security`, `-api
 O repositório adota a **divulgação progressiva** (*progressive disclosure*): o assistente lê a descrição de cada skill e só carrega o conteúdo completo quando a tarefa pede.
 
 1. **Ativação contextual (implícita)**: a maioria das skills é acionada quando o pedido traz indícios suficientes da tarefa (uma refatoração, testes, uma consulta SQL, um componente React). O usuário não precisa citar o nome da skill. Cada `description` traz os gatilhos e também o que a skill **não** cobre, apontando para a skill certa.
-2. **Ativação restrita (🔒 exclusivamente explícita)**: `-discovery`, `-bootstrap`, `-alignment`, `-readme` e `-changelog` só rodam por pedido expresso (por exemplo, *"faça o discovery do projeto"*, *"atualize o README"*, *"prepare o changelog"*). Isso evita varreduras amplas e alterações de documentos públicos por inferência.
+2. **Ativação restrita (🔒 exclusivamente explícita)**: `-discovery`, `-assessment`, `-bootstrap`, `-alignment`, `-readme` e `-changelog` só rodam por pedido expresso (por exemplo, *"faça o discovery do projeto"*, *"avalie o projeto"*, *"atualize o README"*, *"prepare o changelog"*). Isso evita varreduras amplas e alterações de documentos públicos por inferência.
 3. **Assinatura**: a **primeira mensagem do fluxo** começa com `> 🧠 **Skill Ativa**: -nome-da-skill`, para auditar que a skill certa foi ativada. As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ---
@@ -120,10 +122,11 @@ O repositório adota a **divulgação progressiva** (*progressive disclosure*): 
 
 ```text
 skills/
-├── -adr/              ├── -spec/
-├── -ai-engineering/   ├── -sql/
-├── -alignment/        ├── -system-design/
-├── -api-design/       ├── -tasks/
+├── -adr/              ├── -security/
+├── -ai-engineering/   ├── -spec/
+├── -alignment/        ├── -sql/
+├── -api-design/       ├── -system-design/
+├── -assessment/       ├── -tasks/
 ├── -bootstrap/        ├── -tech-angular/
 ├── -challenge/        ├── -tech-dotnet/
 ├── -changelog/        ├── -tech-flutter/
@@ -136,7 +139,6 @@ skills/
 ├── -observability/    ├── -tech-typescript/
 ├── -readme/           ├── -tech-vue/
 ├── -refactor/         └── -testing/
-├── -security/
 ```
 
 Cada pasta contém um `SKILL.md`. Material de apoio extenso fica em `references/` dentro da skill e é lido só quando necessário (por exemplo, `-git/references/windows-utf8.md`).
@@ -213,7 +215,7 @@ O campo `allowed-tools` **pré-aprova** apenas o que a skill usa no dia a dia, e
 - **Pedem confirmação** (de propósito, fora do pré-aprovado): operações que alteram o mundo ou reescrevem histórico, como `git push`, `rebase`, `reset`, merge de PR, `terraform apply`, `docker push` e publicação de release.
 - **Sem `Bash`**: skills conceituais (`-tasks`, `-api-design`, `-system-design`, `-sql`, `-observability`, `-design-system`). Algumas só leem o histórico do Git (`-adr`, `-spec`).
 - **Modos somente leitura, por regra da skill**: `-code-review` só lê e registra pendências via `-tasks`, com confirmação; `-security` só edita no modo Corrigir, com aprovação. É uma instrução da skill, não um bloqueio técnico.
-- **Ativação explícita**: `-discovery`, `-bootstrap`, `-alignment`, `-readme` e `-changelog` usam `disable-model-invocation: true`.
+- **Ativação explícita**: `-discovery`, `-assessment`, `-bootstrap`, `-alignment`, `-readme` e `-changelog` usam `disable-model-invocation: true`.
 
 > Para um bloqueio técnico real, use regras de `deny` nas configurações do cliente. O comportamento de `allowed-tools` e de `disable-model-invocation` pode variar entre clientes e versões: confirme no seu.
 
