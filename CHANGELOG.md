@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.10.0](https://github.com/heliomarpm/skills/compare/v1.9.0...v1.10.0) (2026-10-25)
+
+
+### Features
+
+* **assessment:** ✨ aprimorar diagnóstico crítico e consolidação ([c47b4f5](https://github.com/heliomarpm/skills/commit/c47b4f5c4d27ae3ca3968e23fd4653e911110707))
+
 # [1.9.0](https://github.com/heliomarpm/skills/compare/v1.8.0...v1.9.0) (2026-10-25)
 
 
