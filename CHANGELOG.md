@@ -5,6 +5,14 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.11.0](https://github.com/heliomarpm/skills/compare/v1.10.0...v1.11.0) (2026-10-27)
+
+
+### Features
+
+* **skills:** ✨ adicionar circuit breaker e ponto de parada ([91a28ea](https://github.com/heliomarpm/skills/commit/91a28ea859572addf64e0b923e225ad31e6dc268))
+* **skills:** ✨ adicionar circuit breaker em ai-engineering e devops ([05d0666](https://github.com/heliomarpm/skills/commit/05d066674ba7eceb812833fe5de4df5a34254f04))
+
 # [1.10.0](https://github.com/heliomarpm/skills/compare/v1.9.0...v1.10.0) (2026-10-25)
 
 
