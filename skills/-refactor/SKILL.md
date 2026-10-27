@@ -24,6 +24,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Git.** Nunca use comandos destrutivos. Proponha um commit por transformação atômica (`refactor(escopo): ...`, conforme o `-git`), mas só commite se o usuário pedir.
 
+**Timebox e Circuit Breaker.** A refatoração não deve entrar em ciclos de tentativa e erro. Se um micro-passo quebrar testes, build ou lint e a causa não for sanada em **até duas tentativas**, desfaça o passo de volta ao último estado verde. Se houver **duas reversões consecutivas** ou se a transformação empacar, pare a execução ativa imediatamente e acione o ponto de parada para check-in com o usuário (seção 6.4).
+
 **Idioma.** O do pedido do usuário; nomes de código ficam como estão.
 
 ---
@@ -44,8 +46,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 2. **Portão de aprovação**: refatorações que passem de ~5 arquivos, mudem a API pública ou sejam estruturais viram plano escrito, e você só executa com aprovação explícita ("aprovado", "pode executar"). Silêncio não vale.
 3. **Rede de proteção** (seção 3): sem ela, não comece.
 4. **Micro-passos**: uma transformação atômica por vez, escolhida no catálogo (seção 4).
-5. **Validação após cada passo** (seção 6): testes, build, tipagem e lint.
-6. **Fechamento**: confira o critério de pronto (seção 6.3), resuma as transformações e registre o que sobrou (seção 8).
+5. **Validação após cada passo** (seção 6): testes, build, tipagem e lint. Em caso de quebras persistentes, acione o circuit breaker (seção 6.4).
+6. **Fechamento**: confira o critério de pronto (seção 6.5), resuma as transformações e registre o que sobrou (seção 8).
 
 ---
 
@@ -154,11 +156,29 @@ Rode os testes da área e, conforme o projeto, build, verificação de tipos e l
 
 Não os altere durante a refatoração, exceto renomeações mecânicas. Se um deles precisar mudar, o comportamento mudou, e isso deve ser dito ao usuário.
 
-### 6.3. Reversão e critério de pronto
+### 6.3. Reversão de micro-passo
 
-Se os testes ficarem vermelhos e a causa não aparecer em uma ou duas tentativas, desfaça o último passo editando de volta.
+Se os testes ficarem vermelhos, a compilação quebrar ou o linter falhar após um micro-passo e a causa não for evidente ou sanada em **até duas tentativas**, desfaça o último passo editando de volta (`git checkout` ou revertendo o diff) para retornar ao último estado verde com testes passando.
 
-Pronto significa: comportamento preservado (testes e API pública), smell alvo eliminado, nada fora do escopo alterado e um resumo das transformações aplicadas.
+### 6.4. Ponto de parada: circuit breaker e check-in
+
+Se ocorrerem **duas reversões consecutivas** de micro-passos ou se a refatoração do alvo empacar sem progresso seguro:
+
+1. Assegure que a árvore de trabalho esteja limpa no último estado verde com testes passando.
+2. Interrompa a execução ativa imediatamente — não tente novos movimentos do catálogo sem alinhamento prévio.
+3. Apresente ao usuário o que foi tentado, o smell que resistiu e a evidência da falha (ex.: acoplamento oculto, dependência externa, asserções de teste que amarram detalhes internos).
+4. Faça o check-in de continuidade:
+
+> *"Atingi o limite do circuit breaker (2 tentativas/reversões consecutivas) ao refatorar `[smell]` em `[arquivo]`. O código foi restaurado com segurança para o último estado estável com todos os testes verdes. Como deseja proceder?*  
+> 1. **Mudar de estratégia**: tentar um movimento alternativo do catálogo (ex.: técnica X em vez de Y)  
+> 2. **Reforçar a rede de proteção**: escrever testes de caracterização adicionais antes de tentar novas transformações  
+> 3. **Pausar e registrar pendência**: manter a estrutura atual e registrar o débito técnico no `TASKS.md` (via `-tasks`)*"
+
+Aguarde a decisão do usuário antes de realizar novas edições no código.
+
+### 6.5. Critério de pronto
+
+Pronto significa: comportamento preservado (testes, build, tipos e API pública verdes), smell alvo eliminado, nada fora do escopo alterado e um resumo das transformações aplicadas.
 
 ---
 
@@ -206,6 +226,7 @@ Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `refact
 - **Renomeação pública sem checar usos dinâmicos**: quebra serialização, reflexão e rotas.
 - **Remover código morto sem evidência**: apagar o que é usado por convenção ou por terceiros.
 - **Alterar os testes de caracterização no meio do caminho**: esconde a mudança de comportamento.
+- **Insistência em micro-passo quebrado**: tentar sucessivos "remendos" quando o teste fica vermelho em vez de reverter e acionar o circuit breaker.
 - **Bloco gigante sem commits atômicos**: impede a revisão humana.
 - **Reescrever do zero**: perde as correções de borda acumuladas.
 
@@ -216,6 +237,6 @@ Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `refact
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Escopo declarado e, se houve, o plano aprovado.
 3. Resumo das transformações aplicadas, com links relativos para os arquivos.
-4. Resultado da validação (testes, build, tipos, lint) ou o motivo de não ter executado.
+4. Resultado da validação (testes, build, tipos, lint) ou, se interrompido pelo circuit breaker, o relato e check-in da seção 6.4.
 5. Pendências e a pergunta sobre o registro em tarefas (seção 8).
 6. Links para commits atômicos e mensagens claras, se houver integração com `-git`.

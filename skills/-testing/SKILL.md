@@ -24,6 +24,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Ambiente seguro.** Nunca rode testes de integração ou E2E contra produção ou banco compartilhado. Confira as variáveis de conexão antes, avise se o teste for destrutivo e verifique se o Docker está disponível antes de usar Testcontainers.
 
+**Timebox e Circuit Breaker.** A escrita e estabilização de testes não roda indefinidamente. Estabeleça um teto de no máximo **3 tentativas** ao tentar estabilizar um teste instável (*flaky*) ou ajustar dublês/fixtures para fazer uma suíte passar. Ao atingir esse limite sem sucesso, pare a execução imediatamente e acione o ponto de parada para alinhamento com o usuário (seção 7.3).
+
 **Idioma.** Os nomes e comentários dos testes seguem o idioma do projeto; a conversa, o do usuário.
 
 ---
@@ -49,7 +51,7 @@ Identifique o modo pelo pedido e diga qual está usando.
 3. **Escolha do nível** (seção 4): teste cada regra no nível mais barato que dê confiança.
 4. **Dados de teste**: centralize em builders com valores padrão válidos (seção 5.3).
 5. **Escrita** no padrão AAA, com um comportamento por teste (seção 5).
-6. **Execução**: rode primeiro o arquivo novo e depois a suíte relevante. Registre o resultado.
+6. **Execução**: rode primeiro o arquivo novo e depois a suíte relevante. Registre o resultado. Em caso de falha persistente ou não determinismo, respeite o circuit breaker (seção 7.3).
 7. **Registro de lacunas**: se sobraram cenários não cobertos, siga a seção 8.
 
 Testes com mais de ~20 linhas vão para arquivos do projeto, nunca despejados no chat.
@@ -170,6 +172,22 @@ Escreva o teste que reproduz o bug, confirme que ele **falha pelo motivo certo**
 
 Fixam o comportamento atual, inclusive o questionável, para que a refatoração (`-refactor`) não o altere sem querer. Parta de entradas reais ou representativas, registre as saídas observadas e sinalize comportamentos suspeitos sem corrigi-los.
 
+### 7.3. Ponto de parada: circuit breaker e testes instáveis
+
+Ao atingir o teto de **3 tentativas** sem conseguir fazer um novo teste passar de forma determinística, sem conseguir estabilizar um teste *flaky*, ou ao encontrar falhas em cascata causadas por dublês/fixtures:
+
+1. **Interrompa a execução ativa imediatamente** — não insira `sleep`, não enfraqueça asserções e não altere múltiplos arquivos em sequência sem alinhamento.
+2. Apresente o estado do teste: o que foi tentado, o comportamento observado contra o esperado e o obstáculo identificado (ex.: assincronia oculta, dependência de infraestrutura externa ausente, acoplamento temporal ou vazamento de estado).
+3. Faça o check-in de continuidade:
+
+> *"Atingi o limite do circuit breaker (3 tentativas) ao tentar estabilizar/executar o teste `[nome/arquivo]`. Como deseja proceder?*  
+> 1. **Mudar a abordagem de isolamento**: substituir mocks complexos por fakes em memória ou Testcontainers  
+> 2. **Isolar e registrar pendência**: marcar o teste como pendente/ignorado com motivo explícito e registrar tarefa no `TASKS.md` (via `-tasks`)  
+> 3. **Fornecer contexto do ambiente**: você orienta sobre a infraestrutura necessária (variáveis, serviços ou banco de testes)  
+> 4. **Investigar o código de produção**: se a falha indicar defeito real de código, acionar a skill `-debug`*"
+
+Aguarde a resposta do usuário antes de novas execuções ou alterações.
+
 ---
 
 ## 8. Integração com outras skills e registro de lacunas
@@ -217,6 +235,7 @@ Com a confirmação, acione a skill `-tasks` (modo Importar). Cada tarefa leva o
 - **Banco compartilhado ou de produção**: resultados imprevisíveis e risco real.
 - **Cobertura como meta**: testes sem asserção inflam o número.
 - **Vários comportamentos por teste**: a falha não diz o que quebrou.
+- **Loop de retentativas (*retry loop*)**: insistir em rodar ou ajustar repetidamente um teste quebrado ou instável sem acionar o circuit breaker.
 
 ---
 
@@ -224,6 +243,6 @@ Com a confirmação, acione a skill `-tasks` (modo Importar). Cada tarefa leva o
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Arquivos de teste criados ou alterados, com links relativos.
-3. Resultado da execução (comando, passou ou falhou, contagem) ou o motivo de não ter executado.
+3. Resultado da execução (comando, passou ou falhou, contagem) ou, se interrompido pelo circuit breaker, o relato e check-in da seção 7.3.
 4. Cobertura dos critérios de aceite, quando houver spec: quais `CA-NN` estão cobertos.
 5. Lacunas restantes e a pergunta sobre o registro em tarefas (seção 8).

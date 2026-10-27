@@ -30,6 +30,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Sem atalhos.** Não desabilite testes, não silencie exceções (`catch` vazio) e não use `--no-verify` para "resolver". Isso esconde o bug.
 
+**Timebox e Circuit Breaker.** A depuração não roda indefinidamente. Estabeleça um teto de no máximo **3 hipóteses testadas e refutadas** (ou 3 tentativas de reprodução sem sucesso). Ao atingir esse limite sem isolar a causa raiz com evidência conclusiva, interrompa a investigação imediatamente e acione o ponto de parada para alinhamento com o usuário (seção 5).
+
 **Idioma.** O do usuário; nomes de código ficam como estão.
 
 ---
@@ -68,7 +70,7 @@ Reduza o espaço de busca até saber onde está o problema:
 
 ### 2.4. Hipóteses
 
-Liste de 2 a 4 hipóteses, ordenadas por probabilidade e custo de teste. Para cada uma, escreva a **previsão**: "se H1 for verdade, então ao fazer X devo observar Y". Teste uma de cada vez. Depois de 2 ou 3 hipóteses refutadas, volte à evidência e reveja as premissas em vez de insistir.
+Liste de 2 a 4 hipóteses, ordenadas por probabilidade e custo de teste. Para cada uma, escreva a **previsão**: "se H1 for verdade, então ao fazer X devo observar Y". Teste uma de cada vez. Ao esgotar as hipóteses da rodada (máximo 3) sem confirmação da causa com evidência, não abra novas frentes por conta própria: interrompa a busca e execute o ponto de parada e check-in (seção 5).
 
 ### 2.5. Confirmar a causa raiz
 
@@ -142,9 +144,27 @@ Gatilho: `POST /subscriptions` com `plan_id` desconhecido.
 
 ---
 
-## 5. Quando a causa não aparece
+## 5. Ponto de parada: limite de tentativas e check-in
 
-Não force uma conclusão. Entregue: o que foi tentado, as hipóteses descartadas e por quê, as evidências que faltam (logs, dados, acesso) e o próximo experimento mais barato. Se houver um workaround seguro, descreva-o como paliativo, não como correção.
+Ao atingir o teto da rodada (até 3 hipóteses testadas e refutadas ou falha persistente de reprodução) sem confirmar a causa raiz, **interrompa a investigação ativa imediatamente**. Não force conclusões, não invente causas e não entre em ciclos infinitos de tentativa e erro.
+
+Apresente o estado da investigação e realize o check-in de continuidade:
+
+1. **O que foi tentado**: comandos, testes ou inspeções executados.
+2. **Hipóteses descartadas**: o que foi refutado e por qual evidência objetiva.
+3. **Bloqueios e lacunas**: evidências faltantes (logs específicos, acesso a dados reais, variáveis ou configurações de ambiente).
+4. **Próxima recomendação**: a linha mais promissora ou experimento mais barato, caso o usuário decida estender a investigação.
+5. **Workaround paliativo**: se houver um contorno seguro, descreva-o claramente como paliativo (nunca como correção definitiva).
+
+Finalize com a pergunta de continuidade ao usuário:
+
+> *"Atingi o limite desta rodada de investigação (X hipóteses testadas) sem isolar a causa raiz com certeza. Como deseja proceder?*  
+> 1. **Continuar por mais uma rodada**: focar na hipótese `[próxima recomendada]` investigando `[arquivo/comando]`  
+> 2. **Fornecer mais contexto**: você fornece logs adicionais, dados de teste ou detalhes de ambiente  
+> 3. **Aplicar contorno paliativo**: implementar o workaround seguro enquanto a investigação é adiada  
+> 4. **Pausar e registrar pendência**: registrar o débito no `TASKS.md` (via `-tasks`) e encerrar o fluxo*"
+
+Aguarde a resposta do usuário antes de executar novos comandos ou alterar arquivos.
 
 ---
 
@@ -190,6 +210,7 @@ Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `debug`
 - **"Funciona na minha máquina"**: não comparar versões, variáveis e dados.
 - **Mexer em produção**: investigar com escrita em ambiente real.
 - **Declarar resolvido sem reproduzir de novo**: confirme com o cenário original.
+- **Mergulho infinito (*rabbit hole*)**: insistir indefinidamente em novas hipóteses e testes sem pausar para alinhar com o usuário quando o progresso estagnar.
 - **Refatorar de carona**: mistura correção e reestruturação no mesmo diff.
 
 ---
@@ -199,5 +220,5 @@ Com a confirmação, acione a skill `-tasks` (modo Importar), com origem `debug`
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Relatório no formato da seção 4: sintoma, reprodução, causa raiz com evidência e confiança, hipóteses descartadas, correção, regressão e verificação, prevenção.
 3. Quando houve correção: arquivos alterados, com links relativos, e o resultado dos testes.
-4. Quando a causa não foi encontrada: o relato da seção 5.
+4. Quando a causa não foi encontrada ou o limite de tentativas foi atingido: o relato e check-in da seção 5.
 5. Pendências e a pergunta sobre o registro em tarefas (seção 6).
