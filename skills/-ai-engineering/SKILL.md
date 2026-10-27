@@ -24,6 +24,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Evidência.** Escolhas de chunking, modelo e prompt se justificam com avaliações. Números como "10 a 15% de sobreposição" são ponto de partida, não regra.
 
+**Timebox e Circuit Breaker.** A calibração de prompts, schemas e parâmetros de IA não roda indefinidamente. Estabeleça um teto de no máximo **3 iterações de ajuste** ao tentar atingir métricas em avaliações (evals) ou validar saídas estruturadas. Ao atingir esse limite sem convergência, interrompa as chamadas ativas e acione o ponto de parada para alinhamento com o usuário (seção 6.1).
+
 **Idioma.** O do usuário; nomes técnicos ficam como estão.
 
 ---
@@ -44,7 +46,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 1. **Contexto**: provedor, framework, dados, usuários e permissões, requisitos de custo, latência e privacidade. Leia `ARCHITECTURE.md` e os ADRs.
 2. **Comece simples**: um prompt bem escrito com saída estruturada resolve muitos casos antes de RAG ou agentes.
 3. Aplique as seções 3 a 5 ao desenho.
-4. **Avaliações antes de otimizar** (seção 6).
+4. **Avaliações antes de otimizar** (seção 6) com respeito ao circuit breaker de calibração (seção 6.1).
 5. Cubra segurança (seção 7) e confiabilidade (seção 8).
 6. Registre as pendências (seção 10).
 
@@ -92,6 +94,22 @@ Sem avaliação, melhorias são opinião. A base:
 - **Juiz-LLM** com ressalvas: pode ter viés, então calibre contra amostras avaliadas por pessoas.
 - **Porta de regressão no CI** com limites mínimos; qualquer troca de modelo, prompt, chunking ou embedding roda as avaliações.
 - **Tráfego real**: amostre respostas de produção (com privacidade) para alimentar o conjunto.
+
+### 6.1. Ponto de parada: circuit breaker em avaliações
+
+Ajustes de prompt, temperatura ou chunking para aprovação em evals ou validação de schemas não devem rodar indefinidamente. Estabeleça um teto de no máximo **3 iterações de ajuste**:
+
+1. Se após 3 rodadas a métrica mínima não for atingida na porta de regressão ou a validação de schema continuar falhando: pare imediatamente e não dispare novas chamadas à API do modelo.
+2. Apresente o estado: métrica observada contra a meta, exemplos específicos de casos que falharam e o custo/latência acumulados.
+3. Faça o check-in de continuidade:
+
+> *"Atingi o limite do circuit breaker (3 rodadas de ajuste) sem atingir a meta da porta de regressão para `[funcionalidade/métrica]`. Como deseja proceder?*  
+> 1. **Mudar de estratégia**: adicionar few-shot examples ou decompor o prompt em etapas  
+> 2. **Ajustar critérios/tolerância**: flexibilizar a métrica de aprovação ou refinar o conjunto de teste  
+> 3. **Trocar o modelo**: avaliar um modelo mais capaz (considerando impacto em custo/latência)  
+> 4. **Pausar e registrar pendência**: manter o baseline atual e registrar o débito no `TASKS.md` (via `-tasks`)*"
+
+Aguarde a orientação do usuário antes de realizar novas chamadas a provedores ou alterações.
 
 ---
 
@@ -235,6 +253,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 - **Chave de API no cliente.**
 - **Modelo sem versão fixa**: o comportamento muda sem aviso.
 - **Retry sem limite**: amplifica custo e falhas.
+- **Loop de calibração cego (*prompt loop*)**: ajustar sucessivamente prompts e rodar avaliações repetidas vezes sem pausar para alinhar com o usuário quando as métricas estagnarem.
 - **Registrar prompts completos e PII em logs.**
 - **Juiz-LLM sem calibração**: mede o viés do juiz.
 
@@ -245,5 +264,5 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Premissas declaradas (provedor, dados, permissões, requisitos) e o que precisa de confirmação na documentação atual.
 3. Arquivos criados ou alterados, com links relativos, e o resultado dos testes ou o motivo de não ter executado.
-4. Plano de avaliação e os riscos de segurança tratados.
+4. Plano de avaliação, riscos de segurança tratados e, se interrompido pelo circuit breaker, o relato e check-in da seção 6.1.
 5. Pendências e a pergunta sobre o registro em tarefas (seção 10).

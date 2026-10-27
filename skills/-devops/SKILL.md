@@ -20,6 +20,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Segredos.** Nunca coloque credenciais em arquivos, imagens, logs ou exemplos. Segredos de build usam `--mount=type=secret`, nunca `ARG` ou `ENV`.
 
+**Timebox e Circuit Breaker.** Ajustes de containerização e automação de pipelines não devem rodar em ciclos indefinidos de tentativa e erro. Estabeleça um teto de no máximo **3 tentativas de build local (`docker build`) ou validação de linters** (`hadolint`, `actionlint`, `tflint`, `terraform validate`). Se a falha persistir após 3 iterações, interrompa a execução ativa e acione o ponto de parada para check-in com o usuário (seção 9.1).
+
 **Idioma.** O do usuário; nomes técnicos ficam como estão.
 
 ---
@@ -40,7 +42,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 1. **Contexto**: leia `AGENTS.md`, `ARCHITECTURE.md`, os ADRs e os arquivos existentes de contêiner e pipeline.
 2. Aplique a seção do modo (3 a 8) e a de cadeia de suprimentos (9).
-3. Valide com as ferramentas permitidas (`hadolint`, `actionlint`, `terraform validate`, `docker compose config`) e informe o resultado, ou que não foi possível executar.
+3. Valide com as ferramentas permitidas (`hadolint`, `actionlint`, `terraform validate`, `docker compose config`) ou `docker build` quando aplicável, respeitando o circuit breaker (seção 9.1).
 4. Registre as pendências (seção 10).
 
 ---
@@ -219,6 +221,21 @@ State remoto com lock; `plan` no PR e `apply` com aprovação; módulos versiona
 
 Actions e imagens fixadas (SHA e digest), lockfile versionado, scan de imagem e de dependências (`-security`), SBOM quando exigido, assinatura de artefatos (cosign) e atualização automática de dependências.
 
+### 9.1. Ponto de parada: circuit breaker em builds e validações
+
+Ao tentar ajustar um Dockerfile ou pipeline e atingir o teto de **3 tentativas** com falhas consecutivas de build (`docker build`) ou erros persistentes de validação (`actionlint`, `hadolint`, `tflint`, `terraform validate`):
+
+1. **Interrompa a execução ativa imediatamente** — não adicione pacotes indiscriminadamente, não altere permissões sem entender o contexto e não tente soluções de contorno inseguras.
+2. Apresente o log de erro exato, o comando executado, as correções que já foram tentadas e a causa suspeita da falha (ex.: dependência nativa ausente na imagem base, incompatibilidade de arquitetura, contexto do `.dockerignore` excluindo arquivos necessários).
+3. Faça o check-in de continuidade:
+
+> *"Atingi o limite do circuit breaker (3 tentativas) ao tentar validar/construir `[Dockerfile/Pipeline]`. Como deseja proceder?*  
+> 1. **Mudar de estratégia**: testar imagem base alternativa (ex.: Debian slim em vez de Alpine) ou refatorar para build multiestágio  
+> 2. **Fornecer contexto do ambiente**: você orienta sobre variáveis de build, permissões locais ou dependências ausentes  
+> 3. **Pausar e registrar pendência**: documentar a restrição encontrada e registrar a tarefa no `TASKS.md` (via `-tasks`)*"
+
+Aguarde a resposta do usuário antes de novas execuções ou alterações.
+
 ---
 
 ## 10. Registro via `-tasks` e integrações
@@ -255,6 +272,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 - **Interpolar dados de eventos em `run:`**: injeção de comando.
 - **Logs sem rotação**: enchem o disco.
 - **PID 1 sem init**: sinais ignorados e processos zumbis.
+- **Tentativa e erro em builds (*build loop*)**: alterar repetidamente instruções do Dockerfile ou pipeline sem investigar o log de erro e sem acionar o circuit breaker.
 - **`apply`, `push` ou release sem pedido.**
 
 ---
@@ -263,6 +281,6 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Arquivos criados ou alterados, com links relativos (Dockerfile sempre com `.dockerignore`).
-3. Resultado da validação (`hadolint`, `actionlint`, `terraform validate`) ou o motivo de não ter executado.
+3. Resultado da validação (`hadolint`, `actionlint`, `terraform validate`) ou, se interrompido pelo circuit breaker, o relato e check-in da seção 9.1.
 4. Ações que dependem de confirmação do usuário (deploy, release, `apply`).
 5. Pendências e a pergunta sobre o registro em tarefas (seção 10).
