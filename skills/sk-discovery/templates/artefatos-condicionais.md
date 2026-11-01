@@ -45,7 +45,8 @@ graph TD
 - <Pontos de atenção, acoplamento excessivo ou dependências frágeis>
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -77,7 +78,8 @@ graph TD
 | `<Serviço/API>` | `<finalidade>` | `<caminho do arquivo>` | `<Bearer / API Key / mTLS>` |
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -111,7 +113,8 @@ graph TD
 - [A CONFIRMAR] <Dúvidas de regras de negócio identificadas>
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -146,7 +149,8 @@ graph TD
 - Regras para adição de novos pacotes e bibliotecas ao projeto.
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -176,7 +180,8 @@ graph TD
 - Áreas críticas do sistema que ainda não possuem testes identificados.
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -206,7 +211,8 @@ graph TD
 - Logs: <destino e agregação dos logs>
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -233,7 +239,8 @@ graph TD
 - **Origem:** `<histórico git ou (inferido)>`
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 
 ---
 
@@ -250,4 +257,5 @@ graph TD
 | `<Termo>` | `<significado no domínio de negócio>` | `<pasta ou arquivo onde é usado>` |
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._

@@ -141,7 +141,8 @@ Todo arquivo começa com o título e a data de atualização, e termina com a se
 ...
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 ```
 
 ---
@@ -198,7 +199,8 @@ src/
 | [DATA.md](./DATA.md) | Dados e integrações |
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 ````
 
 ### 4.2. `AGENTS.md`
@@ -229,7 +231,8 @@ Stack detectada: TypeScript, Node.js e PostgreSQL. Use `sk-tech-typescript`, `sk
 Rodar lint e testes (comandos em [CONTEXT.md](./CONTEXT.md)).
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 ````
 
 As seções **Skills aplicáveis** e **Decisões críticas** são opcionais: a primeira mapeia a stack detectada às skills que existirem no ambiente (liste só essas); a segunda linka os ADRs aceitos que restringem o código.

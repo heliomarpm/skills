@@ -209,7 +209,8 @@ Mantenha o relatório analítico, sem floreios e direto ao ponto. Em torno de 15
 - Registrar pendências no backlog via `sk-tasks`? *(Confirmar com o usuário)*.
 
 ## Notas da Equipe
-*(Espaço reservado para anotações manuais da equipe. A skill não altera esta seção.)*
+
+_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
 ````
 
 ---
