@@ -1,6 +1,6 @@
 ---
 name: sk-challenge
-description: "Questiona o usuário de forma sistemática sobre um plano, decisão ou ideia para testar a solidez do raciocínio antes de investir em especificação ou código: mapeia as decisões numa árvore, pergunta em rodadas com recomendação própria e fecha com um resumo de decisões, premissas e riscos. Use quando o usuário pedir 'me questione', 'teste minha ideia', 'faça o advogado do diabo', 'stress-test', 'grill me', 'interrogue meu plano' ou 'o que estou esquecendo?'. NÃO use para esclarecer um pedido simples (o sk-spec já faz isso com até 3 perguntas), nem para implementar, especificar ou decidir por conta própria."
+description: "Questiona o usuário de forma sistemática sobre um plano, decisão ou ideia (e, se ainda não há plano, explora caminhos alternativos antes) para testar a solidez do raciocínio antes de investir em especificação ou código: mapeia as decisões numa árvore, pergunta em rodadas com recomendação própria e fecha com um resumo de decisões, premissas e riscos. Use quando o usuário pedir 'me questione', 'teste minha ideia', 'faça o advogado do diabo', 'stress-test', 'grill me', 'interrogue meu plano' ou 'o que estou esquecendo?'; e, no modo Explorar, quando ainda não há plano: 'brainstorm', 'me ajude a pensar em opções' ou 'quais caminhos eu tenho?'. NÃO use para esclarecer um pedido simples (o sk-spec já faz isso com até 3 perguntas), nem para implementar, especificar ou decidir por conta própria."
 allowed-tools: Read, Grep, Glob, Agent
 ---
 
@@ -16,7 +16,7 @@ Entrevista o usuário até chegar a um entendimento compartilhado. As decisões 
 
 As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-**Somente leitura.** Não crie nem altere arquivos. Ao final, ofereça o próximo passo (seção 5), sem executá-lo.
+**Somente leitura.** Não crie nem altere arquivos. Ao final, ofereça o próximo passo (seção 6), sem executá-lo.
 
 **Fatos são seus, decisões são do usuário.** Descubra sozinho o que o ambiente responde; as decisões sempre vão para o usuário.
 
@@ -26,13 +26,30 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ---
 
-## 1. A árvore e a fronteira
+## 1. Modos de operação
+
+| Modo | Quando |
+| :--- | :--- |
+| **Questionar** (padrão) | O usuário já tem um plano, uma decisão ou uma ideia para testar |
+| **Explorar** | Ainda não há plano: o usuário quer opções ("brainstorm", "quais caminhos eu tenho?") |
+
+No modo **Explorar**:
+
+1. **Objetivo e restrições**: no máximo 3 perguntas, só as que mudam as opções. Sem resposta, assuma e marque `(assumido)`.
+2. **Caminhos**: proponha de 3 a 5 caminhos **genuinamente diferentes entre si** (não variações do mesmo). Para cada um: a ideia em uma frase, prós, contras, riscos, esforço relativo e quando faz sentido. Inclua "não fazer nada" quando for uma opção real.
+3. **Recomendação**: indique um caminho com justificativa curta e honesta. Se o usuário já tiver uma preferência e houver falhas nela, diga.
+4. **Convergência**: o usuário escolhe, combina ou descarta. Em seguida, passe ao modo Questionar sobre o caminho escolhido (seções 2 a 5).
+5. O resumo final (seção 5) inclui os **caminhos descartados e o motivo**.
+
+---
+
+## 2. A árvore e a fronteira
 
 A **fronteira** é o conjunto de decisões cujos pré-requisitos já estão resolvidos: as perguntas que você pode fazer agora sem adivinhar respostas que ainda não ouviu. Cada resposta do usuário reorganiza a árvore: decisões resolvidas empurram a fronteira para a frente e liberam as que dependiam delas.
 
 ---
 
-## 2. Rodadas
+## 3. Rodadas
 
 - **Quantidade flexível (de 1 a no máximo ~7 perguntas por rodada)**:
   - Faça **uma pergunta por vez** sempre que a resposta puder influenciar, bifurcar ou invalidar decisões seguintes da árvore, garantindo que a próxima pergunta seja mais assertiva.
@@ -62,7 +79,7 @@ Formato de uma rodada:
 
 ---
 
-## 3. Fatos e decisões
+## 4. Fatos e decisões
 
 - Quando uma pergunta da fronteira depende de um fato do ambiente (código, configuração, documentos), **procure-o você mesmo** com `Read`, `Grep` e `Glob`. Se houver subagentes, use-os para explorações longas, em paralelo.
 - **Não bloqueie**: uma exploração em andamento é um pré-requisito em aberto. Pergunte o resto da fronteira agora e deixe para depois só as perguntas que dependem dela.
@@ -70,26 +87,27 @@ Formato de uma rodada:
 
 ---
 
-## 4. Fim da sessão
+## 5. Fim da sessão
 
 A sessão termina quando a fronteira está vazia (todo ramo visitado, nada assumido em silêncio) ou quando o usuário pede para parar. Entregue o **resumo**:
 
 - **Decisões**, com o motivo de cada uma.
 - **Premissas** assumidas.
 - **Riscos** e pontos fracos que surgiram.
+- **Caminhos considerados e descartados**, com o motivo (quando houve exploração).
 - **Perguntas em aberto**.
 
 Não aja sobre o resumo sem a confirmação explícita do usuário de que há entendimento compartilhado.
 
 ---
 
-## 5. Próximos passos
+## 6. Próximos passos
 
 Ofereça, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica), `sk-system-design` (arquitetura) ou `sk-tasks` (plano de trabalho). O resumo serve de insumo: as decisões viram requisitos ou o contexto de um ADR, e as premissas e os riscos vão para a seção de premissas da spec.
 
 ---
 
-## 6. Armadilhas
+## 7. Armadilhas
 
 - **Perguntar o que dá para descobrir**: gasta a paciência do usuário.
 - **Perguntas dependentes no mesmo lote**: fazer várias perguntas ao mesmo tempo quando uma resposta invalida ou bifurca as seguintes gera desperdício. Se a decisão afeta a próxima, pergunte uma por vez.
@@ -97,3 +115,6 @@ Ofereça, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica)
 - **Recomendações que só concordam**: tire o valor do exercício.
 - **Assumir em silêncio**: toda suposição vai para o registro.
 - **Agir antes da confirmação**: escrever spec ou código nesta skill.
+- **Caminhos que são variações do mesmo** (no modo Explorar): a exploração só ajuda se as opções forem realmente diferentes.
+- **Convergir cedo demais**: aprofundar um único caminho sem ter exposto as alternativas.
+- **Explorar sem objetivo**: sem saber o que o usuário busca, as opções ficam genéricas.
