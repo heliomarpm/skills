@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.12.0](https://github.com/heliomarpm/skills/compare/v1.11.0...v1.12.0) (2026-11-06)
+
+
+### Features
+
+* add sk-challenge skill for reasoning stress-testing and decision trees ([be7342f](https://github.com/heliomarpm/skills/commit/be7342fcf427f6ad71c741d461cca5feb9af1765))
+
 # [1.11.0](https://github.com/heliomarpm/skills/compare/v1.10.0...v1.11.0) (2026-10-27)
 
 
