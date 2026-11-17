@@ -27,11 +27,12 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 ## 1. Princípios
 
 - **Nullable habilitado** em todos os projetos; `record` para DTOs e objetos de valor; `required` para membros obrigatórios.
-- **EF Core**:
+- **EF Core e consultas**:
   - Leitura com `AsNoTracking()` e projeção direta para DTO (`Select`).
   - Várias coleções com `Include` geram produto cartesiano: avalie `AsSplitQuery()` (divide em consultas **sequenciais**, com o custo de poder ler dados em momentos diferentes).
   - Atualizações em massa com `ExecuteUpdate` e `ExecuteDelete`.
   - O `DbContext` é *scoped*, não é thread-safe; fora de um escopo use `IDbContextFactory`.
+  - **Queries performáticas e índices**: toda nova consulta (LINQ/EF Core, Dapper ou SQL nativo) deve ser performática (evitar Seq Scan, N+1 e ordenações sem índice). Inspecione predicados (`Where`), junções e ordenações (`OrderBy`) e **entregue obrigatoriamente o script/migration (EF Core Migration ou DDL) para criação dos índices adequados** à query proposta, com o respectivo rollback (`DropIndex`).
 - **Async**: propague `CancellationToken` em todo I/O; nada de `.Result` ou `.Wait()` (esgota o pool de threads e pode causar deadlock); `IAsyncEnumerable<T>` para streaming; `ConfigureAwait(false)` em bibliotecas.
 - **Injeção de dependências**: ciclos de vida corretos; serviço *scoped* dentro de `BackgroundService` só via `IServiceScopeFactory`; configuração com o padrão Options e `ValidateOnStart()`.
 - **Tempo**: `TimeProvider` injetado, não `DateTime.Now`, para tornar o código testável.
@@ -128,6 +129,7 @@ public sealed class ReprocessadorWorker(IServiceScopeFactory escopos, ILogger<Re
 
 ## 4. Armadilhas
 
+- **Nova query SQL ou EF Core sem verificar performance e sem entregar script/migration de índices adequados.**
 - **Serviço *scoped* injetado em *singleton*** (inclusive `BackgroundService`): exceção de validação de escopo.
 - **Vários `Include` de coleções sem avaliar `AsSplitQuery`**: explosão de linhas.
 - **`DbContext` compartilhado entre threads.**
@@ -144,5 +146,6 @@ public sealed class ReprocessadorWorker(IServiceScopeFactory escopos, ILogger<Re
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com `using` completos, nullable habilitado e `CancellationToken` propagado, com links relativos.
-3. Resultado de `dotnet build`, `test` e `format`, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-dotnet`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova consulta SQL ou EF Core: verificação de performance e script/migration de criação dos índices adequados (com rollback).
+4. Resultado de `dotnet build`, `test` e `format`, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-dotnet`, P1 a P3; fallback em lista no chat).

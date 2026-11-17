@@ -35,6 +35,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **Erros**: tratados onde se pode decidir; `unhandledRejection` e `uncaughtException` registram e encerram o processo, não o mantêm "vivo".
 - **Logs** estruturados em JSON (por exemplo, `pino`), sem segredos e sem PII.
 - **HTTP**: timeouts de servidor definidos, limites de corpo e `/health` separado de readiness (`sk-observability`).
+- **Banco e consultas SQL**: toda nova query (via Prisma, Drizzle, Kysely, TypeORM ou driver nativo) deve ser performática (sem N+1 e com projeção estrita de campos). Analise filtros, junções e ordenações e **entregue obrigatoriamente o script/migration para criação dos índices adequados** que suportem a consulta proposta, com script de rollback (recorra a `sk-sql` para planos de execução).
 - **Testes**: `node --test` ou o runner do projeto; I/O externo isolado por fakes.
 
 ---
@@ -119,6 +120,7 @@ Segredos, validação de entrada e dependências no `sk-security`; testes no `sk
 
 ## 4. Armadilhas
 
+- **Nova query SQL ou ORM sem verificar performance e sem entregar script/migration de índices adequados.**
 - **Bloquear o event loop** com métodos síncronos ou CPU pesada.
 - **Vazamento em `EventEmitter`**: ouvintes sem remoção (`off`, `{ once: true }`) acumulam referências.
 - **Promise rejeitada sem tratamento**: derruba o processo ou esconde o erro.
@@ -133,5 +135,6 @@ Segredos, validação de entrada e dependências no `sk-security`; testes no `sk
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com tipos estritos, validação de entrada e encerramento seguro, com links relativos.
-3. Resultado de testes, tipos e lint, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-nodejs`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova query SQL/ORM: verificação de performance e script/migration de criação dos índices adequados (com rollback).
+4. Resultado de testes, tipos e lint, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-nodejs`, P1 a P3; fallback em lista no chat).

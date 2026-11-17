@@ -33,7 +33,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **Erros**: exceções específicas, `raise ... from e`, nada de `except:` vazio; `logging` com `logger.exception`, sem `print`.
 - **Recursos**: `pathlib.Path`, gerenciadores de contexto, geradores para dados grandes.
 - **Projeto**: `pyproject.toml`, dependências travadas (`uv.lock` ou equivalente), `ruff` para lint e formatação.
-- **Segurança**: nada de `eval` ou `pickle` com dados não confiáveis; `subprocess` sem `shell=True`; consultas parametrizadas; segredos fora do código (`sk-security`).
+- **Segurança e banco**: nada de `eval` ou `pickle` com dados não confiáveis; `subprocess` sem `shell=True`; consultas parametrizadas; segredos fora do código (`sk-security`). Toda nova query SQL (SQLAlchemy, Django ORM, SQL puro) deve ser performática (projeção explícita de campos, sem N+1); analise filtros (`WHERE`), junções e ordenação e **entregue obrigatoriamente o script/migration (Alembic, Django migrations ou DDL) para criação dos índices adequados** à query proposta, com script de rollback (alinhe com `sk-sql` para planos de execução).
 - **Testes**: `pytest` com fixtures e parametrização (`sk-testing`).
 
 ---
@@ -113,6 +113,7 @@ def medir_tempo[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
 ## 4. Armadilhas
 
+- **Nova query SQL ou ORM sem verificar performance e sem entregar o script/migration de criação de índices adequados.**
 - **Argumento padrão mutável** (`def f(x, lista=[])`): a lista é compartilhada entre chamadas. Use `None` e crie dentro da função.
 - **`except:` vazio ou `except Exception: pass`**: engole erros e interrupções.
 - **CPU ou chamada bloqueante dentro do loop async**: trava todas as tarefas.
@@ -128,5 +129,6 @@ def medir_tempo[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código tipado, compatível com a versão do projeto, com links relativos.
-3. Resultado de `pytest`, `ruff` e `mypy`, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-python`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova query SQL/ORM: verificação de performance e script/migration de criação dos índices adequados (com rollback).
+4. Resultado de `pytest`, `ruff` e `mypy`, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-python`, P1 a P3; fallback em lista no chat).

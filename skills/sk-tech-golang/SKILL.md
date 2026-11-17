@@ -34,6 +34,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **Logs** com `log/slog`, sem segredos e sem PII; correlação com traces (`sk-observability`).
 - **Encerramento gracioso** com `signal.NotifyContext` e `Server.Shutdown`.
 - **Testes**: tabelas com `t.Run` e `t.Parallel`; `go test -race ./...` no CI; fakes para I/O; benchmarks e `pprof` antes de otimizar (`sk-testing`).
+- **Banco e consultas SQL**: toda nova query (via `database/sql`, `pgx`, `gorm` etc.) deve ser performática por concepção, parametrizada e sem varreduras sequenciais em tabelas grandes. Analise filtros (`WHERE`), junções e ordenação e **entregue obrigatoriamente o script de migração/DDL para criação dos índices adequados** à query proposta (com `CREATE INDEX [CONCURRENTLY]` e script de rollback; use `sk-sql` para planos de execução).
 - **Estrutura**: `cmd/<servico>/main.go` e `internal/` para a lógica privada. `pkg/` é opcional e não é padrão oficial.
 - **Genéricos** só quando há reuso real.
 
@@ -171,6 +172,7 @@ func (s *Servico) ObterDados(ctx context.Context, id string) (*Agregado, error) 
 
 | Armadilha | Risco | Como evitar |
 | :--- | :--- | :--- |
+| Nova query SQL sem índice adequado | Lentidão e Seq Scan em produção | Analise filtros/ordenação e entregue a migration de índices com rollback |
 | Vazamento de goroutine | Memória e travamentos | Garanta o término por `ctx.Done()` ou por fechamento do canal |
 | *Data race* | Corrupção e comportamento imprevisível | `go test -race`, `sync.Mutex` ou `sync/atomic` |
 | Cópia de `sync.Mutex` | Exclusão mútua quebrada | Use ponteiros para structs que o contêm |
@@ -187,5 +189,6 @@ func (s *Servico) ObterDados(ctx context.Context, id string) (*Agregado, error) 
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código formatado, com `context` propagado, erros tratados e testes em tabela, com links relativos.
-3. Resultado de `go vet`, `go test -race` e lint, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-golang`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova query SQL: verificação de performance e script/migration de criação dos índices adequados (com rollback).
+4. Resultado de `go vet`, `go test -race` e lint, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-golang`, P1 a P3; fallback em lista no chat).

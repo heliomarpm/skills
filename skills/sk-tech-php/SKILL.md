@@ -29,7 +29,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **`declare(strict_types=1);`** em todo arquivo; tipos em propriedades, parâmetros e retornos; `===` em vez de `==`.
 - **Strings e interpolação**: use sempre interpolação de strings com aspas duplas por padrão (`"Olá, {$nome}"`) em vez de concatenação (`'Olá, ' . $nome`). Use chaves explícitas (`{$var}`, `{$obj->prop}`) para clareza e consistência (evite `${var}`, descontinuada no PHP 8.2); para textos multilinhas ou blocos extensos, use *heredoc* (`<<<TEXT ... TEXT;`) em vez de concatenar quebras de linha; reserve a concatenação com ponto (`.`) apenas para expressões complexas que não possam ser interpoladas diretamente.
 - **Modelagem**: enums, `readonly`, promoção de propriedades no construtor, `match`. Atenção: classes `readonly` **não** podem ter *property hooks*.
-- **Banco**: PDO com `ERRMODE_EXCEPTION` e `ATTR_EMULATE_PREPARES => false`, sempre com *prepared statements*; N+1 evitado com carregamento antecipado (`with()` no Eloquent, *fetch join* no Doctrine). Para modelagem e consultas, `sk-sql`.
+- **Banco**: PDO com `ERRMODE_EXCEPTION` e `ATTR_EMULATE_PREPARES => false`, sempre com *prepared statements*; N+1 evitado com carregamento antecipado (`with()` no Eloquent, *fetch join* no Doctrine). Toda nova consulta (SQL puro ou ORM) deve ser performática: verifique filtros, junções e ordenação e **entregue obrigatoriamente o script DDL/migration com a criação dos índices adequados** à query proposta, com respectivo rollback. Para modelagem e consultas avançadas, `sk-sql`.
 - **Saída**: `htmlspecialchars($texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')` ou mecanismo de template com escape automático.
 - **Senhas**: `password_hash` e `password_verify` (Argon2id ou o padrão atual), nunca hash rápido (`sk-security`).
 - **Dinheiro**: inteiros em centavos, `bcmath` ou uma biblioteca de valores monetários; nunca `float`.
@@ -133,6 +133,7 @@ final class PdoUsuarioRepository
 
 ## 4. Armadilhas
 
+- **Nova query SQL ou ORM sem verificar performance e sem entregar o script/migration de criação de índices adequados.**
 - **Sem `strict_types`**: conversões silenciosas (`"123"` aceito como `int`).
 - **SQL por concatenação**: injeção, mesmo em variáveis que "parecem seguras".
 - **N+1 em Eloquent ou Doctrine**: relacionamentos acessados dentro de laços.
@@ -149,5 +150,6 @@ final class PdoUsuarioRepository
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com `strict_types`, tipos completos e compatível com a versão do projeto, com links relativos.
-3. Resultado de testes, PHPStan e estilo, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-php`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova consulta SQL/ORM: verificação de performance e script/migration de criação dos índices adequados (com rollback).
+4. Resultado de testes, PHPStan e estilo, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-php`, P1 a P3; fallback em lista no chat).

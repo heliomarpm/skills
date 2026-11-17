@@ -34,6 +34,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
   - Carregue o necessário com `@EntityGraph` ou `JOIN FETCH`; em listagens, use projeções (DTO ou interface).
   - Não pagine com `JOIN FETCH` de coleção (o Hibernate pagina em memória); use consulta em duas etapas ou `default_batch_fetch_size`.
   - `spring.jpa.open-in-view=false`.
+  - **Queries performáticas e índices**: toda nova consulta (JPQL, `@Query`, Criteria ou SQL nativo) deve ser performática (evitar Seq Scan, N+1 e ordenações sem suporte de índice). Inspecione filtros (`WHERE`), junções e ordenações e **entregue obrigatoriamente o script DDL/migration (Flyway, Liquibase ou equivalente) para criação dos índices adequados** à query proposta, com script de rollback.
 - **Transações** na camada de serviço, `readOnly = true` nas leituras; cuidado com autoinvocação e métodos não públicos, que ignoram o proxy.
 - **Erros** com `ProblemDetail` (`spring.mvc.problemdetails.enabled=true` ou `@RestControllerAdvice`), sem detalhes internos.
 - **Configuração** com `@ConfigurationProperties` validado (records servem).
@@ -148,6 +149,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 
 ## 4. Armadilhas
 
+- **Nova consulta JPA ou SQL sem verificação de performance e sem script/migration de índices adequados.**
 - **`EAGER` padrão em `@ManyToOne` e `@OneToOne`**: uma consulta extra por linha (N+1).
 - **`JOIN FETCH` de coleção com paginação**: o Hibernate pagina em memória.
 - **Open-in-view ligado**: consultas escondidas na camada web e conexões presas.
@@ -163,5 +165,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código que compila: pacotes e imports completos, um tipo público por arquivo, links relativos.
-3. Resultado de `mvn` ou `gradle` (build e testes), ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-java`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova consulta SQL/JPA: verificação de performance e script/migration de criação dos índices adequados (com rollback).
+4. Resultado de `mvn` ou `gradle` (build e testes), ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-java`, P1 a P3; fallback em lista no chat).

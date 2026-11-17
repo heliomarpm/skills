@@ -22,6 +22,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Evidência.** Recomendações de desempenho citam o plano, a estatística ou a medição observada. Sem dado, é hipótese; não invente ganhos percentuais.
 
+**Performance de queries e índices obrigatórios.** Toda nova consulta SQL proposta ou implementada deve ser performática por concepção (analisando filtros, junções, ordenação e paginação por keyset). É **obrigatório** verificar se os índices existentes cobrem a consulta e entregar junto o script DDL / migration para criação dos índices adequados que a sustentem (com `CREATE INDEX CONCURRENTLY` no PostgreSQL ou equivalente do dialeto), acompanhado do respectivo script de rollback (`DROP INDEX`).
+
 **Idioma.** O do usuário; nomes de tabelas e colunas seguem o projeto.
 
 ---
@@ -42,7 +44,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 1. **Contexto**: leia `DATA.md`, `ARCHITECTURE.md`, os ADRs, o esquema e as migrações existentes.
 2. Aplique a seção do modo.
 3. Para desempenho, peça o plano (`EXPLAIN (ANALYZE, BUFFERS)`) e a definição das tabelas e índices antes de opinar.
-4. Entregue DDL e consultas parametrizadas, com o script de rollback das migrações.
+4. Entregue DDL e consultas parametrizadas, o script DDL/migration para criação dos índices adequados que suportem as novas consultas propostas, e o script de rollback das migrações.
 5. Registre as pendências (seção 9).
 
 ---
@@ -91,6 +93,7 @@ CREATE INDEX idx_users_email_lower ON users (lower(email));
 ```
 
 Regras práticas:
+- **Obrigatoriedade de índices para novas consultas**: ao implementar ou propor uma nova query, analise os predicados (`WHERE`), junções (`JOIN`) e ordenações (`ORDER BY`). É obrigatório verificar a existência de índices e entregar o script DDL/migration para criação dos índices adequados que evitem varredura sequencial (*seq scan*) em tabelas com volume relevante.
 - **Ordem das colunas** de um índice composto: igualdades primeiro, depois intervalo e ordenação, conforme as consultas reais. Seletividade ajuda, mas não é a regra única.
 - Índice parcial vale também em colunas de baixa cardinalidade, quando o filtro é seletivo.
 - Cada índice custa escrita e memória: crie por consulta medida, não por precaução.
@@ -214,6 +217,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ## 10. Armadilhas
 
+- **Nova consulta sem verificação de performance ou sem entrega do script de criação dos índices adequados** para seus filtros e ordenações.
 - **Offset gigante**: lê e descarta milhares de linhas.
 - **Keyset sem desempate único**: pula ou repete registros.
 - **Índice por precaução**: custa escrita e memória sem benefício medido.
@@ -232,7 +236,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 ## 11. Padrão de entrega
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
-2. DDL e consultas, parametrizadas, com links relativos para os arquivos, e o rollback das migrações.
+2. DDL e consultas, parametrizadas, com links relativos para os arquivos, o script DDL/migration para criação dos índices adequados para qualquer nova query proposta, e o rollback das migrações.
 3. Para desempenho: o plano ou a medição usada e o que foi decidido a partir dele.
 4. Ressalvas de portabilidade e premissas sobre o dialeto.
 5. Pendências e a pergunta sobre o registro em tarefas (seção 9).

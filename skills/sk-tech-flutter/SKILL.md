@@ -28,6 +28,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 - **Dart 3**: records, classes seladas e `switch` com padrões para estados previsíveis; segurança contra nulos sempre; dados imutáveis.
 - **Camadas**: apresentação (widgets sem lógica de negócio), domínio e dados; I/O atrás de **repositórios** com interface abstrata, o que viabiliza testes.
+- **Persistência local (SQLite / Drift / sqflite)**: ao implementar consultas locais, garanta que a query seja performática; entregue o script de criação dos índices adequados para as colunas filtradas/ordenadas, evitando bloqueio do isolate.
 - **Estado**: Riverpod (com `AsyncNotifier`) ou BLoC, conforme o projeto; widgets declarativos que apenas leem o estado.
 - **Renderização**: construtores `const`, widgets pequenos, `ListView.builder` para listas, `ref.watch(...select(...))` para reconstruir só o necessário, `MediaQuery.sizeOf(context)` em vez de `MediaQuery.of(context)`. `RepaintBoundary` e outras otimizações **só com medição** (DevTools, em modo *profile*).
 - **Ciclo de vida**: descarte `TextEditingController`, `AnimationController` e `ScrollController` no `dispose()`; após um `await`, confira `context.mounted` antes de usar o `BuildContext`.
@@ -123,6 +124,7 @@ Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
 
 ## 4. Armadilhas
 
+- **Consultas em banco local (SQLite/Drift) sem índices adequados**, gerando lentidão e travamentos de interface.
 - **Controladores sem `dispose()`**: vazamento de memória.
 - **`MediaQuery.of(context)` só para o tamanho**: reconstrói a cada mudança de teclado ou orientação.
 - **`state.value!` depois de definir `loading`**: lança erro. Capture o valor antes.
@@ -139,5 +141,6 @@ Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com `const`, estados de carregamento, erro e dados tratados, e I/O atrás de repositórios, com links relativos.
-3. Resultado de `flutter analyze` e `flutter test`, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-flutter`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova query em banco local (SQLite/Drift): verificação de performance e script de criação dos índices adequados.
+4. Resultado de `flutter analyze` e `flutter test`, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-flutter`, P1 a P3; fallback em lista no chat).

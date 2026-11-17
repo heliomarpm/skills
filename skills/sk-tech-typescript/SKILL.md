@@ -46,6 +46,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **Genéricos com restrição** (`extends`) e só quando há reuso real; tipos condicionais complexos custam compilação e legibilidade.
 - **Erros**: `catch (e: unknown)`; erros de domínio como valores tipados quando o chamador precisa decidir.
 - **`null` e `undefined`**: `??` e `?.` em vez de `||` e verificações frouxas.
+- **Consultas e persistência**: ao escrever consultas SQL ou usar query builders/ORMs tipados (Drizzle, Prisma, Kysely), garanta que toda nova query seja performática (evitando *table scan*, N+1 e `SELECT *`). Analise filtros e ordenações e **entregue obrigatoriamente o script/migration para criação dos índices adequados** que sustentem a query proposta, com script de rollback.
 
 ---
 
@@ -107,6 +108,7 @@ Testes de tipos e de comportamento no `sk-testing`; validação de entrada e seg
 
 ## 5. Armadilhas
 
+- **Nova query SQL/ORM sem verificar performance e sem entregar script de criação de índices adequados.**
 - **`any` espalhado**: desliga a verificação e contamina quem o consome.
 - **Asserção `as` ou `!`** para calar o compilador: o erro reaparece em runtime.
 - **Confiar nos tipos para dados externos**: sem schema, o tipo é uma promessa vazia.
@@ -121,5 +123,6 @@ Testes de tipos e de comportamento no `sk-testing`; validação de entrada e seg
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código tipado, sem `any` nem asserções injustificadas, e as alterações de `tsconfig` explicadas.
-3. Resultado de `tsc`, lint e testes, ou o motivo de não ter executado.
-4. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-typescript`, P1 a P3; fallback em lista no chat).
+3. Se implementar nova query SQL/ORM: verificação de performance e o script/migration de criação de índices adequados (com rollback).
+4. Resultado de `tsc`, lint e testes, ou o motivo de não ter executado.
+5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-typescript`, P1 a P3; fallback em lista no chat).
