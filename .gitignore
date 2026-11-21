@@ -1,4 +1,4 @@
-﻿# OS & Editor files
+# OS & Editor files
 .DS_Store
 Thumbs.db
 *.swp
@@ -15,5 +15,5 @@ Thumbs.db
 .env
 .env.local
 
-skills/
-!skills/sk-*/**
+skills/*
+!skills/sk-*/
