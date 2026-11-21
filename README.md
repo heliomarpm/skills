@@ -180,7 +180,7 @@ O repositório adota a **divulgação progressiva** (*progressive disclosure*): 
     ├── sk-refactor/         └── sk-testing/
 ```
 
-Cada pasta em `skills/sk-*/` contém um `SKILL.md` e subpastas opcionais `references/`, `templates/` e `examples/` lidas apenas sob demanda (ex.: `sk-code-review/references/domain-checklists.md`, `sk-sql/references/nosql-and-redis.md`, `sk-devops/references/kubernetes.md`, `sk-observability/references/web-and-load-perf.md`, `sk-design-system/references/tailwind-and-shadcn.md`).
+Cada pasta em `skills/sk-*/` contém um `SKILL.md` e subpastas opcionais `references/`, `templates/`, `examples/` e `scripts/` lidas ou executadas apenas sob demanda (ex.: `sk-code-review/references/domain-checklists.md`, `sk-alignment/references/clear-writing-and-slides.md`, `sk-sql/references/nosql-and-redis.md`, `sk-devops/references/kubernetes.md`, `sk-observability/references/web-and-load-perf.md`, `sk-design-system/references/ui-craft-and-audit.md` e `sk-design-system/scripts/validate-tokens.cjs`).
 
 ---
 
@@ -267,7 +267,7 @@ done
 
 ## 🏗️ Padrão de construção de novas skills
 
-Cada skill é uma pasta iniciada por `sk-` com um `SKILL.md` (e subpastas opcionais `references/`, `templates/`, `examples/` para *progressive disclosure*):
+Cada skill é uma pasta iniciada por `sk-` com um `SKILL.md` (e subpastas opcionais `references/`, `templates/`, `examples/` e `scripts/` para *progressive disclosure*):
 
 ```markdown
 ---
@@ -291,7 +291,7 @@ disable-model-invocation: true   # somente em skills de ativação explícita (c
 Diretrizes:
 - **Orçamento de `description`**: máximo de **360 caracteres**, concentrando intenção, 3 a 5 gatilhos e exclusões claras.
 - **Ordem final obrigatória**: `Integrações` → `Armadilhas` (em lista, nunca tabela) → `Padrão de entrega` (última seção, iniciando pela Assinatura).
-- **Progressive disclosure**: modelos e exemplos extensos vão para `references/`, `templates/` ou `examples/`, sempre linkados no `SKILL.md` (zero arquivos órfãos).
+- **Progressive disclosure**: modelos, referências extensas e scripts utilitários locais (sem dependências externas) vão para `references/`, `templates/`, `examples/` ou `scripts/`, sempre linkados no `SKILL.md` (zero arquivos órfãos).
 - **Circuit Breaker**: skills de execução/stack (`sk-tech-*`, `sk-debug`, `sk-refactor`, `sk-testing`, `sk-devops`, `sk-ai-engineering`) limitam tentativas consecutivas sobre a mesma falha e pausam para check-in.
 - **Qualidade e validação**: mantenha [profiles.json](profiles.json) atualizado ao criar novas skills e rode `python scripts/validate_skills.py` antes de commitar.
 

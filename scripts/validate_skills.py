@@ -68,6 +68,36 @@ def check_eol_and_bom(paths: list[str], errors: list[str]) -> None:
             errors.append(f"[EOL] {rel} contem CRLF; esperado LF.")
 
 
+def check_neutrality_and_self_containment(sk_dirs: list[str], errors: list[str]) -> None:
+    """Garante ausencia de referencias a skills externas, caminhos fixos de cliente e modelos proprietarios."""
+    rules: list[tuple[str, re.Pattern[str]]] = [
+        ("skill externa", re.compile(r"\b(stop-slop|ui-ux-pro-max|ui-styling|banner-design|claudekit)\b", re.I)),
+        ("comando externo", re.compile(r"(?:^|[\s(>])/(?:design|brand|slides)(?=$|[\s).,`])")),
+        ("nome de skill externa", re.compile(r"(?<!origem )`(?:design|brand|slides)`")),
+        ("referencia a skill design-system", re.compile(r"(?i)(?:skill|use|ativar|via)\s+`design-system`")),
+        ("caminho fixo de cliente", re.compile(r"(?:~/\.(?:claude|agents|gemini/config)/skills|\.claude/skills/)")),
+        ("modelo de IA fixo", re.compile(r"\b(?:gemini-2\.5|gemini-3-|claude-3|claude-sonnet|claude-opus|gpt-4o|gpt-5|nano banana)\b", re.I)),
+    ]
+    targets: list[str] = [os.path.join(REPO_ROOT, "rules", "sk-core.md")]
+    for skill in sk_dirs:
+        sdir = os.path.join(SKILLS_DIR, skill)
+        for root, _, files in os.walk(sdir):
+            for fn in files:
+                if fn.endswith((".md", ".cjs", ".js", ".json", ".py", ".sh")):
+                    targets.append(os.path.join(root, fn))
+
+    for fp in sorted(targets):
+        if not os.path.isfile(fp):
+            continue
+        with open(fp, "r", encoding="utf-8") as f:
+            txt = f.read()
+        rel = os.path.relpath(fp, REPO_ROOT).replace("\\", "/")
+        for label, rx in rules:
+            m = rx.search(txt)
+            if m:
+                errors.append(f"[Neutralidade] {rel} contem {label}: {m.group(0)!r}.")
+
+
 def validate_profiles_and_layer0(
     sk_set: set[str],
     skill_meta: dict[str, tuple[int, bool]],
@@ -265,10 +295,10 @@ def validate() -> int:
             errors.append(f"[{skill}] SKILL.md ausente.")
             continue
 
-        # Collect markdown files inside this sk-* folder for EOL/BOM check
+        # Collect text files inside this sk-* folder for EOL/BOM check
         for root, _, files in os.walk(sdir):
             for fn in files:
-                if fn.endswith(".md"):
+                if fn.endswith((".md", ".cjs", ".js", ".json", ".py", ".sh")):
                     eol_targets.append(os.path.join(root, fn))
 
         with open(skill_md, "r", encoding="utf-8") as f:
@@ -365,8 +395,8 @@ def validate() -> int:
             if not os.path.exists(resolved):
                 errors.append(f"[{skill}] Link relativo quebrado em SKILL.md: {link}")
 
-        # 6. Zero orphan files in references/, templates/, examples/
-        for sub in ("references", "templates", "examples"):
+        # 6. Zero orphan files in references/, templates/, examples/, scripts/
+        for sub in ("references", "templates", "examples", "scripts"):
             subdir = os.path.join(sdir, sub)
             if os.path.isdir(subdir):
                 for root, _, files in os.walk(subdir):
@@ -411,8 +441,9 @@ def validate() -> int:
         if not callers:
             errors.append(f"[{skill}] Ilha no grafo: nenhuma outra skill sk-* a referencia.")
 
-    # 8. Profiles, Layer 0 & installers check
+    # 8. Profiles, Layer 0, installers & neutrality check
     profile_metrics = validate_profiles_and_layer0(sk_set, skill_meta, errors)
+    check_neutrality_and_self_containment(sk_dirs, errors)
 
     # 9. EOL & BOM check
     existing_eol_targets = [p for p in eol_targets if os.path.exists(p)]
