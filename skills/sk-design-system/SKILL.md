@@ -1,6 +1,6 @@
 ---
 name: sk-design-system
-description: "Orienta design systems e UI acessível (agnóstica a framework): tokens em 3 camadas (claro/escuro), WCAG 2.2 AA (contraste, foco, teclado, ARIA), composição e estados de interface. Use para tokens, acessibilidade ou padronizar UI. NÃO use para implementar na stack (sk-tech-react/vue/angular/flutter) nem para lógica de negócio."
+description: "Orienta design systems e UI acessível: tokens em 3 camadas, claro/escuro, WCAG 2.2 AA, composição, estados e Tailwind v4/shadcn em referência de apoio. Use para tokens, acessibilidade, Tailwind tokens ou padronizar UI. NÃO use para código da stack (sk-tech-react/vue/angular/flutter) nem lógica de negócio."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -54,6 +54,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Governança**: nomes por **função**, não por aparência (nunca `--blue`); versionamento e depreciação de tokens; formato DTCG e Style Dictionary quando houver múltiplas plataformas. Defina o tema antes da primeira pintura para evitar o flash de tema (FOUC).
 
 **Escalas completas**: tipografia (em `rem`, respeitando o zoom do usuário), espaçamento, raios, elevação, movimento, breakpoints e densidade. Consulte a implementação CSS completa (claro e escuro) em [examples/tokens-and-components.md](./examples/tokens-and-components.md).
+
+Para mapeamento de tokens em **Tailwind CSS v4 (`@theme inline`)**, composição acessível com **shadcn/ui + Radix** e auditoria de valores fixos, consulte [references/tailwind-and-shadcn.md](./references/tailwind-and-shadcn.md).
 
 ---
 

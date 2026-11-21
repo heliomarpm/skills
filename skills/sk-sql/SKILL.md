@@ -1,6 +1,6 @@
 ---
 name: sk-sql
-description: "Orienta modelagem relacional, consultas performáticas, criação obrigatória de índices adequados, transações, migrações seguras sem downtime e diagnóstico de lentidão (EXPLAIN). Use para modelar banco, criar/otimizar queries, índices ou migrations. NÃO use para ORMs da stack (sk-tech-*), OpenAPI (sk-api-design) nem arquitetura (sk-system-design)."
+description: "Orienta modelagem relacional, SQL performático com índices obrigatórios, transações, migrações seguras e NoSQL/Redis em referência de apoio. Use para modelar banco, queries, índices, migrations, MongoDB ou Redis. NÃO use para ORMs da stack (sk-tech-*), OpenAPI (sk-api-design) nem arquitetura (sk-system-design)."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -58,6 +58,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **Soft delete**: use com índices parciais (`WHERE deleted_at IS NULL`) e unicidade que o considere.
 - **Multitenancy**: `tenant_id` em toda tabela de dados e, quando fizer sentido, *row-level security*.
 - **Privacidade**: minimização de dados, retenção e anonimização conforme a LGPD.
+- **NoSQL e cache (MongoDB, DynamoDB, Redis)**: antes de sair do relacional, confirme se o relacional não atende com menor complexidade (`sk-adr`). Para embed vs referência, regra ESR de índices compostos, `PK`/`SK`/`GSI` e TTL/eviction no Redis, consulte [references/nosql-and-redis.md](./references/nosql-and-redis.md).
 
 ---
 

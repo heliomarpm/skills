@@ -1,6 +1,6 @@
 ---
 name: sk-observability
-description: "Orienta observabilidade e SRE: OpenTelemetry (traces, métricas, logs), SLIs/SLOs, alertas por burn rate, health checks, graceful shutdown, profiling sistêmico e post-mortems sem culpados. Use para instrumentar, definir SLOs ou analisar incidentes. NÃO use para isolar/corrigir bug no código (sk-debug), CI/CD (sk-devops) nem C4 (sk-system-design)."
+description: "Orienta observabilidade e SRE: OpenTelemetry, SLIs/SLOs, alertas, probes, graceful shutdown, profiling, Web Vitals, testes de carga e post-mortems. Use para instrumentar, definir SLOs, k6/Web Vitals ou incidentes. NÃO use para corrigir bug no código (sk-debug), CI/CD (sk-devops) nem C4 (sk-system-design)."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -117,6 +117,8 @@ Alerte sobre **sintomas** que o usuário sente (SLO), não sobre causas internas
 | PHP | Profiler do Xdebug ou SPX |
 
 Procure por crescimento contínuo de objetos retidos: listeners não removidos, caches sem limite, conexões não liberadas, closures que seguram referências. Para consultas lentas e N+1, use o `sk-sql`. Dumps podem conter PII: trate-os como dados sensíveis.
+
+Para **Core Web Vitals** (LCP, INP, CLS, RUM vs Lab, orçamento de bundle) e **testes de carga** (k6, cenários e isolamento de ambiente), consulte [references/web-and-load-perf.md](./references/web-and-load-perf.md).
 
 ---
 

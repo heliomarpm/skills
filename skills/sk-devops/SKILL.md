@@ -1,6 +1,6 @@
 ---
 name: sk-devops
-description: "Orienta contêineres, CI/CD e IaC: Dockerfiles seguros, Compose, GitHub Actions com cache e OIDC, deploy/rollback, semantic-release, Terraform e segurança da cadeia de suprimentos. Use para Dockerfile, pipeline, deploy ou Terraform. NÃO use para segurança da aplicação (sk-security), arquitetura (sk-system-design) nem código de negócio."
+description: "Orienta contêineres, Kubernetes/Helm, CI/CD e IaC: Dockerfiles seguros, Compose, GitHub Actions (cache/OIDC), deploy/rollback, releases e Terraform. Use para Docker, Kubernetes, pipeline, deploy ou IaC. NÃO use para segurança da aplicação (sk-security), arquitetura (sk-system-design) nem código de negócio."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(docker build *), Bash(docker compose config *), Bash(docker-compose config *), Bash(terraform validate *), Bash(terraform fmt -check *), Bash(tflint *), Bash(hadolint *), Bash(actionlint *), Bash(trivy config *), Bash(trivy image *)
 ---
 
@@ -56,6 +56,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **HEALTHCHECK**: útil em Docker e Compose; o Kubernetes o ignora e usa probes (`sk-observability`). Não use `wget` ou `curl` em imagens que não os têm; use o próprio runtime.
 
 Em produção, quando possível: filesystem somente leitura, limites de CPU e memória e `securityContext` restritivo. Veja modelo completo de `Dockerfile` e `.dockerignore` em [examples/containers-and-ci.md](./examples/containers-and-ci.md).
+
+Para workloads em Kubernetes, Helm/Kustomize e GitOps (`Deployment` endurecido, probes com `preStop`, `PDB`, `HPA`, `NetworkPolicy` e segredos externos), consulte [references/kubernetes.md](./references/kubernetes.md).
 
 ---
 
