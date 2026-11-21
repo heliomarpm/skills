@@ -1,0 +1,28 @@
+name: "Validate Skills"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4      # fixar por SHA completo antes de produção
+      - uses: actions/setup-python@v5  # fixar por SHA completo antes de produção
+        with:
+          python-version: "3.12"
+      - name: Validar estrutura, links e orçamento de skills
+        run: python scripts/validate_skills.py
