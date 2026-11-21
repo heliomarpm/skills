@@ -1,6 +1,6 @@
 ---
 name: sk-devops
-description: "Orienta contêineres, integração e entrega contínuas e infraestrutura como código: Dockerfiles seguros e enxutos, Docker Compose, pipelines de CI (GitHub Actions e equivalentes) com cache e permissões mínimas, autenticação OIDC sem credenciais de longa duração, estratégias de deploy e rollback, automação de releases (semantic-release, changelog, tags), Terraform e segurança da cadeia de suprimentos. Use sempre que o usuário pedir 'crie o Dockerfile', 'docker compose', 'pipeline', 'GitHub Actions', 'CI/CD', 'deploy', 'OIDC', 'release automática', 'Terraform' ou 'otimize o build', mesmo sem a palavra 'devops'. NÃO use para segurança de aplicação em profundidade (isso é sk-security), desenho de arquitetura (isso é sk-system-design) nem para código da aplicação."
+description: "Orienta contêineres, CI/CD e IaC: Dockerfiles seguros, Compose, GitHub Actions com cache e OIDC, deploy/rollback, semantic-release, Terraform e segurança da cadeia de suprimentos. Use para Dockerfile, pipeline, deploy ou Terraform. NÃO use para segurança da aplicação (sk-security), arquitetura (sk-system-design) nem código de negócio."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(docker build *), Bash(docker compose config *), Bash(docker-compose config *), Bash(terraform validate *), Bash(terraform fmt -check *), Bash(tflint *), Bash(hadolint *), Bash(actionlint *), Bash(trivy config *), Bash(trivy image *)
 ---
 
@@ -16,7 +16,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Ações que mudam o mundo exigem pedido explícito**: `terraform apply` e `destroy`, `docker push`, `docker system prune`, publicar release, disparar workflow ou deploy. `terraform plan` usa credenciais: confirme antes. `docker build` executa os passos `RUN` do Dockerfile, então rode só com contexto confiável.
 
-**Siga o projeto.** Detecte o que já existe (GitHub Actions ou GitLab CI, registry, nuvem, gerenciador de pacotes, versão de runtime em `.nvmrc`, `engines` ou `.tool-versions`) e não troque de ferramenta sem pedido. Os exemplos abaixo são ilustrativos: use as versões do projeto.
+**Siga o projeto.** Detecte o que já existe (GitHub Actions ou GitLab CI, registry, nuvem, gerenciador de pacotes, versão de runtime em `.nvmrc`, `engines` ou `.tool-versions`) e não troque de ferramenta sem pedido. Os exemplos em [examples/containers-and-ci.md](./examples/containers-and-ci.md) são ilustrativos: use as versões do projeto.
 
 **Segredos.** Nunca coloque credenciais em arquivos, imagens, logs ou exemplos. Segredos de build usam `--mount=type=secret`, nunca `ARG` ou `ENV`.
 
@@ -55,82 +55,13 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **HEALTHCHECK**: útil em Docker e Compose; o Kubernetes o ignora e usa probes (`sk-observability`). Não use `wget` ou `curl` em imagens que não os têm; use o próprio runtime.
 
-```dockerfile
-# syntax=docker/dockerfile:1
-FROM node:22-alpine AS builder
-WORKDIR /app
-RUN corepack enable            # versão do pnpm fixada em "packageManager" no package.json
-COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile
-COPY . .
-RUN pnpm build && pnpm prune --prod
-
-FROM node:22-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-RUN addgroup -S app && adduser -S app -G app
-COPY --from=builder --chown=app:app /app/node_modules ./node_modules
-COPY --from=builder --chown=app:app /app/dist ./dist
-COPY --from=builder --chown=app:app /app/package.json ./
-USER app
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
-CMD ["node", "dist/index.js"]
-```
-
-```text
-# .dockerignore
-node_modules
-dist
-.git
-.env
-.env.*
-!.env.example
-coverage
-*.log
-Dockerfile
-docker-compose*.yml
-```
-
-Em produção, quando possível: filesystem somente leitura, limites de CPU e memória e `securityContext` restritivo.
+Em produção, quando possível: filesystem somente leitura, limites de CPU e memória e `securityContext` restritivo. Veja modelo completo de `Dockerfile` e `.dockerignore` em [examples/containers-and-ci.md](./examples/containers-and-ci.md).
 
 ---
 
 ## 4. Docker Compose
 
-Redes isoladas, `healthcheck` com `depends_on: condition: service_healthy`, rotação de logs, `init: true`, `env_file` com `.env.example` versionado.
-
-```yaml
-services:
-  api:
-    build: .
-    init: true
-    env_file: .env
-    ports: ["3000:3000"]
-    networks: [backend]
-    depends_on:
-      db: { condition: service_healthy }
-    logging:
-      driver: json-file
-      options: { max-size: "10m", max-file: "3" }
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    secrets: [db_password]
-    networks: [backend]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      retries: 5
-networks:
-  backend: {}
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt   # fora do versionamento
-```
+Redes isoladas, `healthcheck` com `depends_on: condition: service_healthy`, rotação de logs, `init: true`, `env_file` com `.env.example` versionado (e `secrets:` fora do versionamento). Veja modelo em [examples/containers-and-ci.md](./examples/containers-and-ci.md).
 
 ---
 
@@ -138,65 +69,13 @@ secrets:
 
 **Regras**: `permissions` mínimas por job; `timeout-minutes`; cache do gerenciador de pacotes; falha rápida (lint e tipos antes dos testes pesados); cancelamento de execuções antigas **só em PRs**, nunca em deploy; actions fixadas por SHA completo, mantidas por Dependabot ou Renovate.
 
-```yaml
-name: CI
-
-on:
-  push: { branches: [main] }
-  pull_request: { branches: [main] }
-
-permissions:
-  contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
-jobs:
-  validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@<sha-completo>      # v4
-      - uses: pnpm/action-setup@<sha-completo>     # v4, lê "packageManager"
-      - uses: actions/setup-node@<sha-completo>    # v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint && pnpm typecheck
-      - run: pnpm test -- --coverage
-```
-
-**Segurança do CI**: nunca imprima segredos; cuidado com `pull_request_target` e com PRs de forks (não exponha segredos a código não confiável); dados de eventos (títulos de PR, nomes de branch) usados em `run:` devem passar por variável de ambiente, não por interpolação direta.
+**Segurança do CI**: nunca imprima segredos; cuidado com `pull_request_target` e com PRs de forks (não exponha segredos a código não confiável); dados de eventos (títulos de PR, nomes de branch) usados em `run:` devem passar por variável de ambiente, não por interpolação direta. Veja modelo de workflow em [examples/containers-and-ci.md](./examples/containers-and-ci.md).
 
 ---
 
 ## 6. Credenciais: OIDC
 
-Elimine chaves de longa duração: o job assume um papel temporário pela identidade OIDC do provedor de CI. A **política de confiança** deve ser restrita por repositório e por branch ou ambiente (`sub`); confiança ampla é o erro mais comum.
-
-```yaml
-permissions:
-  id-token: write
-  contents: read
-steps:
-  - uses: aws-actions/configure-aws-credentials@<sha-completo>   # v4
-    with:
-      role-to-assume: arn:aws:iam::123456789012:role/deploy-producao
-      aws-region: us-east-1
-```
-
-```json
-"Condition": {
-  "StringEquals": {
-    "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-    "token.actions.githubusercontent.com:sub": "repo:ORG/REPO:environment:production"
-  }
-}
-```
-
-Use *environments* com aprovação para produção.
+Elimine chaves de longa duração: o job assume um papel temporário pela identidade OIDC do provedor de CI. A **política de confiança** deve ser restrita por repositório e por branch ou ambiente (`sub`); confiança ampla é o erro mais comum. Use *environments* com aprovação para produção. Veja snippet OIDC + política IAM em [examples/containers-and-ci.md](./examples/containers-and-ci.md).
 
 ---
 
@@ -238,9 +117,9 @@ Aguarde a resposta do usuário antes de novas execuções ou alterações.
 
 ---
 
-## 10. Registro via `sk-tasks` e integrações
+## 10. Integrações e registro via `sk-tasks`
 
-Se houver pendências, pergunte ao final:
+Se houver pendências relevantes não resolvidas, pergunte ao final:
 
 > *"Deseja que eu registre as melhorias de DevOps no `TASKS.md` do projeto?"*
 
@@ -284,4 +163,4 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 2. Arquivos criados ou alterados, com links relativos (Dockerfile sempre com `.dockerignore`).
 3. Resultado da validação (`hadolint`, `actionlint`, `terraform validate`) ou, se interrompido pelo circuit breaker, o relato e check-in da seção 9.1.
 4. Ações que dependem de confirmação do usuário (deploy, release, `apply`).
-5. Pendências e a pergunta sobre o registro em tarefas (seção 10).
+5. Pendências e a pergunta condicional sobre o registro em tarefas (seção 10).

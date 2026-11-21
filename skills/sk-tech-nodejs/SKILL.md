@@ -1,6 +1,6 @@
 ---
 name: sk-tech-nodejs
-description: "Orienta serviços e pacotes em Node.js moderno: ESM, módulos nativos com prefixo node:, validação de ambiente e de entrada, streams com cancelamento, I/O assíncrono, tratamento de erros, encerramento gracioso e desempenho do event loop. Use sempre que o usuário pedir 'API em Node', 'worker', 'processar arquivo ou stream', 'variáveis de ambiente', 'bloqueou o event loop' ou 'estruture o projeto Node', mesmo sem dizer 'Node.js'. NÃO use para tipagem em geral (isso é sk-tech-typescript), contratos de API (isso é sk-api-design) nem para interfaces (isso é sk-tech-react, sk-tech-vue ou sk-tech-angular)."
+description: "Orienta serviços Node.js modernos (e rotas/actions de servidor Next/Nuxt): ESM, node:, validação de env/entrada, streams, AbortSignal, event loop, acesso SQL performático com índices e graceful shutdown. Use para backend Node.js ou workers. NÃO use para tipagem TS geral (sk-tech-typescript), OpenAPI (sk-api-design) nem UI (sk-tech-react/vue/angular)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(node --test *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
@@ -16,7 +16,9 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Versão.** Leia a versão de Node em `engines`, `.nvmrc` ou `.tool-versions`, use uma LTS suportada e apenas recursos que ela oferece. APIs recentes ou experimentais: confirme na documentação oficial da versão.
 
-**Siga o projeto.** Respeite gerenciador de pacotes, framework (Fastify, Express, Nest), logger e estrutura existentes. Regras de tipagem estão em `sk-tech-typescript`.
+**Siga o projeto.** Respeite gerenciador de pacotes, framework (Fastify, Express, Nest, rotas/actions de servidor Next/Nuxt), logger e estrutura existentes. Regras de tipagem estão em `sk-tech-typescript`.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Atualizar versão.
 
@@ -42,79 +44,13 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 2. Exemplos
 
-### 2.1. Configuração validada
-
-```ts
-import { z } from 'zod';
-
-const Env = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-  DATABASE_URL: z.string().url(),
-});
-
-export const env = Env.parse(process.env); // falha na inicialização se a configuração estiver errada
-```
-
-### 2.2. Stream com cancelamento e caminho confinado
-
-```ts
-import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
-import { createGzip } from 'node:zlib';
-import path from 'node:path';
-
-const BASE_DIR = path.resolve(process.env.DATA_DIR ?? './data');
-
-function resolverDentroDaBase(relativo: string): string {
-  const alvo = path.resolve(BASE_DIR, relativo);
-  if (alvo !== BASE_DIR && !alvo.startsWith(BASE_DIR + path.sep)) {
-    throw new Error('Caminho fora do diretório permitido');
-  }
-  return alvo; // links simbólicos: valide com fs.realpath quando o diretório não for confiável
-}
-
-export async function comprimirArquivo(origem: string, destino: string, signal?: AbortSignal): Promise<void> {
-  await pipeline(
-    createReadStream(resolverDentroDaBase(origem)),
-    createGzip(),
-    createWriteStream(resolverDentroDaBase(destino)),
-    { signal },
-  );
-}
-```
-
-### 2.3. Servidor com encerramento
-
-```ts
-import Fastify from 'fastify';
-import { env } from './env.js';
-
-const app = Fastify({ logger: true });
-app.get('/health/live', async () => ({ status: 'ok' }));
-
-for (const sinal of ['SIGTERM', 'SIGINT'] as const) {
-  process.once(sinal, async () => {
-    app.log.info({ sinal }, 'encerrando');
-    try {
-      await app.close(); // para de aceitar conexões e aguarda as em curso
-      process.exit(0);
-    } catch (erro) {
-      app.log.error(erro);
-      process.exit(1);
-    }
-  });
-}
-
-await app.listen({ port: env.PORT, host: '0.0.0.0' });
-// Readiness, drenagem pelo balanceador e timeout total: veja sk-observability.
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): configuração de ambiente validada com Zod, stream com `pipeline` + `AbortSignal` e caminho confinado (anti-*path traversal*), e servidor Fastify com encerramento gracioso.
 
 ---
 
 ## 3. Integrações
 
-Segredos, validação de entrada e dependências no `sk-security`; testes no `sk-testing`; consultas no `sk-sql`; métricas e shutdown no `sk-observability`; contêiner e CI no `sk-devops`. Para investigar o event loop, meça o atraso (`monitorEventLoopDelay`) e use perfis antes de otimizar.
+Segredos, validação de entrada e dependências no `sk-security`; tipagem estrita no `sk-tech-typescript`; testes no `sk-testing`; consultas no `sk-sql`; contratos no `sk-api-design`; métricas e shutdown no `sk-observability`; contêiner e CI no `sk-devops`; revisão no `sk-code-review`. Para investigar o event loop, meça o atraso (`monitorEventLoopDelay`) e use perfis antes de otimizar.
 
 ---
 
@@ -128,6 +64,7 @@ Segredos, validação de entrada e dependências no `sk-security`; testes no `sk
 - **Configuração lida em qualquer lugar de `process.env`**: erros só aparecem em runtime.
 - **`process.exit` sem encerrar conexões**: perde requisições em curso.
 - **`fetch` sem timeout ou cancelamento.**
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -136,5 +73,5 @@ Segredos, validação de entrada e dependências no `sk-security`; testes no `sk
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com tipos estritos, validação de entrada e encerramento seguro, com links relativos.
 3. Se implementar nova query SQL/ORM: verificação de performance e script/migration de criação dos índices adequados (com rollback).
-4. Resultado de testes, tipos e lint, ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-nodejs`, P1 a P3; fallback em lista no chat).
+4. Resultado de testes, tipos e lint, o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-nodejs`, P1 a P3; fallback em lista no chat).

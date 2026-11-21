@@ -1,6 +1,6 @@
 ---
 name: sk-ai-engineering
-description: "Orienta a engenharia de aplicações com LLMs: saídas estruturadas validadas, tool calling e agentes seguros, RAG (chunking, busca híbrida, reranking, permissões), avaliações (evals) com porta de regressão, defesa contra prompt injection, confiabilidade, custo e privacidade. Use sempre que o usuário pedir 'integre um LLM', 'tool calling', 'function calling', 'RAG', 'embeddings', 'agente', 'prompt', 'avalie as respostas', 'reduza alucinação' ou 'structured output', mesmo sem a expressão 'AI engineering'. NÃO use para segurança de aplicação em geral (isso é sk-security), contratos de API (isso é sk-api-design) nem para filas e arquitetura (isso é sk-system-design)."
+description: "Orienta engenharia com LLMs: saídas estruturadas validadas, tool calling/agentes seguros, RAG híbrido com filtro de permissões, evals, defesa contra prompt injection, confiabilidade e custo. Use para integrar LLMs, RAG ou agentes. NÃO use para AppSec geral (sk-security), OpenAPI (sk-api-design) nem mensageria (sk-system-design)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python -m pytest *), Bash(npm test *), Bash(npm run test *), Bash(npx vitest *)
 ---
 
@@ -138,95 +138,13 @@ Referência: OWASP Top 10 para aplicações com LLM; geral no `sk-security`.
 
 ## 9. Exemplos de referência
 
-### 9.1. Ferramenta com schema estrito (TypeScript e Zod)
-
-```typescript
-import { z } from 'zod';
-
-interface Sessao {
-  usuarioId: string;
-}
-
-// O modelo propõe; o sistema decide. Preço e cliente NÃO vêm do modelo.
-export const CriarPedidoArgs = z
-  .object({
-    itens: z
-      .array(
-        z.object({
-          sku: z.string().regex(/^[A-Z]{3}-\d{4}$/),
-          quantidade: z.number().int().positive().max(100),
-        }),
-      )
-      .min(1)
-      .max(50),
-    enderecoEntregaId: z.string().uuid(), // endereço já cadastrado do usuário
-  })
-  .strict();
-
-export const definicaoFerramenta = {
-  name: 'criar_pedido',
-  description:
-    'Prepara um pedido com os itens informados. O pedido só é efetivado após a confirmação do usuário.',
-  // Zod 4: z.toJSONSchema. No Zod 3, use zod-to-json-schema. O formato varia por provedor.
-  parameters: z.toJSONSchema(CriarPedidoArgs),
-};
-
-export async function executarCriarPedido(args: unknown, sessao: Sessao): Promise<void> {
-  const dados = CriarPedidoArgs.parse(args); // argumentos do modelo são entrada não confiável
-  // 1. Autorizar: o endereço pertence a sessao.usuarioId?
-  // 2. Preços e disponibilidade vêm do catálogo, não do modelo.
-  // 3. Gravar como rascunho e pedir confirmação humana; efetivar com chave de idempotência.
-  void dados;
-  void sessao;
-}
-```
-
-### 9.2. Recuperação híbrida com permissões e RRF (Python, conceitual)
-
-```python
-import asyncio
-from collections import defaultdict
-from typing import Any, Protocol
-
-
-class Usuario(Protocol):
-    tenant_id: str
-    grupos: list[str]
-
-
-def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
-    """Fusão por posição (Reciprocal Rank Fusion)."""
-    scores: dict[str, float] = defaultdict(float)
-    for ranking in rankings:
-        for pos, doc_id in enumerate(ranking, start=1):
-            scores[doc_id] += 1.0 / (k + pos)
-    return sorted(scores, key=lambda doc_id: scores[doc_id], reverse=True)
-
-
-async def retrieve(query: str, usuario: Usuario, top_k: int = 5) -> list[dict[str, Any]]:
-    # Permissões aplicadas NA busca, antes de recuperar
-    filtro = {"tenant": usuario.tenant_id, "acl": usuario.grupos}
-
-    densos, lexicais = await asyncio.gather(
-        vector_store.search(query, k=top_k * 4, filtro=filtro),
-        lexical_index.search(query, k=top_k * 4, filtro=filtro),
-    )
-
-    candidatos = {d["id"]: d for d in densos + lexicais}
-    ordem = rrf([[d["id"] for d in densos], [d["id"] for d in lexicais]])[: top_k * 4]
-
-    # O reranker recebe só os melhores candidatos da fusão
-    reranqueados = await reranker.rerank(
-        query, [candidatos[i]["text"] for i in ordem], top_n=top_k
-    )
-    return [candidatos[ordem[r.index]] for r in reranqueados]
-```
+Consulte implementações completas de **ferramenta com schema estrito (TypeScript + Zod)** e **recuperação híbrida com filtro de permissões e RRF (Python tipado)** em [examples/tool-and-rag.md](./examples/tool-and-rag.md).
 
 ---
 
-## 10. Registro via `sk-tasks` e integrações
+## 10. Integrações e registro via `sk-tasks`
 
-Se houver pendências, pergunte ao final:
+Se houver pendências relevantes não resolvidas, pergunte ao final:
 
 > *"Deseja que eu registre as pendências e avaliações no `TASKS.md` do projeto?"*
 
@@ -270,4 +188,4 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 2. Premissas declaradas (provedor, dados, permissões, requisitos) e o que precisa de confirmação na documentação atual.
 3. Arquivos criados ou alterados, com links relativos, e o resultado dos testes ou o motivo de não ter executado.
 4. Plano de avaliação, riscos de segurança tratados e, se interrompido pelo circuit breaker, o relato e check-in da seção 6.1.
-5. Pendências e a pergunta sobre o registro em tarefas (seção 10).
+5. Pendências e a pergunta condicional sobre o registro em tarefas (seção 10).

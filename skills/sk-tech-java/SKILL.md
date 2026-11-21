@@ -1,6 +1,6 @@
 ---
 name: sk-tech-java
-description: "Orienta Java moderno e Spring Boot 3: Virtual Threads para I/O bloqueante, records e tipos selados com pattern matching, Spring Data JPA sem N+1 (LAZY, EntityGraph, projeções, open-in-view desligado), transações, Problem Details, configuração tipada, observabilidade e testes. Use sempre que o usuário pedir 'API Spring Boot', 'Java', 'JPA', 'N+1', 'Virtual Threads', 'record', 'migre de versão do Java ou do Spring' ou 'otimize esta consulta JPA', mesmo sem dizer 'Java'. NÃO use para modelagem e SQL em si (isso é sk-sql), contratos de API (isso é sk-api-design) nem para segurança em profundidade (isso é sk-security)."
+description: "Orienta Java moderno e Spring Boot 3: Virtual Threads, records, tipos selados, Spring Data JPA sem N+1 (LAZY, EntityGraph, projeções, queries com índices), transações, Problem Details e testes. Use para APIs Spring Boot ou JPA. NÃO use para SQL avançado (sk-sql), OpenAPI (sk-api-design) nem segurança em profundidade (sk-security)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(mvn test *), Bash(mvn verify *), Bash(./mvnw test *), Bash(./mvnw verify *), Bash(gradle test *), Bash(gradle check *), Bash(./gradlew test *), Bash(./gradlew check *)
 ---
 
@@ -17,6 +17,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Versão.** Leia a versão do Java (`release`, toolchain) e do Spring Boot no `pom.xml` ou `build.gradle` e use só o que elas suportam: records (16), tipos selados (17), `switch` com padrões e Virtual Threads (21), propriedade de Virtual Threads do Spring (Boot 3.2). Pinning por `synchronized`, Scoped Values e recursos em preview mudam entre versões do JDK: **confirme na documentação oficial**.
 
 **Siga o projeto.** Respeite a arquitetura em camadas, a ferramenta de build e as convenções existentes.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Atualizar versão.
 
@@ -46,98 +48,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 2. Exemplos
 
-### 2.1. Configuração
-
-```properties
-spring.threads.virtual.enabled=true
-spring.jpa.open-in-view=false
-spring.mvc.problemdetails.enabled=true
-```
-
-### 2.2. DTO e estados com tipo selado (cada tipo público em seu arquivo)
-
-```java
-// CriarPagamentoRequest.java
-package com.empresa.pagamento.dto;
-
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.UUID;
-
-public record CriarPagamentoRequest(
-        @NotNull UUID clienteId,
-        @NotNull @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero") BigDecimal valor,
-        @NotBlank String metodoPagamento) {}
-```
-
-```java
-// StatusPagamento.java
-package com.empresa.pagamento.dto;
-
-import java.time.Instant;
-
-public sealed interface StatusPagamento {
-    record Pendente(String codigoPix) implements StatusPagamento {}
-    record Aprovado(String nsuAutorizacao, Instant dataAprovacao) implements StatusPagamento {}
-    record Rejeitado(String motivo) implements StatusPagamento {}
-}
-```
-
-```java
-// Uso com switch exaustivo (sem default: o compilador acusa um caso novo)
-static String descricao(StatusPagamento status) {
-    return switch (status) {
-        case StatusPagamento.Pendente p -> "Aguardando pagamento: " + p.codigoPix();
-        case StatusPagamento.Aprovado a -> "Aprovado, NSU " + a.nsuAutorizacao();
-        case StatusPagamento.Rejeitado r -> "Rejeitado: " + r.motivo();
-    };
-}
-```
-
-### 2.3. Persistência sem N+1
-
-```java
-// Pedido.java (trecho)
-@Entity
-public class Pedido {
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Cliente cliente;
-
-    @OneToMany(mappedBy = "pedido")
-    private List<ItemPedido> itens = new ArrayList<>();
-    // ...
-}
-```
-
-```java
-// PedidoResumo.java
-package com.empresa.pagamento.dto;
-
-import java.math.BigDecimal;
-import java.util.UUID;
-
-public record PedidoResumo(UUID id, BigDecimal total, String status) {}
-```
-
-```java
-// PedidoRepository.java
-public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
-
-    // Pedido, itens e cliente em uma única consulta
-    @EntityGraph(attributePaths = {"itens", "cliente"})
-    Optional<Pedido> findWithDetailsById(UUID id);
-
-    // Projeção para listagens: só as colunas necessárias
-    @Query("""
-           select new com.empresa.pagamento.dto.PedidoResumo(p.id, p.total, p.status)
-           from Pedido p
-           where p.cliente.id = :clienteId
-           """)
-    List<PedidoResumo> listarResumosPorCliente(@Param("clienteId") UUID clienteId);
-}
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): configuração recomendada (`application.properties`), DTO em `record` + estado em interface selada com `switch` exaustivo, e repositório JPA sem N+1 com `@EntityGraph` e projeção em record.
 
 ---
 
@@ -158,6 +69,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 - **`@Transactional` em método privado ou chamado por autoinvocação**: o proxy não age.
 - **Entidade JPA exposta direto na API.**
 - **Capturar a exceção dentro da transação**: marca *rollback-only* de forma silenciosa ou esconde a falha.
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -166,5 +78,5 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código que compila: pacotes e imports completos, um tipo público por arquivo, links relativos.
 3. Se implementar nova consulta SQL/JPA: verificação de performance e script/migration de criação dos índices adequados (com rollback).
-4. Resultado de `mvn` ou `gradle` (build e testes), ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-java`, P1 a P3; fallback em lista no chat).
+4. Resultado de `mvn` ou `gradle` (build e testes), o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-java`, P1 a P3; fallback em lista no chat).

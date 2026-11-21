@@ -1,6 +1,6 @@
 ---
 name: sk-tech-dotnet
-description: "Orienta C# e .NET moderno: nullable, records, EF Core eficiente (AsNoTracking, projeção, AsSplitQuery), async com CancellationToken, injeção de dependências e ciclos de vida, BackgroundService, resiliência (Polly v8), Minimal APIs com TypedResults e Problem Details, TimeProvider, logging estruturado e testes. Use sempre que o usuário pedir 'API em .NET', 'C#', 'EF Core', 'serviço em background', 'minimal API', 'otimize esta query do EF' ou 'migre de versão do .NET', mesmo sem dizer '.NET'. NÃO use para modelagem e consultas SQL em si (isso é sk-sql), contratos de API (isso é sk-api-design) nem para segurança em profundidade (isso é sk-security)."
+description: "Orienta C# e .NET moderno: nullable, records, EF Core eficiente (AsNoTracking, projeção, AsSplitQuery), queries performáticas com índices, async com CancellationToken, DI, BackgroundService, Polly v8 e Minimal APIs. Use para APIs ou acesso a dados .NET. NÃO use para SQL avançado (sk-sql), OpenAPI (sk-api-design) nem Auth (sk-security)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(dotnet test *), Bash(dotnet build *), Bash(dotnet format *)
 ---
 
@@ -17,6 +17,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Versão.** Leia `TargetFramework` e `LangVersion` nos `.csproj` ou em `Directory.Build.props` e use só o que eles suportam (por exemplo, o tipo `Lock` e o `HybridCache` pedem versões recentes). Recursos novos ou depreciados (como `WithOpenApi`, em favor do suporte nativo de OpenAPI): confirme na documentação oficial da versão do projeto.
 
 **Siga o projeto.** Respeite a arquitetura, o ORM, os analisadores e as convenções existentes.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Atualizar versão.
 
@@ -46,78 +48,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 2. Exemplos
 
-### 2.1. Endpoint com projeção e `TypedResults`
-
-```csharp
-using Microsoft.AspNetCore.Http.HttpResults;
-
-app.MapGet("/api/v1/pedidos/{id:guid}", async Task<Results<Ok<PedidoDetalheDto>, NotFound>> (
-    Guid id, AppDbContext db, CancellationToken ct) =>
-{
-    var pedido = await db.Pedidos
-        .AsNoTracking()
-        .Where(p => p.Id == id)
-        .Select(p => new PedidoDetalheDto(
-            p.Id,
-            p.Cliente.Nome,
-            p.Itens.Select(i => new ItemDto(i.Produto.Nome, i.Quantidade, i.PrecoUnitario)).ToList()))
-        .FirstOrDefaultAsync(ct);
-
-    return pedido is null ? TypedResults.NotFound() : TypedResults.Ok(pedido);
-})
-.WithName("ObterPedido");
-```
-
-### 2.2. Streaming com cancelamento, tempo injetado e contador seguro
-
-```csharp
-public sealed class ProcessadorPedidos(
-    IPedidoRepository repositorio, TimeProvider relogio, ILogger<ProcessadorPedidos> logger)
-{
-    private long _processados;
-
-    public async IAsyncEnumerable<PedidoDto> ListarPendentesAsync(
-        string clienteId, [EnumeratorCancellation] CancellationToken ct = default)
-    {
-        await foreach (var pedido in repositorio.ObterPendentesAsync(clienteId, ct))
-        {
-            Interlocked.Increment(ref _processados);
-            yield return new PedidoDto(pedido.Id, pedido.Total, pedido.CriadoEm);
-        }
-
-        logger.LogInformation("Pendentes listados em {Instante}; total acumulado {Total}",
-            relogio.GetUtcNow(), Interlocked.Read(ref _processados));
-    }
-}
-
-public readonly record struct PedidoDto(Guid Id, decimal Total, DateTimeOffset CriadoEm);
-```
-
-### 2.3. `BackgroundService` com escopo por iteração
-
-```csharp
-public sealed class ReprocessadorWorker(IServiceScopeFactory escopos, ILogger<ReprocessadorWorker> logger)
-    : BackgroundService
-{
-    protected override async Task ExecuteAsync(CancellationToken ct)
-    {
-        using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
-        while (await timer.WaitForNextTickAsync(ct))
-        {
-            try
-            {
-                using var escopo = escopos.CreateScope();
-                var db = escopo.ServiceProvider.GetRequiredService<AppDbContext>();
-                // ... trabalho da iteração
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogError(ex, "Falha na iteração; o worker continua");
-            }
-        }
-    }
-}
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): endpoint Minimal API com projeção `AsNoTracking` + `TypedResults`, streaming `IAsyncEnumerable` com `TimeProvider` e `Interlocked`, e `BackgroundService` com escopo via `IServiceScopeFactory`.
 
 ---
 
@@ -139,6 +70,7 @@ public sealed class ReprocessadorWorker(IServiceScopeFactory escopos, ILogger<Re
 - **`HttpClient` criado a cada chamada**: esgota sockets; use `HttpClientFactory`.
 - **`catch (Exception)` que engole erros** sem registrar nem repropagar.
 - **Ignorar o `CancellationToken`.**
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -147,5 +79,5 @@ public sealed class ReprocessadorWorker(IServiceScopeFactory escopos, ILogger<Re
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com `using` completos, nullable habilitado e `CancellationToken` propagado, com links relativos.
 3. Se implementar nova consulta SQL ou EF Core: verificação de performance e script/migration de criação dos índices adequados (com rollback).
-4. Resultado de `dotnet build`, `test` e `format`, ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-dotnet`, P1 a P3; fallback em lista no chat).
+4. Resultado de `dotnet build`, `test` e `format`, o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-dotnet`, P1 a P3; fallback em lista no chat).

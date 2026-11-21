@@ -1,6 +1,6 @@
 ---
 name: sk-tech-golang
-description: "Orienta Go idiomático: interfaces pequenas definidas por quem consome, context.Context em todo I/O, concorrência estruturada com errgroup, tratamento de erros com %w, servidores net/http com roteamento nativo, JSON e logs estruturados (slog), encerramento gracioso e testes com race detector. Use sempre que o usuário pedir 'serviço em Go', 'goroutine', 'canal', 'errgroup', 'handler HTTP', 'vazamento de goroutine', 'data race' ou 'migre de versão do Go', mesmo sem dizer 'Go'. NÃO use para modelagem e SQL em si (isso é sk-sql), contratos de API (isso é sk-api-design) nem para pipelines (isso é sk-devops)."
+description: "Orienta Go idiomático: interfaces mínimas, context.Context em I/O, errgroup, erros com %w, net/http nativo, slog, graceful shutdown, queries SQL performáticas com índices e testes com -race. Use para serviços ou concorrência em Go. NÃO use para SQL avançado (sk-sql), OpenAPI (sk-api-design) nem pipelines (sk-devops)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(go test *), Bash(go build *), Bash(go vet *), Bash(gofmt -l *), Bash(golangci-lint *)
 ---
 
@@ -17,6 +17,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Versão.** Leia as diretivas `go` e `toolchain` do `go.mod` e use só o que a versão suporta (por exemplo, roteamento com método e parâmetros no `ServeMux` e a variável de laço por iteração são do 1.22). Recursos novos: confirme na documentação oficial.
 
 **Siga o projeto.** Respeite a estrutura de pacotes, o roteador e o logger existentes; `gofmt` e `golangci-lint` são obrigatórios.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Atualizar versão.
 
@@ -42,123 +44,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 2. Exemplos
 
-### 2.1. Servidor com roteamento nativo, JSON e encerramento
-
-```go
-package main
-
-import (
-	"context"
-	"encoding/json"
-	"errors"
-	"log/slog"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-)
-
-type pedidoResposta struct {
-	ID     string `json:"pedido_id"`
-	Status string `json:"status"`
-}
-
-func main() {
-	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stdout, nil)))
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /api/v1/pedidos/{id}", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		resp := pedidoResposta{ID: r.PathValue("id"), Status: "processado"}
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			slog.Error("falha ao escrever a resposta", "error", err)
-		}
-	})
-
-	srv := &http.Server{
-		Addr:              ":8080",
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      15 * time.Second,
-		IdleTimeout:       60 * time.Second,
-	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			slog.Error("falha no servidor HTTP", "error", err)
-			stop() // dispara o encerramento
-		}
-	}()
-
-	<-ctx.Done()
-	slog.Info("encerrando")
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(shutdownCtx); err != nil {
-		slog.Error("falha no encerramento gracioso", "error", err)
-		_ = srv.Close()
-	}
-}
-```
-
-### 2.2. Concorrência estruturada com `errgroup`
-
-```go
-package servico
-
-import (
-	"context"
-	"fmt"
-
-	"golang.org/x/sync/errgroup"
-)
-
-type ClienteAPI interface {
-	BuscarPerfil(ctx context.Context, id string) (string, error)
-	BuscarExtrato(ctx context.Context, id string) ([]string, error)
-}
-
-type Agregado struct {
-	Perfil  string
-	Extrato []string
-}
-
-type Servico struct{ api ClienteAPI }
-
-func (s *Servico) ObterDados(ctx context.Context, id string) (*Agregado, error) {
-	g, ctx := errgroup.WithContext(ctx)
-	var ag Agregado // cada goroutine escreve um campo diferente; g.Wait() sincroniza a leitura
-
-	g.Go(func() error {
-		p, err := s.api.BuscarPerfil(ctx, id)
-		if err != nil {
-			return fmt.Errorf("buscar perfil: %w", err)
-		}
-		ag.Perfil = p
-		return nil
-	})
-
-	g.Go(func() error {
-		e, err := s.api.BuscarExtrato(ctx, id)
-		if err != nil {
-			return fmt.Errorf("buscar extrato: %w", err)
-		}
-		ag.Extrato = e
-		return nil
-	})
-
-	if err := g.Wait(); err != nil {
-		return nil, fmt.Errorf("agregar dados do cliente %s: %w", id, err)
-	}
-	return &ag, nil
-}
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): servidor HTTP com `ServeMux` nativo (Go 1.22+), `slog` em JSON e graceful shutdown com timeouts; e concorrência estruturada com `errgroup`.
 
 ---
 
@@ -170,18 +56,17 @@ func (s *Servico) ObterDados(ctx context.Context, id string) (*Agregado, error) 
 
 ## 4. Armadilhas
 
-| Armadilha | Risco | Como evitar |
-| :--- | :--- | :--- |
-| Nova query SQL sem índice adequado | Lentidão e Seq Scan em produção | Analise filtros/ordenação e entregue a migration de índices com rollback |
-| Vazamento de goroutine | Memória e travamentos | Garanta o término por `ctx.Done()` ou por fechamento do canal |
-| *Data race* | Corrupção e comportamento imprevisível | `go test -race`, `sync.Mutex` ou `sync/atomic` |
-| Cópia de `sync.Mutex` | Exclusão mútua quebrada | Use ponteiros para structs que o contêm |
-| Corpo de resposta HTTP não fechado | Esgota conexões | `defer resp.Body.Close()` e, para reutilizar, `io.Copy(io.Discard, resp.Body)` |
-| `panic` em goroutine sem `recover` | Derruba o processo | `recover` nos workers; trate erros como valores |
-| JSON por `Sprintf` | Injeção e escape errado | `encoding/json` |
-| `time.After` em laços (versões antigas) | Temporizadores acumulados | `time.NewTimer` com `Stop` |
-| Variável de laço capturada (antes do 1.22) | Goroutines com o mesmo valor | Copie a variável ou use o 1.22+ |
-| Ignorar erros | Falhas silenciosas | Trate ou propague com contexto |
+- **Nova query SQL sem índice adequado**: gera lentidão e Seq Scan em produção; analise filtros/ordenação e entregue a migration de índices com rollback.
+- **Vazamento de goroutine**: consome memória e trava o processo; garanta término por `ctx.Done()` ou fechamento do canal.
+- ***Data race***: causa corrupção e comportamento imprevisível; rode `go test -race` e proteja estado compartilhado com `sync.Mutex` ou `sync/atomic`.
+- **Cópia de `sync.Mutex`**: quebra a exclusão mútua; use ponteiros para structs que o contêm.
+- **Corpo de resposta HTTP não fechado**: esgota conexões; faça `defer resp.Body.Close()` e, para reutilizar, `io.Copy(io.Discard, resp.Body)`.
+- **`panic` em goroutine sem `recover`**: derruba o processo inteiro; use `recover` nos workers e trate erros como valores.
+- **JSON montado por `Sprintf`**: abre injeção e escape errado; use `encoding/json`.
+- **`time.After` em laços** (versões antigas): acumula temporizadores; prefira `time.NewTimer` com `Stop`.
+- **Variável de laço capturada** (antes do Go 1.22): goroutines enxergam o mesmo valor; copie a variável ou use Go 1.22+.
+- **Ignorar erros**: mascara falhas silenciosamente; trate ou propague com contexto (`%w`).
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -190,5 +75,5 @@ func (s *Servico) ObterDados(ctx context.Context, id string) (*Agregado, error) 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código formatado, com `context` propagado, erros tratados e testes em tabela, com links relativos.
 3. Se implementar nova query SQL: verificação de performance e script/migration de criação dos índices adequados (com rollback).
-4. Resultado de `go vet`, `go test -race` e lint, ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-golang`, P1 a P3; fallback em lista no chat).
+4. Resultado de `go vet`, `go test -race` e lint, o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-golang`, P1 a P3; fallback em lista no chat).

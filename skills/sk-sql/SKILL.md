@@ -1,6 +1,6 @@
 ---
 name: sk-sql
-description: "Orienta modelagem relacional, escrita e otimização de consultas SQL, indexação, transações e concorrência, migrações seguras sem downtime e diagnóstico de lentidão em bancos relacionais (PostgreSQL como referência; MySQL e SQL Server com ressalvas). Use sempre que o usuário pedir 'modele o banco', 'otimize esta query', 'crie o índice', 'migration', 'EXPLAIN', 'paginação', 'deadlock', 'transação', 'corrija estes dados' ou 'por que a consulta está lenta', mesmo sem a palavra 'SQL'. NÃO use para NoSQL ou cache, para o uso de ORMs (isso é a sk-tech-* da stack), para contratos de API (isso é sk-api-design), para arquitetura (isso é sk-system-design) nem para infraestrutura e backup (isso é sk-devops)."
+description: "Orienta modelagem relacional, consultas performáticas, criação obrigatória de índices adequados, transações, migrações seguras sem downtime e diagnóstico de lentidão (EXPLAIN). Use para modelar banco, criar/otimizar queries, índices ou migrations. NÃO use para ORMs da stack (sk-tech-*), OpenAPI (sk-api-design) nem arquitetura (sk-system-design)."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -192,9 +192,9 @@ UPDATE pedidos SET status = 'Y' WHERE status = 'X' AND criado_em < :limite;   --
 
 ---
 
-## 9. Registro via `sk-tasks` e integrações
+## 9. Integrações e registro via `sk-tasks`
 
-Se houver pendências, pergunte ao final:
+Se houver pendências relevantes não resolvidas, pergunte ao final:
 
 > *"Deseja que eu registre as pendências de banco de dados no `TASKS.md` do projeto?"*
 
@@ -239,4 +239,4 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 2. DDL e consultas, parametrizadas, com links relativos para os arquivos, o script DDL/migration para criação dos índices adequados para qualquer nova query proposta, e o rollback das migrações.
 3. Para desempenho: o plano ou a medição usada e o que foi decidido a partir dele.
 4. Ressalvas de portabilidade e premissas sobre o dialeto.
-5. Pendências e a pergunta sobre o registro em tarefas (seção 9).
+5. Pendências relevantes e a pergunta condicional sobre o registro em tarefas (seção 9).

@@ -1,6 +1,6 @@
 ---
 name: sk-design-system
-description: "Orienta design systems e interfaces acessíveis: tokens de design em camadas (primitivos, semânticos, de componente) com temas claro e escuro, acessibilidade WCAG 2.2 AA (contraste, teclado, foco, alvos, ARIA), API de componentes por composição e estados de interface. Agnóstica de framework; a implementação fica nas skills sk-tech-*. Use sempre que o usuário pedir 'crie os tokens', 'design system', 'tema escuro', 'componente acessível', 'audite a acessibilidade', 'contraste', 'foco', 'ARIA', 'migre as cores para tokens' ou 'padronize a UI', mesmo sem a expressão 'design system'. NÃO use para implementar componentes em um framework específico (isso é a sk-tech-* da stack) nem para lógica de negócio."
+description: "Orienta design systems e UI acessível (agnóstica a framework): tokens em 3 camadas (claro/escuro), WCAG 2.2 AA (contraste, foco, teclado, ARIA), composição e estados de interface. Use para tokens, acessibilidade ou padronizar UI. NÃO use para implementar na stack (sk-tech-react/vue/angular/flutter) nem para lógica de negócio."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -40,7 +40,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 1. **Contexto**: leia o sistema existente (tokens, tema, biblioteca de componentes), `AGENTS.md`, `GUIDELINE.md` e a spec relacionada.
 2. Aplique a seção do modo (3 a 6) e os critérios de acessibilidade (seção 5).
 3. Entregue a especificação ou os arquivos de tokens e estilos, com os critérios de teste.
-4. Registre as pendências (seção 9).
+4. Registre as pendências (seção 8).
 
 ---
 
@@ -53,57 +53,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Governança**: nomes por **função**, não por aparência (nunca `--blue`); versionamento e depreciação de tokens; formato DTCG e Style Dictionary quando houver múltiplas plataformas. Defina o tema antes da primeira pintura para evitar o flash de tema (FOUC).
 
-**Escalas completas**: tipografia (em `rem`, respeitando o zoom do usuário), espaçamento, raios, elevação, movimento, breakpoints e densidade.
-
-```css
-:root {
-  /* Primitivos */
-  --white: #ffffff;
-  --slate-50: #f8fafc;  --slate-200: #e2e8f0; --slate-300: #cbd5e1;
-  --slate-400: #94a3b8; --slate-500: #64748b; --slate-600: #475569;
-  --slate-700: #334155; --slate-800: #1e293b; --slate-900: #0f172a;
-  --indigo-300: #a5b4fc; --indigo-400: #818cf8;
-  --indigo-600: #4f46e5; --indigo-700: #4338ca;
-  --space-1: 0.25rem; --space-2: 0.5rem; --space-4: 1rem; --space-6: 1.5rem;
-  --radius-md: 0.5rem;
-
-  /* Semânticos, tema claro (razões aproximadas sobre --bg-surface) */
-  color-scheme: light;
-  --bg-canvas: var(--slate-50);
-  --bg-surface: var(--white);
-  --text-primary: var(--slate-900);
-  --text-secondary: var(--slate-600);   /* ≈ 7,6:1 */
-  --text-muted: var(--slate-500);       /* ≈ 4,8:1 */
-  --border-subtle: var(--slate-200);    /* decorativa */
-  --border-control: var(--slate-500);   /* bordas de campos: ≥ 3:1 */
-  --action-primary: var(--indigo-600);
-  --action-primary-hover: var(--indigo-700);
-  --action-primary-fg: var(--white);    /* ≈ 6,3:1 sobre a ação */
-  --focus-ring: var(--indigo-600);
-}
-
-/* Tema escuro automático, a menos que o usuário tenha forçado o claro */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --bg-canvas: var(--slate-900);
-    --bg-surface: var(--slate-800);
-    --text-primary: var(--slate-50);
-    --text-secondary: var(--slate-300);
-    --text-muted: var(--slate-400);     /* ≈ 5,7:1 */
-    --border-subtle: var(--slate-700);
-    --border-control: var(--slate-400);
-    --action-primary: var(--indigo-400);
-    --action-primary-hover: var(--indigo-300);
-    --action-primary-fg: var(--slate-900);  /* ≈ 6:1 sobre a ação */
-    --focus-ring: var(--indigo-400);
-  }
-}
-
-/* Tema escuro forçado: repita os mesmos valores do bloco acima
-   (ou gere os dois blocos por ferramenta, como Style Dictionary) */
-:root[data-theme='dark'] { color-scheme: dark; /* mesmos tokens escuros */ }
-```
+**Escalas completas**: tipografia (em `rem`, respeitando o zoom do usuário), espaçamento, raios, elevação, movimento, breakpoints e densidade. Consulte a implementação CSS completa (claro e escuro) em [examples/tokens-and-components.md](./examples/tokens-and-components.md).
 
 ---
 
@@ -117,56 +67,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Formulários**: rótulo visível sempre (placeholder não é rótulo), erro associado ao campo (`aria-describedby`) com `aria-invalid`, e erro nunca comunicado só por cor.
 
-### 4.1. Botão
-
-```css
-.ds-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: 2.5rem;                    /* alvo ≥ 24px (WCAG 2.5.8); 44px em toque */
-  padding: var(--space-2) var(--space-4);
-  font: inherit;
-  font-weight: 500;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  background: var(--action-primary);
-  color: var(--action-primary-fg);
-  cursor: pointer;
-  transition: background-color 150ms ease;
-}
-.ds-button:hover:not([aria-disabled='true']) { background: var(--action-primary-hover); }
-.ds-button:active:not([aria-disabled='true']) { transform: translateY(1px); }
-
-.ds-button:focus-visible {
-  outline: 2px solid var(--focus-ring);  /* contraste ≥ 3:1 com o fundo */
-  outline-offset: 2px;
-}
-
-.ds-button[aria-disabled='true'] { opacity: 0.6; cursor: not-allowed; }
-
-@media (prefers-reduced-motion: reduce) { .ds-button { transition: none; transform: none; } }
-@media (forced-colors: active) { .ds-button { border-color: ButtonText; } }
-```
-
-Para desabilitar, `disabled` nativo remove o botão do foco; `aria-disabled="true"` o mantém focável (útil para explicar o motivo), mas exige bloquear a ação no código. Não use `pointer-events: none`, que impede tooltips.
-
-### 4.2. Diálogo modal
-
-Prefira o `<dialog>` nativo com `showModal()`: o navegador prende o foco, fecha com Esc, torna o fundo inerte e devolve o foco a quem o abriu.
-
-```html
-<dialog id="confirmar" aria-labelledby="modal-titulo" aria-describedby="modal-desc">
-  <h2 id="modal-titulo">Confirmar alterações</h2>
-  <p id="modal-desc">Deseja aplicar as alterações a este projeto?</p>
-  <form method="dialog">
-    <button class="ds-button" value="cancelar">Cancelar</button>
-    <button class="ds-button" value="confirmar">Confirmar</button>
-  </form>
-</dialog>
-<!-- Abrir: document.getElementById('confirmar').showModal() -->
-```
+**Referências de implementação**: para desabilitar mantendo foco acessível, prefira `aria-disabled="true"` (bloqueando a ação no código) sem `pointer-events: none` (que impede tooltips); para modais, prefira `<dialog>` nativo com `showModal()`. Veja os exemplos CSS/HTML completos de botão e modal em [examples/tokens-and-components.md](./examples/tokens-and-components.md).
 
 ---
 
@@ -193,13 +94,19 @@ Ferramentas automáticas (axe, Lighthouse, jest-axe) detectam apenas parte dos p
 
 ## 7. Auditoria e migração
 
-**Auditar**: liste os achados com critério WCAG, local (`arquivo:linhas`), impacto e correção, com severidade (bloqueia uso, atrapalha, melhoria). Não declare "acessível": o resultado é uma lista de achados.
+**Auditar**: liste os achados com critério WCAG, local (`[arquivo.ext](./caminho/arquivo.ext#L15-L28)`), impacto e correção, com severidade (bloqueia uso, atrapalha, melhoria). Não declare "acessível": o resultado é uma lista de achados.
 
 **Migrar para tokens**: encontre valores fixos com `Grep` (hexadecimais, `px` de espaçamento), mapeie para o token semântico mais próximo, proponha novos tokens só para valores recorrentes e migre por componente, com revisão visual.
 
 ---
 
-## 8. Integrações
+## 8. Integrações e registro via `sk-tasks`
+
+Se houver pendências relevantes não resolvidas, pergunte ao final:
+
+> *"Deseja que eu registre as tarefas de UI e acessibilidade no `TASKS.md` do projeto?"*
+
+Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `design-system`, links relativos e a prioridade: tokens base e linha de base de acessibilidade P1; componentes P2; documentação e testes visuais P3. **Fallback**: lista no chat.
 
 | Skill | Como se integra |
 | :--- | :--- |
@@ -214,17 +121,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 9. Registro via `sk-tasks`
-
-Se houver pendências, pergunte ao final:
-
-> *"Deseja que eu registre as tarefas de UI e acessibilidade no `TASKS.md` do projeto?"*
-
-Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `design-system`, links relativos e a prioridade: tokens base e linha de base de acessibilidade P1; componentes P2; documentação e testes visuais P3. **Fallback**: lista no chat.
-
----
-
-## 10. Armadilhas
+## 9. Armadilhas
 
 - **`outline: none` sem alternativa**: interface inavegável por teclado.
 - **Cores fixas nos componentes**: impede temas e fragmenta o visual.
@@ -239,10 +136,10 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `desi
 
 ---
 
-## 11. Padrão de entrega
+## 10. Padrão de entrega
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Sistema existente detectado e o que foi estendido.
 3. Tokens, especificação de componente ou lista de achados, com links relativos.
 4. Critérios de teste (automáticos e manuais) e o que ainda precisa de validação com ferramenta.
-5. Pendências e a pergunta sobre o registro em tarefas (seção 9).
+5. Pendências e a pergunta condicional sobre o registro em tarefas (seção 8).

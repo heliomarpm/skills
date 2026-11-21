@@ -1,6 +1,6 @@
 ---
 name: sk-observability
-description: "Orienta observabilidade e confiabilidade (SRE): instrumentação com OpenTelemetry (traces, métricas, logs), SLIs, SLOs e alertas por burn rate, health checks (liveness, readiness, startup), graceful shutdown, diagnóstico de desempenho (memória e CPU) e post-mortems sem culpados. Use sempre que o usuário pedir 'instrumente', 'adicione tracing', 'métricas', 'logs estruturados', 'defina SLO', 'alerta', 'health check', 'graceful shutdown', 'vazamento de memória', 'latência alta em produção' ou 'faça o post-mortem', mesmo sem a palavra 'observabilidade'. NÃO use para investigar um bug específico até a causa (isso é sk-debug), para pipelines e infraestrutura (isso é sk-devops) nem para desenhar a arquitetura (isso é sk-system-design)."
+description: "Orienta observabilidade e SRE: OpenTelemetry (traces, métricas, logs), SLIs/SLOs, alertas por burn rate, health checks, graceful shutdown, profiling sistêmico e post-mortems sem culpados. Use para instrumentar, definir SLOs ou analisar incidentes. NÃO use para isolar/corrigir bug no código (sk-debug), CI/CD (sk-devops) nem C4 (sk-system-design)."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -47,7 +47,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 3. **Alertas** (seção 5) e **health checks** (seção 6).
 4. Em problema de desempenho, siga a seção 7.
 5. Em incidente, use o modelo da seção 8.
-6. Registre as pendências (seção 10).
+6. Registre as pendências (seção 9).
 
 ---
 
@@ -60,24 +60,9 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - Exemplars ligam uma amostra de métrica ao trace correspondente.
 
 **Logs**
-- JSON em `stdout`, com `trace_id`, `span_id`, `service.name` e ambiente em todas as entradas.
+- JSON em `stdout`, com `trace_id`, `span_id`, `service.name` e ambiente em todas as entradas (veja modelo em [examples/telemetry-and-shutdown.md](./examples/telemetry-and-shutdown.md)).
 - Níveis coerentes, stack de erro em campo estruturado, volume e retenção sob controle de custo.
 - Trilha de auditoria separada dos logs de aplicação.
-
-```json
-{
-  "timestamp": "2026-09-27T17:35:00.123Z",
-  "severity": "ERROR",
-  "service.name": "order-service",
-  "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
-  "span_id": "00f067aa0ba902b7",
-  "http.request.method": "POST",
-  "http.route": "/v1/pedidos",
-  "http.response.status_code": 500,
-  "error.type": "DatabaseConnectionTimeout",
-  "message": "Falha ao persistir o pedido por timeout na conexão com o banco."
-}
-```
 
 **Métricas**
 - **RED** para serviços (taxa, erros, duração em percentis) e **USE** para recursos (utilização, saturação, erros). Os "golden signals" do SRE cobrem latência, tráfego, erros e saturação.
@@ -114,59 +99,7 @@ Alerte sobre **sintomas** que o usuário sente (SLO), não sobre causas internas
 - **Readiness**: verifica se a instância pode receber tráfego. Cheque só dependências críticas, com cache curto, para que a queda de uma dependência compartilhada não retire todas as instâncias de uma vez.
 - **Startup probe**: para aplicações de inicialização lenta, evita que a liveness reinicie o processo cedo demais.
 
-**Shutdown**: ao receber `SIGTERM`, a instância se marca como não pronta, espera o balanceador retirá-la, termina as requisições em curso, fecha conexões ociosas e libera recursos. O tempo total fica abaixo do `terminationGracePeriodSeconds` (padrão de 30 s no Kubernetes); um `preStop` com pequena pausa ajuda a drenar o tráfego.
-
-```typescript
-import type { Server } from 'node:http';
-
-interface Logger {
-  info(msg: string, extra?: object): void;
-  error(msg: string, extra?: object): void;
-}
-
-export function setupGracefulShutdown(
-  server: Server,
-  opts: {
-    logger: Logger;
-    setReady: (ready: boolean) => void;
-    cleanup: () => Promise<void>;
-    drainMs?: number;
-    timeoutMs?: number;
-  },
-): void {
-  const { logger, setReady, cleanup, drainMs = 5000, timeoutMs = 25000 } = opts;
-  let shuttingDown = false;
-
-  const shutdown = async (signal: string): Promise<void> => {
-    if (shuttingDown) return;
-    shuttingDown = true;
-    logger.info('shutdown iniciado', { signal });
-
-    // Limite total, menor que o período de graça da plataforma
-    setTimeout(() => {
-      logger.error('shutdown forçado por timeout');
-      process.exit(1);
-    }, timeoutMs).unref();
-
-    setReady(false); // a readiness falha: o balanceador para de enviar tráfego
-    await new Promise((resolve) => setTimeout(resolve, drainMs));
-
-    server.close(async () => {
-      try {
-        await cleanup();
-        process.exit(0);
-      } catch (err) {
-        logger.error('erro ao liberar recursos', { error: String(err) });
-        process.exit(1);
-      }
-    });
-    server.closeIdleConnections(); // fecha keep-alive ociosas (Node 18.2+)
-  };
-
-  process.on('SIGTERM', () => void shutdown('SIGTERM'));
-  process.on('SIGINT', () => void shutdown('SIGINT'));
-}
-```
+**Shutdown**: ao receber `SIGTERM`, a instância se marca como não pronta, espera o balanceador retirá-la, termina as requisições em curso, fecha conexões ociosas e libera recursos. O tempo total fica abaixo do `terminationGracePeriodSeconds` (padrão de 30 s no Kubernetes); um `preStop` com pequena pausa ajuda a drenar o tráfego. Veja a implementação de referência em [examples/telemetry-and-shutdown.md](./examples/telemetry-and-shutdown.md).
 
 ---
 
@@ -206,7 +139,13 @@ Ações viram tarefas no `sk-tasks`; uma mudança de arquitetura gera um ADR via
 
 ---
 
-## 9. Integrações
+## 9. Integrações e registro via `sk-tasks`
+
+Se houver lacunas ou ações pendentes relevantes, pergunte ao final:
+
+> *"Deseja que eu registre as melhorias de observabilidade no `TASKS.md` do projeto?"*
+
+Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `observability`, links relativos e a prioridade: alerta crítico ausente, SLO e correção de causa raiz de incidente P1; shutdown e probes P2; dashboards e otimizações P3. **Fallback**: lista no chat.
 
 | Skill | Como se integra |
 | :--- | :--- |
@@ -222,17 +161,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
-## 10. Registro via `sk-tasks`
-
-Se houver lacunas ou ações, pergunte ao final:
-
-> *"Deseja que eu registre as melhorias de observabilidade no `TASKS.md` do projeto?"*
-
-Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `observability`, links relativos e a prioridade: alerta crítico ausente, SLO e correção de causa raiz de incidente P1; shutdown e probes P2; dashboards e otimizações P3. **Fallback**: lista no chat.
-
----
-
-## 11. Armadilhas
+## 10. Armadilhas
 
 - **Alta cardinalidade em métricas**: `user_id` e `order_id` como rótulo.
 - **Liveness acoplada ao banco**: reinicializações em cascata.
@@ -247,9 +176,9 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `obse
 
 ---
 
-## 12. Padrão de entrega
+## 11. Padrão de entrega
 
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Sinais, SLOs ou diagnóstico, com a evidência usada e as premissas declaradas.
 3. Arquivos alterados, com links relativos, ou comandos para o usuário executar.
-4. Pendências e a pergunta sobre o registro em tarefas (seção 10).
+4. Pendências e a pergunta condicional sobre o registro em tarefas (seção 9).

@@ -1,6 +1,6 @@
 ---
 name: sk-alignment
-description: "Gera um documento de alinhamento em linguagem não técnica, a partir da spec, dos ADRs e dos demais artefatos, para apresentar ao cliente ou demandante e confirmar o entendimento antes de construir: escopo, como vai funcionar, regras, decisões e o porquê, premissas, riscos e perguntas para confirmar, com rastreabilidade para as fontes. Também registra as respostas do cliente e propõe as mudanças nos artefatos. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir 'gere o documento de alinhamento', 'prepare a apresentação para o cliente', 'resuma a spec para o cliente confirmar' ou 'registre as respostas do cliente'. NÃO use para escrever a spec (isso é sk-spec), questionar o plano com o próprio usuário (isso é sk-challenge) nem para propostas comerciais com preço e prazo."
+description: "ATIVAÇÃO EXPLÍCITA: traduz spec, ADRs e PRD para linguagem não técnica para o cliente confirmar o entendimento antes da construção e registra suas respostas. Use somente quando pedido para gerar alinhamento ou apresentação ao cliente. NÃO use para escrever spec (sk-spec) nem questionar o plano (sk-challenge)."
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, Grep, Glob
 ---
@@ -99,45 +99,15 @@ O documento tem **versão** e **status** no cabeçalho: `Rascunho`, `Enviado`, `
 
 ---
 
-## 6. Formato e entrega
+## 6. Formato e modelo
 
 - **Markdown** em `docs/alignments/<id-da-spec>-<tema>.md`.
 - **Word, PDF ou apresentação**: converta somente a pedido, se o ambiente tiver ferramentas de documento. Para apresentação, ofereça antes um **roteiro de 5 a 8 slides** (título e pontos de cada um), com a mesma estrutura do documento.
-
-### Modelo
-
-````markdown
-# Alinhamento: Exportação de pedidos em CSV
-
-> Versão: v1 | Status: Rascunho | Atualizado em: 2026-10-13 | Spec: 004
-
-## 1. Resumo
-Vamos permitir que o gerente baixe os pedidos de um período em uma planilha, para facilitar os relatórios mensais.
-
-## 2. Escopo
-- **Entra:** exportação por período e por status; acesso só para o perfil gerente.
-- **Não entra:** envio por e-mail e exportação de mais de 50 mil pedidos de uma vez.
-
-## 10. Perguntas para confirmar
-| # | Pergunta | Opções | Sugestão |
-| :--- | :--- | :--- | :--- |
-| P1 | Quem pode exportar? | Só gerente / Gerente e financeiro | Só gerente (mais simples; ampliamos depois) |
-
-## 11. Confirmação
-| Item | Confirmado | Ajustar | Dúvida | Comentário |
-| :--- | :---: | :---: | :---: | :--- |
-| 2. Escopo | | | | |
-| P1 | | | | |
-
-## Apêndice: rastreabilidade
-| Item do documento | Fonte |
-| :--- | :--- |
-| Escopo (entra) | spec 004, seção 1 e `RF-01` |
-````
+- Consulte o modelo de referência em [references/alignment-template.md](./references/alignment-template.md) ao gerar um documento novo.
 
 ---
 
-## 7. Integrações
+## 7. Integrações e registro via `sk-tasks`
 
 | Skill | Como se integra |
 | :--- | :--- |
@@ -147,7 +117,7 @@ Vamos permitir que o gerente baixe os pedidos de um período em uma planilha, pa
 | `sk-discovery` | `PRD.md` e `CONTEXT.md` como contexto, em sistemas existentes |
 | `sk-tasks` | Itens pendentes de confirmação e mudanças aprovadas viram tarefas |
 
-Para pendências, pergunte se o usuário quer registrá-las via `sk-tasks` (modo Importar, origem `alignment`; perguntas que bloqueiam a spec em P1, as demais em P2; fallback em lista no chat).
+Se houver itens pendentes relevantes de confirmação ou mudanças aprovadas a executar, pergunte se o usuário quer registrá-los via `sk-tasks` (modo Importar, origem `alignment`; perguntas que bloqueiam a spec em P1, as demais em P2; fallback em lista no chat).
 
 ---
 
@@ -171,4 +141,4 @@ Para pendências, pergunte se o usuário quer registrá-las via `sk-tasks` (modo
 2. O documento, com link relativo, versão e status.
 3. Lista de itens `[A CONFIRMAR]` e das perguntas ao cliente.
 4. No modo Registrar respostas: as mudanças propostas nos artefatos e o que depende da sua aprovação.
-5. Pendências e a pergunta sobre o registro em tarefas (seção 7).
+5. Pendências e a pergunta sobre o registro em tarefas (seção 7), quando aplicável.

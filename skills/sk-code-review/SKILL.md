@@ -1,6 +1,6 @@
 ---
 name: sk-code-review
-description: "Faz revisão técnica de código, diffs e Pull Requests em dois eixos independentes (especificação/escopo e engenharia/segurança/padrões), com severidades, evidências e correções acionáveis. Somente leitura: registra pendências no TASKS.md apenas via sk-tasks e com confirmação do usuário. Use sempre que o usuário pedir 'faça o code review', 'revise o PR', 'revise este diff', 'revise minhas mudanças', 'o que acha dessas alterações', 'veja se está pronto para merge', 'audite este módulo' ou 'procure bugs neste código', mesmo sem a expressão 'code review'. NÃO use para perguntas pontuais sobre um trecho de código, revisão de texto ou documentação, diagnóstico amplo de saúde do repositório inteiro (isso é sk-assessment) nem para corrigir o código (isso é implementação ou sk-refactor)."
+description: "Revisa código, diffs e PRs em dois eixos (escopo/spec e engenharia/segurança) com severidades, evidências e correções acionáveis. Somente leitura. Use para 'revise o PR/diff', 'code review' ou 'audite este módulo'. NÃO use para saúde 360° do repo (sk-assessment), corrigir bugs (sk-debug) nem refatorar (sk-refactor)."
 allowed-tools: Read, Grep, Glob, Bash(git diff *), Bash(git log *), Bash(git status *), Bash(git show *), Bash(git rev-parse *), Bash(git branch *), Bash(git symbolic-ref *), Bash(git merge-base *), Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr checks *), Agent
 ---
 
@@ -72,13 +72,13 @@ Sem nenhuma fonte, não invente requisitos: avalie o Eixo 1 apenas contra as men
 
 ### 1.5. Fontes de padrões (Eixo 2)
 
-Leia o que existir: `AGENTS.md`, `GUIDELINE.md`, `ARCHITECTURE.md`, `DATA.md`, `CONTRIBUTING.md` e as configurações de linter e formatador. Se as skills `sk-security`, `sk-sql`, `sk-api-design`, `sk-testing` e a `sk-tech-*` da stack existirem, use-as como checklists complementares em vez de repetir o conteúdo delas aqui. Leia também os ADRs aceitos (`docs/adr` ou equivalente): código que contradiz um ADR aceito é um achado Importante, a menos que o PR proponha um ADR substituto.
+Leia o que existir no repositório: `AGENTS.md`, `GUIDELINE.md`, `ARCHITECTURE.md`, `DATA.md`, `CONTRIBUTING.md`, configs de linter/formatador e ADRs aceitos (`docs/adr` ou equivalente — código que contradiz um ADR aceito é achado Importante, salvo se o PR propuser um ADR substituto). Use [references/domain-checklists.md](./references/domain-checklists.md) como checklist padrão do Eixo 2 e só abra as skills completas (`sk-security`, `sk-sql`, `sk-api-design`, `sk-testing`, `sk-tech-*`) quando o diff tocar área complexa daquele domínio.
 
 ---
 
 ## 2. Execução dos eixos
 
-- **Diff grande** (mais de ~300 linhas alteradas ou mais de ~10 arquivos) **e ferramenta `Agent` disponível**: execute os dois eixos em subagentes paralelos, com contextos isolados. Cada um recebe o diff, as fontes do seu eixo e o formato de retorno abaixo.
+- **Diff grande** (mais de ~600 linhas alteradas ou mais de ~15 arquivos) **e ferramenta de subagentes disponível (ex.: `Agent`, `invoke_subagent`)**: execute os dois eixos em subagentes paralelos, com contextos isolados. Cada um recebe o diff, as fontes do seu eixo e o formato de retorno abaixo.
 - **Diff pequeno ou sem subagentes**: execute duas passadas sequenciais, Eixo 1 e depois Eixo 2, cada uma partindo do diff sem aproveitar as conclusões da outra. Informe no relatório "executado sequencialmente".
 
 **Formato de retorno de cada eixo** (para consolidação): lista de achados com severidade, arquivo, linhas, evidência, impacto, correção sugerida e confiança.
@@ -137,7 +137,7 @@ Tamanho, commits atômicos e mensagens no padrão (regras no `sk-git`). Um PR co
 Todo achado traz:
 
 - **ID** (`R-01`, `R-02`...), **severidade** e título.
-- **Local**: `caminho/arquivo.ext:L15-L28`.
+- **Local**: `[arquivo.ext](./caminho/arquivo.ext#L15-L28)`.
 - **Evidência**: o que você leu, em poucas palavras.
 - **Impacto**: o que pode dar errado e para quem.
 - **Correção sugerida**, em diff quando fizer sentido, marcada como *não testada*.
@@ -169,7 +169,7 @@ Fonte: `docs/specs/003-cobranca-recorrente.md`
 | RF-02 | ausente | ausente |
 
 - **R-01 · Importante · Falta o limite de crédito (RF-02)**
-  - Local: `src/subscriptions/create.ts:L30-L55`
+  - Local: `[create.ts](./src/subscriptions/create.ts#L30-L55)`
   - Evidência: a criação não consulta o limite do cliente.
   - Impacto: assinaturas acima do limite são aceitas.
   - Confiança: alta
@@ -177,7 +177,7 @@ Fonte: `docs/specs/003-cobranca-recorrente.md`
 ## Eixo 2: Engenharia, Segurança e Padrões
 
 - **R-02 · Menor · Consulta por item dentro de laço (N+1)**
-  - Local: `src/subscriptions/list.ts:L15-L28`
+  - Local: `[list.ts](./src/subscriptions/list.ts#L15-L28)`
   - Evidência: `findPlan` é chamado a cada iteração.
   - Impacto: latência cresce linearmente com o número de assinaturas.
   - Correção sugerida (não testada):
@@ -199,7 +199,7 @@ Fonte: `docs/specs/003-cobranca-recorrente.md`
 
 ---
 
-## 7. Re-revisão e registro em tarefas
+## 7. Integrações, re-revisão e registro via `sk-tasks`
 
 ### 7.1. Re-revisão
 
@@ -220,7 +220,7 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar). A skill `sk-code
 | Menor | P2 |
 | Sugestão | Não registrar, salvo pedido do usuário |
 
-Cada tarefa leva origem `code-review`, link relativo para o local (`./caminho/arquivo.ext#L15-L28`) e o DoD derivado da correção sugerida. A deduplicação e a resolução do arquivo são responsabilidade do `sk-tasks`.
+Cada tarefa leva origem `code-review`, link relativo para o local (`[arquivo.ext](./caminho/arquivo.ext#L15-L28)`) e o DoD derivado da correção sugerida. A deduplicação e a resolução do arquivo são responsabilidade do `sk-tasks`.
 
 **Fallback**: se `sk-tasks` não estiver disponível, apresente as pendências no chat como lista com ID, prioridade, local e critério de correção.
 
@@ -232,7 +232,7 @@ Cada tarefa leva origem `code-review`, link relativo para o local (`./caminho/ar
 | `sk-git` | Regras de higiene do PR e de mensagens de commit |
 | `sk-testing` | Critérios de qualidade e determinismo dos testes |
 | `sk-refactor` | Como corrigir smells; a revisão só aponta |
-| `sk-security`, `sk-sql`, `sk-api-design`, `sk-system-design`, `sk-observability`, `sk-design-system`, `sk-tech-*` | Checklists complementares do Eixo 2 |
+| `sk-security`, `sk-sql`, `sk-api-design`, `sk-system-design`, `sk-observability`, `sk-design-system`, `sk-tech-*` | Checklists complementares do Eixo 2 (resumo em [references/domain-checklists.md](./references/domain-checklists.md)) |
 | `sk-adr` | ADRs aceitos como fonte de padrões; uma decisão nova no PR sugere registrar um ADR |
 | `sk-debug` | Achado de bug que precisa de causa raiz é encaminhado para lá |
 | `sk-assessment` | Diagnóstico 360° do repositório inteiro; a revisão aqui foca no diff, PR ou módulo pontual |
@@ -260,4 +260,4 @@ Se alguma não existir, use os critérios da seção 3 como padrão.
 1. Assinatura na primeira mensagem (seção 0), modo de revisão e ponto fixo usados.
 2. Relatório no formato da seção 6, com os dois eixos separados, IDs `R-NN` e a seção de cobertura e limitações.
 3. Veredito geral e por eixo, conforme a seção 4.
-4. Pergunta sobre o registro em tarefas (seção 7.2), quando aplicável.
+4. Pergunta sobre o registro em tarefas (seção 7.2), quando houver apontamentos relevantes além de Sugestões.

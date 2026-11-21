@@ -1,6 +1,6 @@
 ---
 name: sk-tech-python
-description: "Orienta Python moderno e tipado: type hints (PEP 695 quando a versão permite), Pydantic v2 nas fronteiras, dataclasses imutáveis, Decimal para dinheiro, asyncio estruturado (TaskGroup, timeouts, trabalho bloqueante fora do loop), erros específicos, logging, empacotamento com pyproject e ferramentas (uv, ruff, mypy, pytest). Use sempre que o usuário pedir 'script em Python', 'API em Python', 'tipagem', 'asyncio', 'Pydantic', 'pyproject' ou 'migre de versão do Python', mesmo sem dizer 'Python'. NÃO use para integração com LLMs (isso é sk-ai-engineering), modelagem e SQL em si (isso é sk-sql) nem para contratos de API (isso é sk-api-design)."
+description: "Orienta Python moderno e tipado: type hints, Pydantic v2, dataclasses imutáveis, Decimal, asyncio (TaskGroup, timeouts), queries SQL/ORM performáticas com índices e uv/ruff/mypy/pytest. Use para scripts ou APIs Python. NÃO use para LLMs/RAG (sk-ai-engineering), SQL avançado (sk-sql) nem OpenAPI (sk-api-design)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(pytest *), Bash(python -m pytest *), Bash(ruff check *), Bash(ruff format --check *), Bash(mypy *), Bash(uv run pytest *), Bash(uv run ruff *), Bash(uv run mypy *)
 ---
 
@@ -17,6 +17,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Versão.** Leia `requires-python` no `pyproject.toml` e use só o que a versão suporta: `TaskGroup` e `except*` (3.11); sintaxe PEP 695 (`type X = ...`, `def f[T]()`) e `typing.override` (3.12). Em versões anteriores use `TypeVar` e `Generic`. Recursos novos: confirme na documentação oficial.
 
 **Siga o projeto.** Respeite o framework (FastAPI, Django, Flask), o gerenciador de dependências (uv, Poetry, pip) e as ferramentas de qualidade existentes.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Atualizar versão.
 
@@ -40,68 +42,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 2. Exemplos (Python 3.12+)
 
-### 2.1. Genéricos, `Decimal` e `TaskGroup`
-
-```python
-import asyncio
-import logging
-from dataclasses import dataclass
-from decimal import Decimal
-
-logger = logging.getLogger(__name__)
-
-type IdEntidade = str | int
-
-
-@dataclass(slots=True, frozen=True)
-class Transacao[T]:
-    id: IdEntidade
-    carga: T
-    valor: Decimal
-
-
-async def processar[T](tx: Transacao[T]) -> bool:
-    await asyncio.sleep(0.05)  # simula I/O não bloqueante
-    return True
-
-
-async def processar_lote[T](transacoes: list[Transacao[T]]) -> list[bool]:
-    async with asyncio.TaskGroup() as tg:
-        tarefas = [tg.create_task(processar(tx)) for tx in transacoes]
-    return [t.result() for t in tarefas]
-
-
-async def principal(lote: list[Transacao[str]]) -> None:
-    try:
-        resultados = await processar_lote(lote)
-    except* ValueError as grupo:  # TaskGroup agrupa as falhas em um ExceptionGroup
-        logger.error("falhas de validação: %s", grupo.exceptions)
-    else:
-        logger.info("lote concluído: %d itens", len(resultados))
-```
-
-### 2.2. Decorador tipado que preserva a assinatura
-
-```python
-import logging
-import time
-from collections.abc import Callable
-from functools import wraps
-
-logger = logging.getLogger(__name__)
-
-
-def medir_tempo[**P, R](func: Callable[P, R]) -> Callable[P, R]:
-    @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-        inicio = time.perf_counter()
-        try:
-            return func(*args, **kwargs)
-        finally:
-            logger.info("%s executada em %.4fs", func.__name__, time.perf_counter() - inicio)
-
-    return wrapper
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): genéricos PEP 695 com `Decimal` e `asyncio.TaskGroup` (`except*`), e decorador tipado com `ParamSpec` (`[**P, R]`) preservando assinatura.
 
 ---
 
@@ -122,6 +63,7 @@ def medir_tempo[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 - **`shell=True` com entrada externa**: injeção de comando.
 - **Efeitos colaterais na importação de módulos.**
 - **Dependências sem versão travada.**
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -130,5 +72,5 @@ def medir_tempo[**P, R](func: Callable[P, R]) -> Callable[P, R]:
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código tipado, compatível com a versão do projeto, com links relativos.
 3. Se implementar nova query SQL/ORM: verificação de performance e script/migration de criação dos índices adequados (com rollback).
-4. Resultado de `pytest`, `ruff` e `mypy`, ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-python`, P1 a P3; fallback em lista no chat).
+4. Resultado de `pytest`, `ruff` e `mypy`, o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-python`, P1 a P3; fallback em lista no chat).

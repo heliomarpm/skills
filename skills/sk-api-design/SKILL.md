@@ -1,6 +1,6 @@
 ---
 name: sk-api-design
-description: "Projeta e revisa contratos de API: OpenAPI 3.1 contract-first, convenções REST, erros em Problem Details (RFC 9457), idempotência, paginação, concorrência (ETag), versionamento e depreciação, webhooks assinados e contratos de eventos (AsyncAPI). Use sempre que o usuário pedir 'projete a API', 'modele o contrato', 'OpenAPI', 'endpoint', 'webhook', 'Idempotency-Key', 'paginação', 'versione a API', 'isto quebra o contrato?' ou revisar uma API, mesmo sem dizer 'design'. NÃO use para autenticação e autorização em profundidade (isso é sk-security), mensageria e arquitetura (isso é sk-system-design), esquema de banco (isso é sk-sql) nem para implementar controllers."
+description: "Projeta e revisa contratos de API (OpenAPI 3.1 contract-first, AsyncAPI): REST, Problem Details (RFC 9457), idempotência, paginação por cursor, ETag, versionamento e webhooks assinados. Use para modelar ou revisar APIs/endpoints/webhooks. NÃO use para AuthN/AuthZ (sk-security), arquitetura (sk-system-design), SQL (sk-sql) nem controllers."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -88,19 +88,7 @@ Exija `Idempotency-Key` em `POST` não repetíveis (cobranças, pedidos). Regras
 - Repetição de operação concluída: devolve a resposta original gravada.
 - Retenção: ~24 horas, com limpeza periódica.
 
-Para operações financeiras, registre a chave **no banco, na mesma transação do efeito**; Redis serve só como best-effort.
-
-```sql
-CREATE TABLE idempotency_keys (
-  scope           text        NOT NULL,   -- cliente + método + rota
-  key             text        NOT NULL,
-  request_hash    text        NOT NULL,   -- hash do corpo
-  response_status int,
-  response_body   jsonb,
-  created_at      timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (scope, key)
-);
-```
+Para operações financeiras, registre a chave **no banco, na mesma transação do efeito** (veja o DDL completo em [examples/openapi-and-patterns.md](./examples/openapi-and-patterns.md)); Redis serve só como best-effort.
 
 ```text
 Na transação do efeito:
@@ -118,33 +106,10 @@ A chave única serializa requisições duplicadas simultâneas. Se o efeito é e
 
 ## 6. Webhooks
 
-- **Assinatura**: HMAC-SHA256 calculado sobre `timestamp.corpoBruto`, em `X-Signature-SHA256`, com `X-Timestamp` para barrar replay. O receptor verifica sobre o **corpo bruto**, não sobre o JSON reserializado.
+- **Assinatura**: HMAC-SHA256 calculado sobre `timestamp.corpoBruto`, em `X-Signature-SHA256`, com `X-Timestamp` para barrar replay. O receptor verifica sobre o **corpo bruto**, não sobre o JSON reserializado (veja implementação de referência em [examples/openapi-and-patterns.md](./examples/openapi-and-patterns.md)).
 - **Entrega**: o receptor responde 2xx rápido e processa de forma assíncrona; o emissor faz retry com backoff e permite reenvio manual.
 - **Eventos**: cada evento tem `id` único e `type` versionado; o receptor deduplica pelo `id`.
 - **Segredo**: um por cliente, com rotação que aceite dois segredos durante a troca.
-
-```typescript
-import { createHmac, timingSafeEqual } from 'node:crypto';
-
-export function verifyWebhook(
-  rawBody: Buffer,
-  signatureHex: string,
-  secret: string,
-  timestamp: number,
-  toleranceSeconds = 300,
-): boolean {
-  const now = Math.floor(Date.now() / 1000);
-  if (Math.abs(now - timestamp) > toleranceSeconds) return false;
-
-  const expected = createHmac('sha256', secret)
-    .update(`${timestamp}.`)
-    .update(rawBody)
-    .digest();
-  const received = Buffer.from(signatureHex, 'hex');
-
-  return received.length === expected.length && timingSafeEqual(received, expected);
-}
-```
 
 ---
 
@@ -171,69 +136,13 @@ Descreva os contratos de eventos em AsyncAPI ou JSON Schema, com versão e regra
 
 ## 10. Exemplo de OpenAPI 3.1
 
-```yaml
-openapi: 3.1.0
-info: { title: API de Assinaturas, version: 1.0.0 }
-paths:
-  /v1/assinaturas:
-    post:
-      operationId: criarAssinatura
-      parameters:
-        - name: Idempotency-Key
-          in: header
-          required: true
-          schema: { type: string, maxLength: 255 }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CriarAssinatura' }
-      responses:
-        '201':
-          description: Criada
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Assinatura' }
-        '404': { $ref: '#/components/responses/Problema' }
-        '409': { $ref: '#/components/responses/Problema' }
-        '422': { $ref: '#/components/responses/Problema' }
-components:
-  schemas:
-    CriarAssinatura:
-      type: object
-      required: [planoId, clienteId]
-      properties:
-        planoId: { type: string }
-        clienteId: { type: string }
-    Assinatura:
-      type: object
-      required: [id, status]
-      properties:
-        id: { type: string }
-        status: { type: string, enum: [active, canceled] }
-    Problema:
-      type: object
-      required: [type, title, status]
-      properties:
-        type: { type: string, format: uri }
-        title: { type: string }
-        status: { type: integer }
-        detail: { type: string }
-        code: { type: string }
-        traceId: { type: string }
-  responses:
-    Problema:
-      description: Erro
-      content:
-        application/problem+json:
-          schema: { $ref: '#/components/schemas/Problema' }
-```
+Consulte o contrato completo em [examples/openapi-and-patterns.md](./examples/openapi-and-patterns.md) (contendo `Idempotency-Key`, schema de `Problema` em RFC 9457, DDL `idempotency_keys` e validação HMAC de webhooks).
 
 ---
 
-## 11. Registro via `sk-tasks` e integrações
+## 11. Integrações e registro via `sk-tasks`
 
-Se o design tem etapas de implementação, pergunte ao final:
+Se o design tiver etapas de implementação pendentes, pergunte ao final:
 
 > *"Deseja que eu registre as tarefas de implementação e testes no `TASKS.md` do projeto?"*
 
@@ -273,4 +182,4 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
 2. Contrato criado ou alterado, com link relativo, e decisões em aberto.
 3. Resultado da checagem de compatibilidade, quando houver contrato anterior.
-4. Pendências e a pergunta sobre o registro em tarefas (seção 11).
+4. Pendências e a pergunta condicional sobre o registro em tarefas (seção 11).

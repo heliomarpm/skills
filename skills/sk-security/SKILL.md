@@ -1,6 +1,6 @@
 ---
 name: sk-security
-description: "Audita e projeta a segurança de aplicações: autenticação e sessão (OAuth com PKCE, OIDC, JWT), autorização por recurso (RBAC/ABAC, BOLA/IDOR), entrada e injeções, criptografia e segredos, dependências, cabeçalhos web, logs e privacidade, com checklist baseado no OWASP, achados com severidade e plano de remediação. Use sempre que o usuário pedir 'audite a segurança', 'isto é seguro?', 'revise a autenticação', 'proteja este endpoint', 'vazou um segredo', 'vulnerabilidades', 'OWASP', 'hash de senha', 'CSP' ou 'permissões', mesmo sem a palavra 'segurança'. NÃO use para desenhar contratos de API (isso é sk-api-design), infraestrutura e pipelines (isso é sk-devops) nem para revisar um diff em geral (isso é sk-code-review)."
+description: "Audita e projeta segurança de aplicações: OAuth2/PKCE, OIDC, JWT, autorização por recurso (BOLA/IDOR), validação contra injeções, criptografia, segredos, auditoria de dependências e cabeçalhos web (OWASP). Use para revisar segurança ou tratar segredo vazado. NÃO use para contratos OpenAPI (sk-api-design), CI/CD (sk-devops) nem diff geral (sk-code-review)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm audit), Bash(npm audit --omit=dev), Bash(pnpm audit), Bash(pip-audit), Bash(pip-audit -r *), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(trivy fs *), Bash(gitleaks detect *)
 ---
 
@@ -147,7 +147,7 @@ Cookies de autenticação: `HttpOnly`, `Secure`, `SameSite` e escopo mínimo de 
 | **Médio** | CSRF em ação sensível, CSP ou CORS fracos, ausência de rate limit, refresh sem rotação |
 | **Baixo** | Hardening, vazamento de fingerprint, TTLs, higiene |
 
-Cada achado traz: **ID** (`S-01`), severidade, título, **local** (`arquivo:linhas`), **evidência** (segredos mascarados), **impacto**, **correção sugerida** e **confiança** (alta, média, baixa).
+Cada achado traz: **ID** (`S-01`), severidade, título, **local** (`[arquivo.ext](./caminho/arquivo.ext#L15-L28)`), **evidência** (segredos mascarados), **impacto**, **correção sugerida** e **confiança** (alta, média, baixa).
 
 ---
 
@@ -163,9 +163,9 @@ Apagar o segredo num commit novo não o remove do histórico.
 
 ---
 
-## 9. Registro via `sk-tasks` e integrações
+## 9. Integrações e registro via `sk-tasks`
 
-Se houver achados ou hardening pendente, pergunte ao final:
+Se houver achados ou hardening pendente relevante, pergunte ao final:
 
 > *"Deseja que eu registre o plano de remediação no `TASKS.md` do projeto?"*
 

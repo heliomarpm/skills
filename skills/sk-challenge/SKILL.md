@@ -1,6 +1,6 @@
 ---
 name: sk-challenge
-description: "Questiona o usuário de forma sistemática sobre um plano, decisão ou ideia (e, se ainda não há plano, explora caminhos alternativos antes) para testar a solidez do raciocínio antes de investir em especificação ou código: mapeia as decisões numa árvore, pergunta em rodadas com recomendação própria e fecha com um resumo de decisões, premissas e riscos. Use quando o usuário pedir 'me questione', 'teste minha ideia', 'faça o advogado do diabo', 'stress-test', 'grill me', 'interrogue meu plano' ou 'o que estou esquecendo?'; e, no modo Explorar, quando ainda não há plano: 'brainstorm', 'me ajude a pensar em opções' ou 'quais caminhos eu tenho?'. NÃO use para esclarecer um pedido simples (o sk-spec já faz isso com até 3 perguntas), nem para implementar, especificar ou decidir por conta própria."
+description: "Questiona planos, decisões ou ideias em árvore de decisão e rodadas com recomendação própria (ou explora caminhos alternativos antes de decidir). Use para 'me questione', 'stress-test', 'advogado do diabo' ou 'brainstorm'. NÃO use para esclarecer pedido simples (sk-spec), registrar ADR (sk-adr) nem implementar."
 allowed-tools: Read, Grep, Glob, Agent
 ---
 
@@ -65,7 +65,7 @@ A **fronteira** é o conjunto de decisões cujos pré-requisitos já estão reso
 
 Formato de uma rodada:
 
-```
+```text
 ❓ **Q1** - **<título da pergunta>**: <corpo da pergunta, pode ter vários parágrafos e opções>
 
 ➡️ <sua recomendação e o porquê, em uma linha>
@@ -101,9 +101,9 @@ Não aja sobre o resumo sem a confirmação explícita do usuário de que há en
 
 ---
 
-## 6. Próximos passos
+## 6. Integrações
 
-Ofereça, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica), `sk-system-design` (arquitetura), `sk-bootstrap` (iniciar repositório novo após decisões), `sk-alignment` (confirmar entendimento com cliente/demandante) ou `sk-tasks` (plano de trabalho). O resumo serve de insumo: as decisões viram requisitos ou o contexto de um ADR, as premissas e os riscos vão para a seção de premissas da spec, e achados do `sk-assessment` podem alimentar novas rodadas.
+Ofereça ao final, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica), `sk-system-design` (arquitetura), `sk-bootstrap` (iniciar repositório novo após decisões), `sk-alignment` (confirmar entendimento com cliente/demandante) ou `sk-tasks` (plano de trabalho). O resumo serve de insumo: as decisões viram requisitos ou o contexto de um ADR, as premissas e os riscos vão para a seção de premissas da spec, e achados do `sk-assessment` podem alimentar novas rodadas.
 
 ---
 
@@ -118,3 +118,12 @@ Ofereça, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica)
 - **Caminhos que são variações do mesmo** (no modo Explorar): a exploração só ajuda se as opções forem realmente diferentes.
 - **Convergir cedo demais**: aprofundar um único caminho sem ter exposto as alternativas.
 - **Explorar sem objetivo**: sem saber o que o usuário busca, as opções ficam genéricas.
+
+---
+
+## 8. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (Questionar ou Explorar).
+2. Registro curto após cada rodada: o que foi decidido, assumido e o que segue em aberto.
+3. Ao encerrar: resumo consolidado com decisões, premissas, riscos, caminhos descartados (se houver) e perguntas em aberto.
+4. Oferta dos próximos passos aplicáveis (seção 6), aguardando confirmação antes de agir.

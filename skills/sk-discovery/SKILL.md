@@ -1,6 +1,6 @@
 ---
 name: sk-discovery
-description: "Explora repositórios existentes (brownfield/legados) e gera ou atualiza a base de documentação de contexto para assistentes de IA: CONTEXT.md e AGENTS.md sempre, e, conforme o que o repositório justificar, ARCHITECTURE.md, DATA.md, PRD.md, GUIDELINE.md, TESTING.md, OPERATIONS.md, DECISIONS.md e GLOSSARY.md. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir discovery, mapeamento, onboarding, exploração do repositório ou a criação/atualização desses arquivos (ex.: 'faça o discovery do projeto', 'mapeie este repositório', 'gere o PRD.md e o ARCHITECTURE.md', 'atualize o CONTEXT.md'). Nunca acione em tarefas comuns de código, refatoração, correção de bugs ou perguntas pontuais. NÃO use em repositório novo/vazio (isso é sk-bootstrap) nem para diagnóstico crítico de saúde e roadmap de melhorias (isso é sk-assessment)."
+description: "ATIVAÇÃO EXPLÍCITA: mapeia repositórios existentes (brownfield/legados) e gera CONTEXT.md, AGENTS.md e artefatos de contexto. Use somente quando o usuário pedir discovery, mapeamento ou criação/atualização desses arquivos. NÃO use em repo novo/vazio (sk-bootstrap) nem para diagnóstico crítico (sk-assessment)."
 disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git remote *), Bash(git branch *), Bash(git rev-parse *), Bash(git ls-files *)
 ---
@@ -103,7 +103,7 @@ Gere ou atualize os arquivos conforme as regras da seção 3 e os modelos da se�
 
 ### 2.5. Fechamento
 
-Apresente o resumo conforme a seção 6. Se houver débitos ou lacunas identificados, siga a seção 5.
+Apresente o resumo conforme a seção 7. Se houver débitos ou lacunas identificados, siga a seção 5.
 
 ---
 
@@ -120,7 +120,7 @@ Apresente o resumo conforme a seção 6. Se houver débitos ou lacunas identific
 
 - Respeite os limites do catálogo. Prefira tabelas e listas curtas a prosa.
 - Nunca cole código-fonte inteiro nos documentos. Cite caminhos e nomes de símbolos.
-- Prefira ponteiros ("detalhes em [ARCHITECTURE.md](./ARCHITECTURE.md)") a repetir conteúdo entre arquivos. `CONTEXT.md` mantém um índice de todos os demais.
+- Prefira ponteiros (`"detalhes em [ARCHITECTURE.md](./ARCHITECTURE.md)"`) a repetir conteúdo entre arquivos. `CONTEXT.md` mantém um índice de todos os demais.
 - Sem emojis nos arquivos gerados. Links sempre relativos, como `[DATA.md](./DATA.md)`, nunca `file:///`.
 
 ### 3.3. Verificação de comandos
@@ -135,7 +135,7 @@ Escreva os artefatos no idioma já usado nos documentos existentes do repositór
 
 Todo arquivo começa com o título e a data de atualização, e termina com a seção `## Notas da Equipe`, com o texto fixo abaixo (criada vazia e nunca alterada em atualizações):
 
-```
+```text
 > Atualizado em: <YYYY-MM-DD>
 
 ...
@@ -149,97 +149,13 @@ _Espaço reservado para anotações manuais da equipe. A skill não altera esta 
 
 ## 4. Modelos de referência
 
-Os modelos mostram estrutura e nível de detalhe. Os valores são ilustrativos. Em cada arquivo real, mantenha somente o que o repositório sustenta.
+### 4.1. `CONTEXT.md` e `AGENTS.md`
 
-### 4.1. `CONTEXT.md`
+Consulte os modelos completos em [templates/contexto-base.md](./templates/contexto-base.md) ao criar ou atualizar `CONTEXT.md` e `AGENTS.md`. Mantenha somente o que o repositório sustenta; as seções **Skills aplicáveis** (mapeando apenas as skills presentes no ambiente) e **Decisões críticas** (ADRs aceitos) em `AGENTS.md` são opcionais.
 
-````markdown
-# Contexto do Projeto: Gateway de Pagamentos
+### 4.2. Artefatos condicionais
 
-> Atualizado em: 2026-10-11
-
-## Propósito
-Serviço de processamento de transações (PIX, cartão, boleto), com idempotência de cobranças e webhooks assinados com HMAC.
-
-## Stack
-
-| Componente | Tecnologia | Versão | Origem |
-| :--- | :--- | :--- | :--- |
-| Runtime | Node.js | <versão> | `package.json` (engines) |
-| Web | Fastify | <versão> | `package.json` |
-| Banco | PostgreSQL via Prisma | <versão> | `docker-compose.yml` |
-| Testes | Vitest | <versão> | `package.json` |
-
-## Comandos
-
-| Ação | Comando | Origem |
-| :--- | :--- | :--- |
-| Instalar | `npm install` | `package.json` |
-| Dev | `npm run dev` | `package.json` (scripts) |
-| Testes | `npm run test` | `package.json` (scripts) |
-| Migrar | `npm run db:migrate` | `package.json` (scripts) |
-| Deploy | não verificado | n/d |
-
-## Topologia de pastas
-
-```text
-src/
-├── domain/          # Entidades e regras puras
-├── application/     # Casos de uso
-├── infrastructure/  # Repositórios, clientes externos
-└── presentation/    # Rotas e controllers
-```
-
-## Índice da documentação
-
-| Documento | Conteúdo |
-| :--- | :--- |
-| [AGENTS.md](./AGENTS.md) | Regras para IAs |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | Módulos e fluxos |
-| [DATA.md](./DATA.md) | Dados e integrações |
-
-## Notas da Equipe
-
-_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
-````
-
-### 4.2. `AGENTS.md`
-
-````markdown
-# Diretrizes para Assistentes de IA
-
-> Atualizado em: 2026-10-11
-
-## Regras obrigatórias
-1. Tipagem estrita: não use `any`; modele contratos de API. (Origem: `tsconfig.json`, `strict: true`)
-2. Erros no formato Problem Details (RFC 9457). (Origem: `src/presentation/errors`)
-3. Commits no padrão Conventional Commits. (Origem: histórico git e `commitlint.config.js`)
-4. Mutações financeiras exigem o cabeçalho `Idempotency-Key`.
-
-## Restrições (o que não fazer)
-- Não execute comandos destrutivos no banco (`drop`, `truncate`, `delete` sem `where`).
-- Não adicione dependências fora do fluxo descrito em [GUIDELINE.md](./GUIDELINE.md).
-- Não leia nem exponha `.env`; use `.env.example` como referência.
-
-## Skills aplicáveis
-Stack detectada: TypeScript, Node.js e PostgreSQL. Use `sk-tech-typescript`, `sk-tech-nodejs`, `sk-sql`, `sk-api-design` e `sk-testing`.
-
-## Decisões críticas
-- [ADR-005](./docs/adr/ADR-005.md): Transactional Outbox para eventos financeiros.
-
-## Antes de concluir uma tarefa
-Rodar lint e testes (comandos em [CONTEXT.md](./CONTEXT.md)).
-
-## Notas da Equipe
-
-_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
-````
-
-As seções **Skills aplicáveis** e **Decisões críticas** são opcionais: a primeira mapeia a stack detectada às skills que existirem no ambiente (liste só essas); a segunda linka os ADRs aceitos que restringem o código.
-
-### 4.3. Artefatos condicionais
-
-Para cada artefato aprovado no plano de entrega, use os esqueletos de [templates/artefatos-condicionais.md](./templates/artefatos-condicionais.md), siga o cabeçalho e o rodapé da seção 3.5 e inclua, no mínimo:
+Para cada artefato aprovado no plano de entrega, leia e use os esqueletos de [templates/artefatos-condicionais.md](./templates/artefatos-condicionais.md), siga o cabeçalho e o rodapé da seção 3.5 e inclua, no mínimo:
 
 - **`ARCHITECTURE.md`**: estilo arquitetural e justificativa observável; diagrama de componentes em Mermaid (um só, enxuto); fluxo da requisição ou do caso de uso principal; tabela de módulos com responsabilidade e dependências; pontos de extensão; riscos arquiteturais observados. Para C4 completo ou decisões de desenho, aponte o `sk-system-design`.
 - **`DATA.md`**: banco e ferramenta de migração; 5 a 10 entidades centrais com papel e relacionamentos; mensageria e cache; sistemas externos (autenticação, pagamentos, APIs terceiras) com onde são chamados.
@@ -254,7 +170,7 @@ Para cada artefato aprovado no plano de entrega, use os esqueletos de [templates
 
 ## 5. Integrações e registro via `sk-tasks`
 
-Se a varredura encontrou débitos técnicos, documentação divergente do código, ausência de testes ou lacunas marcadas `[A CONFIRMAR]`, pergunte:
+Se a varredura encontrou débitos técnicos relevantes, documentação divergente do código, ausência de testes ou lacunas marcadas `[A CONFIRMAR]`, pergunte:
 
 > *"Mapeamento concluído. Identifiquei débitos e lacunas durante a varredura. Deseja que eu os registre no `TASKS.md` do projeto?"*
 
@@ -270,18 +186,7 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar, origem `discovery
 
 ---
 
-## 6. Padrão de entrega
-
-1. Assinatura na primeira mensagem (seção 0).
-2. Plano e confirmação antes de gravar (seção 2.3), quando aplicável.
-3. Lista dos arquivos criados e atualizados, com links relativos (`[CONTEXT.md](./CONTEXT.md)`) e uma marca de "criado" ou "atualizado".
-4. Resumo executivo de 5 a 8 linhas: stack, arquitetura, estilo de commits e estado dos testes.
-5. Pendências: itens `[A CONFIRMAR]`, comandos `não verificado` e conflitos encontrados com conteúdo humano.
-6. Pergunta sobre o registro em `TASKS.md` (seção 5).
-
----
-
-## 7. Armadilhas
+## 6. Armadilhas
 
 - **Sobrescrita destrutiva**: reescrever documentos existentes e apagar notas da equipe. Respeite a seção 3.1.
 - **Documentos inchados**: copiar código para dentro dos markdowns ou repetir o mesmo conteúdo em vários arquivos. Respeite os limites e use ponteiros.
@@ -290,3 +195,14 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar, origem `discovery
 - **Vazamento de segredos**: ler `.env` ou copiar valores sensíveis. Registre apenas nomes de variáveis.
 - **Geração em excesso**: criar todos os arquivos do catálogo mesmo sem evidência. Gere somente o que o repositório justifica e informe o que foi descartado.
 - **Execução não solicitada**: ativar a varredura em perguntas simples de programação.
+
+---
+
+## 7. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o escopo/modo usado (completo ou parcial).
+2. Plano e confirmação antes de gravar (seção 2.3), quando aplicável.
+3. Lista dos arquivos criados e atualizados, com links relativos (`[CONTEXT.md](./CONTEXT.md)`) e uma marca de "criado" ou "atualizado".
+4. Resumo executivo de 5 a 8 linhas: stack, arquitetura, estilo de commits e estado dos testes.
+5. Pendências: itens `[A CONFIRMAR]`, comandos `não verificado` e conflitos encontrados com conteúdo humano.
+6. Pergunta sobre o registro em `TASKS.md` (seção 5), se houver débitos ou lacunas relevantes.

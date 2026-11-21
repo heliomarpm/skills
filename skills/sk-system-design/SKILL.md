@@ -1,6 +1,6 @@
 ---
 name: sk-system-design
-description: "Orienta o desenho de arquitetura de sistemas: começar pela solução mais simples, decidir quando e como distribuir, escolher entre opções com trade-offs, aplicar padrões de mensageria assíncrona, consistência, resiliência e cache com seus custos, mapear modos de falha e diagramar em C4 (Mermaid). Use sempre que o usuário pedir 'projete a arquitetura', 'desenhe o sistema', 'como escalar isto', 'fila ou evento?', 'Outbox', 'saga', 'cache', 'resiliência', 'revise esta arquitetura' ou 'diagrama C4', mesmo sem a expressão 'system design'. NÃO use para registrar a decisão final (isso é sk-adr), detalhar contratos de API (isso é sk-api-design), modelar esquema e consultas (isso é sk-sql), configurar pipelines e infraestrutura (isso é sk-devops) ou especificar uma funcionalidade (isso é sk-spec)."
+description: "Orienta arquitetura de sistemas: começar simples, quando distribuir, trade-offs, mensageria (Outbox, inbox, saga), resiliência, cache, modos de falha e diagramas C4 (Mermaid). Use para projetar/escalar/revisar arquitetura. NÃO use para registrar ADR (sk-adr), OpenAPI (sk-api-design), SQL (sk-sql), CI/CD (sk-devops) nem specs (sk-spec)."
 allowed-tools: Read, Edit, Write, Grep, Glob
 ---
 
@@ -98,7 +98,7 @@ Ao usar o Outbox: quando perder um evento é aceitável, ou quando o projeto usa
 
 **Escolha com critérios**, partindo do que o projeto já usa:
 
-| Necessidade | Tende a | 
+| Necessidade | Tende a |
 | :--- | :--- |
 | Fila de trabalho, roteamento flexível | RabbitMQ, SQS |
 | Log de eventos com retenção, replay e vários consumidores | Kafka, Kinesis |
@@ -116,69 +116,7 @@ Ao usar o Outbox: quando perder um evento é aceitável, ou quando o projeto usa
 
 ## 7. Exemplos de referência
 
-### 7.1. Outbox com relay
-
-```sql
-CREATE TABLE outbox_events (
-  id             uuid PRIMARY KEY,           -- gerado na aplicação
-  aggregate_type text        NOT NULL,
-  aggregate_id   text        NOT NULL,
-  event_type     text        NOT NULL,
-  payload        jsonb       NOT NULL,
-  created_at     timestamptz NOT NULL DEFAULT now(),
-  published_at   timestamptz,
-  attempts       int         NOT NULL DEFAULT 0
-);
-CREATE INDEX outbox_pendentes_idx ON outbox_events (created_at) WHERE published_at IS NULL;
-
--- Produtor: regra de negócio e evento na MESMA transação
-BEGIN;
-INSERT INTO orders (id, customer_id, total, status) VALUES (:id, :cliente, :total, 'CREATED');
-INSERT INTO outbox_events (id, aggregate_type, aggregate_id, event_type, payload)
-VALUES (:evento_id, 'Order', :id, 'OrderCreated', :payload);
-COMMIT;
-
--- Relay: lote em transação curta
-SELECT id, aggregate_id, event_type, payload
-FROM outbox_events
-WHERE published_at IS NULL
-ORDER BY created_at
-LIMIT 100
-FOR UPDATE SKIP LOCKED;
--- publica no broker, com aggregate_id como chave; depois:
-UPDATE outbox_events SET published_at = now() WHERE id = ANY(:ids);
-```
-
-Notas: se o relay cair entre publicar e atualizar, o evento sai de novo (at-least-once), por isso os consumidores precisam ser idempotentes. Com vários relays, `SKIP LOCKED` pode alterar a ordem; se a ordem por agregado importa, particione os relays por hash de `aggregate_id` ou use um só. Limpe periodicamente os publicados antigos.
-
-### 7.2. Consumidor idempotente (inbox)
-
-```sql
--- Mesma transação do efeito no domínio
-BEGIN;
-INSERT INTO processed_events (event_id, processed_at)
-VALUES (:event_id, now())
-ON CONFLICT (event_id) DO NOTHING;
--- 0 linhas inseridas: evento duplicado. COMMIT e ignore.
--- 1 linha inserida: aplique o efeito no domínio (UPDATE ou INSERT).
-COMMIT;
-```
-
-Notas: a deduplicação e o efeito precisam estar na mesma transação; gravar a chave antes e apagá-la no erro perde eventos se o processo cair no meio. Se o efeito é externo (e-mail, pagamento), use uma chave de idempotência no sistema externo. Redis com `SET NX` serve só para deduplicação *best-effort* de efeitos não críticos.
-
-### 7.3. Cache sem tempestade (stampede)
-
-```text
-funcao obter(chave):
-    valor = cache.get(chave)
-    se valor existe e nao expirou: retorne valor
-    retorne singleFlight(chave, () ->
-        valor = origem.carregar(chave)
-        cache.set(chave, valor, ttl = base + aleatorio(0, jitter))
-        retorne valor)
-```
-
-`singleFlight` deixa uma única chamada regenerar a chave enquanto as demais aguardam. Alternativas: servir o valor antigo enquanto revalida, ou expiração antecipada probabilística. TTL é obrigatório, cache nunca é fonte de verdade, e a invalidação, o cache negativo e a taxa de acertos fazem parte do desenho.
+Para implementações de referência completas em SQL e pseudocódigo de **Transactional Outbox com relay (`SKIP LOCKED`)**, **consumidor idempotente (inbox)** e **cache com proteção contra stampede (`singleFlight` + jitter)**, consulte [examples/resilience-patterns.md](./examples/resilience-patterns.md).
 
 ---
 
@@ -221,9 +159,9 @@ flowchart LR
 
 ---
 
-## 10. Registro via `sk-tasks` e integrações
+## 10. Integrações e registro via `sk-tasks`
 
-Se o desenho tem etapas de implementação, pergunte ao final:
+Se o desenho tiver etapas de implementação pendentes, pergunte ao final:
 
 > *"Deseja que eu decomponha a implementação em tarefas no `TASKS.md` do projeto?"*
 
@@ -269,4 +207,4 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 3. Opções com trade-offs, a recomendação e o motivo.
 4. Diagrama (C4 ou sequência) e a tabela de modos de falha.
 5. Garantia de entrega da mensageria, deduplicação e DLQ definidas.
-6. Próximos passos: ADR, spec e a pergunta sobre o registro em tarefas (seção 10).
+6. Próximos passos: ADR, spec e a pergunta condicional sobre o registro em tarefas (seção 10).

@@ -1,6 +1,6 @@
 ---
 name: sk-git
-description: "Orienta e executa fluxos de Git com segurança: commits atômicos e Conventional Commits, nomes de branch, atualização de branch, higiene de histórico local, resolução de conflitos, abertura de Pull Requests e recuperação de erros, respeitando a estratégia e as convenções do projeto, incluindo integridade UTF-8 e finais de linha no Windows. Use sempre que o usuário pedir 'faça o commit', 'mensagem de commit', 'abra a PR', 'crie a branch', 'faça o rebase', 'resolva o conflito', 'limpe o histórico', 'squash', 'desfaça este commit' ou 'como fica o fluxo de branches', mesmo sem a palavra 'git'. NÃO use para revisar código (isso é sk-code-review) nem para pipelines de CI/CD e automação de releases (isso é sk-devops)."
+description: "Orienta e executa fluxos Git com segurança: commits atômicos/Conventional Commits, branches, rebase/merge, conflitos, PRs e UTF-8/LF no Windows. Use para 'commit', 'abra PR', 'rebase', 'resolva conflito' ou histórico local. NÃO use para revisar código (sk-code-review) nem pipelines/releases automáticas (sk-devops)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git branch *), Bash(git switch *), Bash(git add *), Bash(git commit *), Bash(git fetch *), Bash(git rev-parse *), Bash(git merge-base *), Bash(git symbolic-ref *), Bash(git remote *), Bash(git reflog *), Bash(gh auth status), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr checks *), Bash(gh pr list *)
 ---
 
@@ -16,7 +16,7 @@ Commits atômicos, histórico legível, PRs claros e nenhuma operação destruti
 
 As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-**Autonomia.** Proponha a mensagem de commit e a lista de arquivos; só execute `add` e `commit` quando o usuário pedir. Push, rebase, qualquer reescrita de histórico, merge de PR e criação de release exigem confirmação explícita **no momento**, mesmo que o usuário já tenha pedido algo parecido antes. Os comandos de escrita que não estão em `allowed-tools` (push, rebase, reset, merge) vão gerar pedido de permissão: isso é intencional.
+**Autonomia.** Proponha a mensagem de commit e a lista de arquivos; só execute `add` e `commit` quando o usuário pedir. Push, rebase, qualquer reescrita de histórico, merge de PR e criação de release exigem confirmação explícita **no momento**, mesmo que o usuário já tenha pedido algo parecido antes. Mesmo quando o cliente não restringir via `allowed-tools`, nunca execute `push`, `rebase`, `reset` ou `merge` sem confirmação explícita.
 
 **Operações de risco**
 
@@ -144,7 +144,7 @@ Spec (`docs/specs/NNN-*.md`, requisitos RF e CA), tarefas (`T-NNN`) e issues.
 ````
 
 4. **Tamanho**: ideal até ~400 linhas alteradas; acima disso, proponha dividir (o `sk-code-review` sinaliza a partir de ~1.000). Para trabalho incompleto, abra como rascunho.
-5. **Criação**: salve o corpo em arquivo UTF-8 e use `gh pr create --title "..." --body-file <arquivo>`. Título com acento no PowerShell 5.1: veja `references/windows-utf8.md`.
+5. **Criação**: salve o corpo em arquivo UTF-8 e use `gh pr create --title "..." --body-file <arquivo>`. Título com acento no PowerShell 5.1: veja [references/windows-utf8.md](./references/windows-utf8.md).
 6. **Merge**: só se o usuário pedir, e pela estratégia que o repositório define.
 
 ---
@@ -160,7 +160,7 @@ Spec (`docs/specs/NNN-*.md`, requisitos RF e CA), tarefas (`T-NNN`) e issues.
 
 ## 9. Windows: UTF-8 e finais de linha
 
-Aplique somente se o ambiente for Windows. Detalhes e comandos em `references/windows-utf8.md`; leia-o quando for gravar mensagem de commit, corpo de PR ou título com acentuação, ou ao lidar com diffs por fim de linha.
+Aplique somente se o ambiente for Windows. Detalhes e comandos em [references/windows-utf8.md](./references/windows-utf8.md); leia-o quando for gravar mensagem de commit, corpo de PR ou título com acentuação, ou ao lidar com diffs por fim de linha.
 
 Regras essenciais:
 

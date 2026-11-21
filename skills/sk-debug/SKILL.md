@@ -1,6 +1,6 @@
 ---
 name: sk-debug
-description: "Diagnostica bugs até a causa raiz com método: coleta o sintoma, reproduz, isola, formula e testa hipóteses, confirma a causa com evidência, aplica a menor correção possível e fecha com teste de regressão. Cobre exceções e stack traces, resultados errados, falhas intermitentes (race conditions, testes instáveis), regressões entre versões e problemas que só acontecem em produção ou no CI. Use sempre que o usuário relatar um erro ou comportamento inesperado, colar um stack trace ou log, perguntar 'por que isso falha', 'isso parou de funcionar', 'funciona na minha máquina' ou pedir 'corrija este bug', 'ache a causa', 'depure', mesmo sem a palavra 'debug'. NÃO use para revisar um diff (isso é sk-code-review), escrever testes sem uma falha a investigar (isso é sk-testing), reestruturar código (isso é sk-refactor) nem para implementar funcionalidades novas."
+description: "Diagnostica bugs, regressões e falhas intermitentes até a causa raiz com método: reprodução, isolamento, hipóteses, menor correção e teste de regressão. Use ao relatar erro, stack trace ou 'por que falha?'. NÃO use para instrumentação/SLOs/post-mortem (sk-observability), revisar diff (sk-code-review) nem refatorar (sk-refactor)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git blame *), Bash(npm test *), Bash(npm run test *), Bash(npm run build *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run build *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(yarn test *), Bash(npx vitest *), Bash(npx jest *), Bash(npx tsc *), Bash(pytest *), Bash(python -m pytest *), Bash(uv run pytest *), Bash(go test *), Bash(go build *), Bash(go vet *), Bash(dotnet test *), Bash(dotnet build *), Bash(mvn test *), Bash(./mvnw test *), Bash(gradle test *), Bash(./gradlew test *), Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *), Bash(flutter test *), Bash(dart test *), Bash(docker logs *), Bash(docker compose logs *)
 ---
 
@@ -120,7 +120,7 @@ Aponte o que impediria a recorrência: validação, tipos mais estritos, guarda,
 - Resultado: falha em `CA-02` com `TypeError: plan is undefined`
 
 **Causa raiz** (confiança: alta)
-`src/subscriptions/create.ts:L42` lê `plan.price` antes de validar que `plan_id` existe.
+`[create.ts](./src/subscriptions/create.ts#L42)` lê `plan.price` antes de validar que `plan_id` existe.
 Evidência: o teste com `plan_id` inexistente falha nessa linha; com `plan_id` válido, passa.
 Gatilho: `POST /subscriptions` com `plan_id` desconhecido.
 

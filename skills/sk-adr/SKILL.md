@@ -1,6 +1,6 @@
 ---
 name: sk-adr
-description: "Registra e mantém decisões técnicas e arquiteturais como Architecture Decision Records (ADRs): quando escrever, contexto, alternativas reais, consequências e trade-offs, ciclo de vida (proposto, aceito, substituído) com aprovação explícita, índice e ADRs retroativos a partir de código existente. Use sempre que o usuário pedir 'crie um ADR', 'registre esta decisão', 'documente por que escolhemos X', 'documente os trade-offs', 'substitua a decisão Y', 'quais decisões temos sobre Z' ou comparar alternativas técnicas para decidir, mesmo sem a sigla ADR. NÃO use para desenhar a arquitetura de um sistema ou modelar diagramas C4 (isso é sk-system-design), especificar uma funcionalidade (isso é sk-spec) ou analisar um incidente em produção (isso é sk-observability)."
+description: "Registra e mantém decisões arquiteturais como ADRs: contexto, alternativas reais, trade-offs, ciclo de vida (Proposto, Aceito, Substituído) e ADRs retroativos. Use para 'crie um ADR', 'registre esta decisão' ou 'por que escolhemos X?'. NÃO use para explorar opções antes de decidir (sk-challenge), C4 (sk-system-design) nem specs (sk-spec)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *)
 ---
 
@@ -109,65 +109,13 @@ Para uma decisão já implementada, parta do código, do histórico (`git log`) 
 
 ## 7. Modelos
 
-### 7.1. Formato curto
-
-````markdown
-# ADR-007: Usar UUIDv7 como identificador de pedidos
-
-> Status: Proposto | Data: 2026-10-11
-
-## Contexto
-IDs sequenciais expõem o volume de pedidos e dificultam a geração em múltiplos serviços.
-
-## Decisão
-Adotar UUIDv7 gerado na aplicação.
-
-## Consequências
-- Positivas: geração descentralizada e ordenação temporal aproximada.
-- Negativas: índices maiores e IDs menos legíveis em suporte.
-````
-
-### 7.2. Formato completo
-
-````markdown
-# ADR-005: Transactional Outbox para eventos financeiros
-
-> Status: Proposto | Data: 2026-09-27
-> Decisores: Arquitetura e Backend | Substitui: n/a
-> Relacionados: [Spec 003](../specs/003-cobranca-recorrente.md), T-012
-
-## Contexto e forças
-O serviço de pagamentos grava a transação no PostgreSQL e depois publica no Kafka. Se a rede falha entre os dois passos, o banco confirma e o evento se perde (dual-write), gerando inconsistência silenciosa. Restrições: sem aumento de infraestrutura neste trimestre; equipe conhece SQL, não conhece Debezium.
-
-## Critérios de decisão
-Consistência, complexidade operacional, prazo, domínio da equipe, custo.
-
-## Decisão
-Implementar **Transactional Outbox** com relay por polling: a mutação e o evento são gravados na tabela `outbox_events` na mesma transação; um worker lê com `SELECT ... FOR UPDATE SKIP LOCKED` e publica no Kafka, com garantia at-least-once.
-
-## Alternativas avaliadas
-
-| Opção | Prós | Contras |
-| :--- | :--- | :--- |
-| Status quo (escrita dupla) | Nada a construir | Perde eventos em falha |
-| Two-phase commit (XA) | Atomicidade forte | Latência e bloqueios distribuídos |
-| Outbox com CDC (Debezium) | Baixa latência, sem polling | Componente novo, curva de aprendizado |
-| **Outbox com polling (escolhida)** | Simples, usa o que a equipe domina | Latência de segundos, carga de leitura no banco |
-
-## Consequências
-- Positivas: nenhum evento perdido em falha de rede; latência do Kafka fora da rota HTTP.
-- Negativas: consumidores precisam ser idempotentes; novo worker para operar; latência de publicação na ordem de segundos `(estimativa)`.
-
-## Verificação e revisão
-- Como garantir: teste de integração que derruba o broker e confere a entrega; checklist de PR para toda mutação financeira.
-- Reavaliar quando o volume passar de `(estimativa)` 500 eventos/s ou a latência de publicação virar requisito.
-````
+Consulte os modelos nos formatos curto e completo em [references/adr-templates.md](./references/adr-templates.md) ao redigir um ADR.
 
 ---
 
-## 8. Registro via `sk-tasks` e integrações
+## 8. Integrações e registro via `sk-tasks`
 
-Se o ADR tem etapas de implementação, pergunte ao final:
+Se o ADR tiver etapas de implementação pendentes, pergunte ao final:
 
 > *"Deseja que eu registre as etapas de implementação desta decisão no `TASKS.md` do projeto?"*
 
@@ -211,4 +159,4 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 2. Arquivo do ADR criado ou alterado e o índice atualizado, com links relativos.
 3. Resumo da decisão, da recomendação e das principais consequências negativas.
 4. Status atual e o que falta para a aprovação.
-5. Pendências e a pergunta sobre o registro em tarefas (seção 8).
+5. Pendências e a pergunta condicional sobre o registro em tarefas (seção 8).

@@ -1,6 +1,6 @@
 ---
 name: sk-tech-typescript
-description: "Orienta TypeScript rigoroso em qualquer stack: tsconfig estrito, tipos sem any, uniões discriminadas com verificação de exaustividade, validação de fronteira com schemas, tipos derivados e marcados (branded), erros tipados e lint. Use sempre que o usuário pedir 'tipe isto', 'remova os any', 'tsconfig', 'erro de tipo', 'generics', 'migre para TypeScript' ou 'ative o strict', mesmo sem dizer 'TypeScript'. NÃO use para detalhes de framework (isso é sk-tech-react, sk-tech-vue ou sk-tech-angular) nem de runtime de servidor (isso é sk-tech-nodejs)."
+description: "Orienta TypeScript rigoroso em qualquer stack: tsconfig strict, zero any, uniões discriminadas com never, validação de fronteira com schemas, branded types, erros tipados e lint. Use para tipagem, generics ou migrar para strict. NÃO use para detalhes de UI (sk-tech-react/vue/angular) nem runtime Node (sk-tech-nodejs)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
@@ -17,6 +17,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Versão.** Leia a versão do `typescript` no `package.json` e do runtime alvo, e use só o que ela suporta. Recursos recentes ou experimentais: confirme na documentação oficial da versão do projeto.
 
 **Siga o projeto.** Respeite o `tsconfig`, o linter e as convenções existentes; endurecer o `strict` em um projeto legado é uma migração gradual, não um único commit.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Migrar (ativar flags de rigor por etapas).
 
@@ -52,57 +54,13 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 3. Exemplos
 
-### 3.1. União discriminada com exaustividade
-
-```ts
-type ErroDominio =
-  | { tipo: 'nao_encontrado'; id: string }
-  | { tipo: 'invalido'; campos: string[] };
-
-type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: ErroDominio };
-
-function mensagem(erro: ErroDominio): string {
-  switch (erro.tipo) {
-    case 'nao_encontrado':
-      return `Item ${erro.id} não encontrado`;
-    case 'invalido':
-      return `Campos inválidos: ${erro.campos.join(', ')}`;
-    default: {
-      const _exaustivo: never = erro; // erro de compilação se surgir um caso novo
-      return _exaustivo;
-    }
-  }
-}
-```
-
-### 3.2. Fronteira validada e tipo marcado
-
-```ts
-import { z } from 'zod';
-
-const PedidoSchema = z.object({
-  id: z.string().uuid(),
-  totalCentavos: z.number().int().nonnegative(),
-});
-export type Pedido = z.infer<typeof PedidoSchema>;
-
-export function lerPedido(entrada: unknown): Resultado<Pedido> {
-  const r = PedidoSchema.safeParse(entrada);
-  return r.success
-    ? { ok: true, valor: r.data }
-    : { ok: false, erro: { tipo: 'invalido', campos: r.error.issues.map((i) => i.path.join('.')) } };
-}
-
-// Identificadores que o compilador não deixa misturar
-export type UsuarioId = string & { readonly __marca: 'UsuarioId' };
-export type PedidoId = string & { readonly __marca: 'PedidoId' };
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): união discriminada com verificação de exaustividade (`never`) e validação de fronteira com Zod + tipos marcados (*branded types*).
 
 ---
 
 ## 4. Integrações
 
-Testes de tipos e de comportamento no `sk-testing`; validação de entrada e segredos no `sk-security`; contratos no `sk-api-design`; consultas e índices no `sk-sql`; stacks em `sk-tech-nodejs`, `sk-tech-react`, `sk-tech-vue` e `sk-tech-angular`. Se alguma não existir, siga o padrão desta skill sem a integração.
+Testes de tipos e de comportamento no `sk-testing`; validação de entrada e segredos no `sk-security`; contratos no `sk-api-design`; consultas e índices no `sk-sql`; stacks em `sk-tech-nodejs`, `sk-tech-react`, `sk-tech-vue` e `sk-tech-angular`; revisão no `sk-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
@@ -116,6 +74,7 @@ Testes de tipos e de comportamento no `sk-testing`; validação de entrada e seg
 - **Promise sem `await` ou tratamento** (*floating promise*).
 - **Tipos condicionais ou genéricos enormes**: compilação lenta e mensagens de erro ilegíveis.
 - **`strict` desligado "por enquanto"**: nunca é religado.
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -124,5 +83,5 @@ Testes de tipos e de comportamento no `sk-testing`; validação de entrada e seg
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código tipado, sem `any` nem asserções injustificadas, e as alterações de `tsconfig` explicadas.
 3. Se implementar nova query SQL/ORM: verificação de performance e o script/migration de criação de índices adequados (com rollback).
-4. Resultado de `tsc`, lint e testes, ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-typescript`, P1 a P3; fallback em lista no chat).
+4. Resultado de `tsc`, lint e testes, o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-typescript`, P1 a P3; fallback em lista no chat).

@@ -1,6 +1,6 @@
 ---
 name: sk-testing
-description: "Orienta o planejamento, a escrita, a execução e a auditoria de testes automatizados (unitários, integração, contrato e E2E), de forma agnóstica a linguagem: padrão AAA, Test Data Builders, dublês, determinismo, esperas ativas, isolamento de estado e pirâmide de testes. Use sempre que o usuário pedir 'escreva testes', 'testes unitários, de integração ou E2E', 'aumente a cobertura', 'TDD', 'teste instável (flaky)', 'gere os testes a partir dos critérios de aceite' ou 'caracterize este código antes de refatorar', mesmo sem a palavra 'testing'. NÃO use para diagnosticar um bug em produção (isso é sk-debug), para revisar a qualidade de um diff (isso é sk-code-review) nem para configurar ferramentas específicas de uma stack (isso é a sk-tech-* correspondente)."
+description: "Orienta estratégia, escrita e auditoria de testes automatizados (unitários, integração, contrato, E2E) agnósticos a linguagem: AAA, builders, dublês e determinismo. Use para 'escreva testes', TDD, flaky tests ou cobertura de critérios CA-NN. NÃO use para depurar causa raiz (sk-debug), revisar PR (sk-code-review) nem setup de stack (sk-tech-*)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run test *), Bash(pnpm test *), Bash(pnpm run test *), Bash(yarn test *), Bash(npx vitest *), Bash(npx jest *), Bash(pytest *), Bash(python -m pytest *), Bash(uv run pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(./mvnw test *), Bash(gradle test *), Bash(./gradlew test *), Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *), Bash(flutter test *), Bash(dart test *)
 ---
 
@@ -190,7 +190,7 @@ Aguarde a resposta do usuário antes de novas execuções ou alterações.
 
 ---
 
-## 8. Integração com outras skills e registro de lacunas
+## 8. Integrações e registro via `sk-tasks`
 
 Se sobraram cenários, testes de integração ou lacunas da pirâmide, pergunte ao final:
 

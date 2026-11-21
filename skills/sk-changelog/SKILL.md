@@ -1,6 +1,6 @@
 ---
 name: sk-changelog
-description: "Cria ou atualiza o CHANGELOG.md no formato Keep a Changelog com Versionamento Semântico, a partir das tags do repositório e dos commits entre elas: gera uma entrada por versão publicada, acrescenta ao arquivo existente as versões que ainda não constam nele, recalcula o [Unreleased] (commits desde a última tag), preserva as entradas já publicadas e detecta quando uma automação de releases já gera o arquivo. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir 'crie o changelog', 'atualize o changelog', 'sincronize o changelog com as tags', 'documente a release', 'prepare o CHANGELOG da versão X' ou 'o CHANGELOG está desatualizado'. NÃO use para o README (isso é sk-readme) nem para publicar tags e releases (isso é sk-git e sk-devops)."
+description: "ATIVAÇÃO EXPLÍCITA: cria ou atualiza o CHANGELOG.md (Keep a Changelog + SemVer) a partir de tags e commits, preservando versões publicadas e detectando release automatizada. Use somente quando pedido para o CHANGELOG. NÃO use para README (sk-readme) nem para publicar tags/releases (sk-git, sk-devops)."
 disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *), Bash(git describe *), Bash(git tag -l *), Bash(git tag --list *), Bash(git for-each-ref *), Bash(git rev-list *), Bash(git remote *), Bash(git diff *), Bash(git show *), Bash(git status *), Bash(npx markdownlint-cli *)
 ---
@@ -129,14 +129,16 @@ O histórico das versões anteriores a 1.1.0 está disponível nas [tags do repo
 
 ---
 
-## 6. Entrega
+## 6. Integrações e registro via `sk-tasks`
 
-1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
-2. Arquivo criado ou atualizado, com link relativo.
-3. **Versões adicionadas** (com datas), lacunas antigas encontradas e o intervalo coberto no `[Unreleased]`.
-4. Itens `(inferido)`, commits ignorados e linhas manuais mantidas sem correspondência, para o usuário conferir.
-5. Sugestões: link do CHANGELOG no `README.md` (`sk-readme`); commit (`docs(changelog): ...`) e tag via `sk-git`; automação de releases via `sk-devops`, sob confirmação.
-6. Se restaram pendências, pergunte se o usuário quer registrá-las no `TASKS.md` via `sk-tasks` (modo Importar, origem `changelog`, P2 a P3; fallback em lista no chat).
+| Skill | Como se integra |
+| :--- | :--- |
+| `sk-readme` | Link do CHANGELOG no `README.md` |
+| `sk-git` | Commit (`docs(changelog): ...`) e criação de tag sob confirmação |
+| `sk-devops` | Automação de releases (`semantic-release`, `release-please`, etc.) |
+| `sk-tasks` | Registro opcional de pendências relevantes no `TASKS.md` (modo Importar, origem `changelog`, P2 a P3; fallback em lista no chat) |
+
+Se restarem pendências relevantes não resolvidas, pergunte ao final se o usuário quer registrá-las no `TASKS.md` via `sk-tasks`.
 
 ---
 
@@ -152,3 +154,13 @@ O histórico das versões anteriores a 1.1.0 está disponível nas [tags do repo
 - **Editar à mão um arquivo gerado por automação.**
 - **Texto técnico demais**: descreva o efeito para quem usa o projeto.
 - **Perder as quebras de contrato**: devem aparecer em destaque.
+
+---
+
+## 8. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivo criado ou atualizado, com link relativo.
+3. **Versões adicionadas** (com datas), lacunas antigas encontradas e o intervalo coberto no `[Unreleased]`.
+4. Itens `(inferido)`, commits ignorados e linhas manuais mantidas sem correspondência, para o usuário conferir.
+5. Sugestões de próximos passos aplicáveis e pergunta condicional sobre registro de pendências relevantes em tarefas (seção 6).

@@ -141,7 +141,7 @@ skills/
 ├── sk-refactor/         └── sk-testing/
 ```
 
-Cada pasta contém um `SKILL.md`. Material de apoio extenso fica em `references/` dentro da skill e é lido só quando necessário (por exemplo, `sk-git/references/windows-utf8.md`).
+Cada pasta contém um `SKILL.md`. Material de apoio extenso, esqueletos e exemplos completos ficam isolados em `references/`, `templates/` e `examples/` dentro da skill e são lidos só quando necessário (por exemplo, `sk-git/references/windows-utf8.md`, `sk-discovery/templates/artefatos-condicionais.md` e `sk-devops/examples/containers-and-ci.md`).
 
 ---
 
@@ -184,28 +184,33 @@ Os nomes das pastas seguem o prefixo `sk-`; use o nome completo ao criar links o
 
 ## 🏗️ Padrão de construção de novas skills
 
-Cada skill é uma pasta iniciada por `sk-` com um `SKILL.md`:
+Cada skill é uma pasta iniciada por `sk-` com um `SKILL.md` (e subpastas opcionais `references/`, `templates/`, `examples/` para *progressive disclosure*):
 
 ```markdown
 ---
 name: sk-nome-da-skill
-description: "O que faz, os gatilhos exatos e o 'NÃO use para ...' apontando a skill certa."
+description: "O que faz, gatilhos principais e 'NÃO use para ... (sk-...)' em até 360 caracteres."
 allowed-tools: Read, Grep, Glob, Bash(comando específico *)
-disable-model-invocation: true   # somente em skills de ativação explícita
+disable-model-invocation: true   # somente em skills de ativação explícita (com "ATIVAÇÃO EXPLÍCITA:" na description)
 ---
 
 # Título
 
-## 0. Regras de operação → (assinatura na primeira mensagem, escopo de escrita, evidência, idioma)
+## 0. Regras de operação → (assinatura na primeira mensagem, escopo de escrita, evidência, circuit breaker quando aplicável, idioma)
 ## 1. Modos de operação
 ## 2. Workflow
-## 3. Exemplos e modelos
-## 4. Integrações e registro via `sk-tasks`
-## 5. Armadilhas
-## 6. Padrão de entrega
+...
+## N. Integrações (e registro via `sk-tasks`)
+## N+1. Armadilhas (sempre em bullet list)
+## N+2. Padrão de entrega (sempre a última seção; item 1 = Assinatura)
 ```
 
-Diretrizes: a `description` concentra os gatilhos e as exclusões; o conteúdo parte do projeto (lê o contexto e as versões do manifesto antes de agir); toda afirmação tem evidência; comandos só se rastreáveis a um manifesto ou workflow; a skill indica o que **não** faz e para onde encaminhar.
+Diretrizes:
+- **Orçamento de `description`**: máximo de **360 caracteres**, concentrando intenção, 3 a 5 gatilhos e exclusões claras.
+- **Ordem final obrigatória**: `Integrações` → `Armadilhas` (em lista, nunca tabela) → `Padrão de entrega` (última seção, iniciando pela Assinatura).
+- **Progressive disclosure**: modelos e exemplos extensos vão para `references/`, `templates/` ou `examples/`, sempre linkados no `SKILL.md` (zero arquivos órfãos).
+- **Circuit Breaker**: skills de execução/stack (`sk-tech-*`, `sk-debug`, `sk-refactor`, `sk-testing`, `sk-devops`, `sk-ai-engineering`) limitam tentativas consecutivas sobre a mesma falha e pausam para check-in.
+- **Qualidade e validação**: toda afirmação tem evidência; comandos são rastreáveis a um manifesto ou workflow; rode `python scripts/validate_skills.py` antes de commitar.
 
 ### 🔒 Gestão de permissões (`allowed-tools`)
 

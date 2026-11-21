@@ -1,6 +1,6 @@
 ---
 name: sk-assessment
-description: "Avalia um projeto existente como um todo com rigor crítico e franqueza, apontando fraquezas, dívidas e potencial de excelência sem bajulação: diagnostica arquitetura, clean code, performance, segurança, dados e observabilidade, identifica duplicidades para mesclar ou podar, recomenda novas funcionalidades e traça roadmap de curto a longo prazo com evidências e prioridades. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir 'avalie o projeto', 'o que posso melhorar?', 'faça um diagnóstico do projeto', 'sugira evoluções e novas funcionalidades', 'audite a arquitetura' ou 'faça um health check do repositório'. NÃO use para revisar um diff (isso é sk-code-review), mapear o contexto (isso é sk-discovery), decidir ou especificar (isso é sk-challenge e sk-spec) nem para corrigir os problemas encontrados."
+description: "ATIVAÇÃO EXPLÍCITA: diagnóstico crítico 360° sem bajulação do repositório inteiro (arquitetura, clean code, performance, segurança, dados), poda de duplicidades e roadmap. Use somente quando o usuário pedir avaliação/health check do projeto. NÃO use para revisar diff/PR (sk-code-review) nem mapear contexto (sk-discovery)."
 disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *), Bash(git ls-files *), Bash(git status *), Bash(git shortlog *), Bash(git remote *), Bash(npm audit), Bash(npm outdated), Bash(pnpm audit), Bash(pnpm outdated), Bash(pip-audit), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(dotnet list * --outdated)
 ---
@@ -103,7 +103,7 @@ Todo achado segue a estrutura padronizada para manter o rigor técnico:
 - **ID**: identificador sequencial (`A-01`, `A-02`...)
 - **Dimensão**: área correspondente.
 - **Título**: síntese direta do problema ou oportunidade.
-- **Evidência**: arquivo e linhas específicas (`[caminho/arquivo.ext#L10-L25]`), saída de comando ou métrica concreta.
+- **Evidência**: arquivo e linhas específicas no formato `[arquivo.ext](./caminho/arquivo.ext#L10-L25)`, saída de comando ou métrica concreta.
 - **Diagnóstico Crítico**: explicação crua de por que a situação atual é prejudicial (risco, lentidão, custo de manutenção ou fragilidade).
 - **Impacto**: Crítico, Alto, Médio ou Baixo.
 - **Recomendação de Excelência**: a solução ideal e elegante para resolver a causa raiz.
@@ -151,71 +151,11 @@ flowchart TD
 
 ## 6. Modelo do Relatório
 
-Mantenha o relatório analítico, sem floreios e direto ao ponto. Em torno de 150 a 200 linhas no corpo principal:
-
-````markdown
-# Diagnóstico de Excelência do Projeto: <nome>
-
-> Data: <AAAA-MM-DD> | Modo: <Completa / Focada / Arquitetura & Consolidação / Evolução> | Objetivo: <objetivo declarado>
-
-## 1. Resumo Executivo e Diagnóstico Geral
-- **Estado Geral de Engenharia**: <avaliação honesta e realista em 2-3 frases, sem adulação>.
-- **Maiores Fraquezas e Riscos Técnicos**:
-  1. ...
-  2. ...
-- **Maiores Oportunidades de Excelência**:
-  1. ...
-  2. ...
-
-## 2. Cobertura e Limitações
-- **Inspecionado**: <dimensões, diretórios e amostras analisadas>.
-- **Não verificado**: <o que não foi analisado e por qual motivo técnico>.
-
-## 3. Simplificação, Poda e Consolidação
-*(Mapeamento de duplicidades conceituais e código redundante para mesclar ou eliminar)*
-
-| ID | Alvos de Fusão / Poda | Diagnóstico da Redundância | Proposta de Consolidação | Esforço |
-| :--- | :--- | :--- | :--- | :--- |
-| C-01 | `src/Services/AuthService.php` e `src/Security/TokenManager.php` | Regras de validação de token duplicadas com implementações divergentes. | Mesclar em um único gerenciador de tokens unificado e eliminar classe redundante. | M |
-
-## 4. Tabela de Achados Críticos
-
-| ID | Dimensão | Achado & Evidência | Diagnóstico Crítico | Impacto | Esforço | Horizonte | Encaminhar |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| A-01 | Performance | Falta de índice composto em `users(tenant_id, email)` em `src/db/migrations/002.sql#L15` | Toda autenticação realiza Seq Scan na tabela de usuários, degradando latência sob carga. | Alto | P | Curto Prazo | `sk-sql` |
-
-## 5. Plano de Ação por Horizontes
-
-### Curto Prazo (Quick Wins & Correções Imediatas)
-1. **[A-01]**: Adicionar o índice composto para destravar a performance de busca.
-2. ...
-
-### Médio Prazo (Consolidação & Refatoração Tática)
-1. **[C-01]**: Concluir a fusão dos serviços de autenticação, eliminando divergências e testes redundantes.
-2. ...
-
-### Longo Prazo (Arquitetura-Alvo & Novas Funcionalidades)
-1. ...
-
-## 6. Oportunidades de Novas Funcionalidades e Produto (Hipóteses)
-| Ideia | Racional e Lacuna Observada | Esforço | Risco | O que validar antes |
-| :--- | :--- | :--- | :--- | :--- |
-| <funcionalidade> | <dor no fluxo do usuário ou ausência no PRD> | M | <risco técnico/negócio> | <critério de validação> |
-
-## 7. Próximos Passos e Encaminhamento
-- Validar hipóteses de evolução e arquitetura com o `sk-challenge`.
-- Especificar as soluções aprovadas via `sk-spec`.
-- Registrar decisões arquiteturais com o `sk-adr`.
-- Registrar pendências no backlog via `sk-tasks`? *(Confirmar com o usuário)*.
-
-## Notas da Equipe
-
-_Espaço reservado para anotações manuais da equipe. A skill não altera esta seção._
-````
+Para gerar o documento de diagnóstico, consulte a estrutura completa em [references/report-template.md](./references/report-template.md), mantendo o corpo analítico e direto (~150 a 200 linhas).
 
 ---
 
-## 7. Encaminhamento e Integrações
+## 7. Integrações e registro via `sk-tasks`
 
 | Skill | Responsabilidade no Fluxo |
 | :--- | :--- |
@@ -228,7 +168,7 @@ _Espaço reservado para anotações manuais da equipe. A skill não altera esta 
 
 ---
 
-## 8. Armadilhas Comuns a Evitar
+## 8. Armadilhas
 
 - **Complacência e bajulação (*sycophancy*)**: amaciar diagnósticos, elogiar o comum ou dizer "está ótimo" quando há débitos óbvios. Mantenha o olhar estritamente técnico e objetivo.
 - **Ignorar duplicidades conceituais**: buscar apenas linhas de código idênticas e ignorar que dois módulos inteiros resolvem o mesmo problema de maneiras paralelas e desnecessárias.
@@ -240,11 +180,11 @@ _Espaço reservado para anotações manuais da equipe. A skill não altera esta 
 
 ---
 
-## 9. Padrão de Entrega
+## 9. Padrão de entrega
 
-1. **Assinatura** na primeira mensagem (seção 0), explicitando o modo e o objetivo da avaliação.
-2. **Diagnóstico franco e sem filtros**, ressaltando tanto as forças reais quanto as fraquezas mais duras.
-3. **Mapeamento de consolidação**, apontando o que deve ser mesclado ou podado para desinchar o projeto.
-4. **Achados organizados em Horizontes** (Curto, Médio e Longo Prazo), com evidências completas.
-5. **Hipóteses de produto e novas funcionalidades** claramente sinalizadas com o que validar antes.
-6. **Encaminhamento para as skills responsáveis** e pergunta final sobre o registro das ações no `TASKS.md` via `sk-tasks`.
+1. Assinatura na primeira mensagem (seção 0), explicitando o modo e o objetivo da avaliação.
+2. Diagnóstico franco e sem filtros, ressaltando tanto as forças reais quanto as fraquezas mais duras.
+3. Mapeamento de consolidação, apontando o que deve ser mesclado ou podado para desinchar o projeto.
+4. Achados organizados em Horizontes (Curto, Médio e Longo Prazo), com evidências completas.
+5. Hipóteses de produto e novas funcionalidades claramente sinalizadas com o que validar antes.
+6. Encaminhamento para as skills responsáveis e pergunta sobre o registro das ações no `TASKS.md` via `sk-tasks`, caso existam achados acionáveis.

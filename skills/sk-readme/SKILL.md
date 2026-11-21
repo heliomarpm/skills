@@ -1,6 +1,6 @@
 ---
 name: sk-readme
-description: "Cria ou atualiza o README.md de um repositório a partir de evidências (estrutura, manifestos, CI, testes, documentos de contexto), preservando o que a equipe escreveu e sem inventar informações. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir 'crie o README', 'atualize o README', 'o README está desatualizado' ou 'documente este repositório'. NÃO use para o CHANGELOG (isso é sk-changelog), para os documentos de contexto de IAs (isso é sk-discovery) nem para documentação de API (isso é sk-api-design)."
+description: "ATIVAÇÃO EXPLÍCITA: cria ou atualiza o README.md a partir de evidências do repositório, preservando texto da equipe e sem inventar comandos. Use somente quando pedido para criar, atualizar ou revisar o README. NÃO use para CHANGELOG (sk-changelog), contexto de IAs (sk-discovery) nem contrato de API (sk-api-design)."
 disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git remote *), Bash(git branch *), Bash(git diff *), Bash(git ls-files *), Bash(npx markdownlint-cli *)
 ---
@@ -53,7 +53,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 2. **Resumo das descobertas** em poucas linhas: stack, arquitetura, testes, CI/CD, integrações e lacunas do README atual.
 3. **Escrita** (seção 3), seguindo as regras de qualidade (seção 4).
 4. **Validação**: links, blocos de código e, se existir, `markdownlint`.
-5. **Entrega** (seção 5).
+5. **Entrega** (seção 7).
 
 ---
 
@@ -89,14 +89,16 @@ Adapte à realidade do projeto. **Cada seção só entra se houver dado concreto
 
 ---
 
-## 5. Entrega
+## 5. Integrações e registro via `sk-tasks`
 
-1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
-2. Arquivo criado ou atualizado, com link relativo.
-3. Resumo do que mudou (`git diff --stat`) e do que foi preservado.
-4. Itens `[A CONFIRMAR]` e comandos `não verificado`.
-5. Sugestões: se não há CHANGELOG, ofereça o `sk-changelog`; se não houver arquivos de contexto de IA (`CONTEXT.md`, `AGENTS.md`), sugira o `sk-discovery`. Para commit ou PR, o `sk-git`, sob confirmação (`docs(readme): ...`).
-6. Se restaram lacunas, pergunte se o usuário quer registrá-las no `TASKS.md` via `sk-tasks` (modo Importar, origem `readme`, P2 a P3; fallback em lista no chat).
+| Skill | Como se integra |
+| :--- | :--- |
+| `sk-discovery` | Fonte de contexto (`CONTEXT.md`, `ARCHITECTURE.md`); sugerida se não existir documentação para IAs |
+| `sk-changelog` | Sugerida quando não houver `CHANGELOG.md` |
+| `sk-git` | Commit (`docs(readme): ...`) ou PR apenas sob pedido |
+| `sk-tasks` | Registro opcional de lacunas relevantes no `TASKS.md` (modo Importar, origem `readme`, P2 a P3; fallback em lista no chat) |
+
+Se restarem lacunas relevantes não resolvidas, pergunte ao final se o usuário quer registrá-las no `TASKS.md` via `sk-tasks`.
 
 ---
 
@@ -109,3 +111,13 @@ Adapte à realidade do projeto. **Cada seção só entra se houver dado concreto
 - **Expor segredos** em exemplos de configuração.
 - **README gigante**: o que é longo vai para `docs/`.
 - **Executar sem pedido explícito.**
+
+---
+
+## 7. Padrão de entrega
+
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivo criado ou atualizado, com link relativo.
+3. Resumo do que mudou (`git diff --stat`) e do que foi preservado.
+4. Itens `[A CONFIRMAR]` e comandos `não verificado`.
+5. Sugestões de próximos passos aplicáveis e pergunta condicional sobre registro de lacunas relevantes em tarefas (seção 5).

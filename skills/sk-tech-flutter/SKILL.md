@@ -1,6 +1,6 @@
 ---
 name: sk-tech-flutter
-description: "Orienta aplicativos Flutter e Dart: Dart 3 (records, tipos selados, pattern matching), gerenciamento de estado (Riverpod ou BLoC), arquitetura em camadas com repositórios, renderização eficiente, descarte de recursos, navegação com go_router, isolates, tratamento de erros, segurança no dispositivo e testes. Use sempre que o usuário pedir 'tela em Flutter', 'Riverpod', 'estado', 'navegação', 'otimize o desempenho do app', 'isolate' ou 'migre de versão do Flutter', mesmo sem dizer 'Flutter'. NÃO use para tokens e acessibilidade em profundidade (isso é sk-design-system), contratos de API (isso é sk-api-design) nem para segurança em profundidade (isso é sk-security)."
+description: "Orienta Flutter e Dart 3: records, tipos selados, estado (Riverpod/BLoC), arquitetura em camadas, persistência local performática com índices, go_router, isolates e testes. Use para telas, estado ou desempenho no app. NÃO use para design tokens/WCAG (sk-design-system), OpenAPI (sk-api-design) nem segurança no servidor (sk-security)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(flutter test *), Bash(flutter analyze *), Bash(dart test *), Bash(dart analyze *), Bash(dart format --set-exit-if-changed *)
 ---
 
@@ -17,6 +17,8 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 **Versão.** Leia o SDK do Dart e do Flutter no `pubspec.yaml` e a versão do pacote de estado em uso. As APIs do Riverpod, do `go_router` e dos geradores de código mudam entre versões principais: **confirme na documentação oficial da versão do projeto** antes de aplicar um exemplo.
 
 **Siga o projeto.** Respeite a solução de estado (Riverpod, BLoC), a estrutura de pastas e o sistema de design existentes.
+
+**Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 
 **Modos.** Escrever, Revisar e Atualizar versão.
 
@@ -43,76 +45,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 ## 2. Exemplos
 
-### 2.1. Estado assíncrono com Riverpod e UI declarativa
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'perfil_notifier.g.dart';
-
-@immutable
-class Perfil {
-  const Perfil({required this.id, required this.nome});
-  final String id;
-  final String nome;
-}
-
-abstract interface class PerfilRepository {
-  Future<Perfil> buscar(String id);
-  Future<Perfil> renomear(String id, String nome);
-}
-
-// perfilRepositoryProvider: provider do repositório, definido na camada de dados.
-
-@riverpod
-class PerfilNotifier extends _$PerfilNotifier {
-  @override
-  Future<Perfil> build(String id) => ref.watch(perfilRepositoryProvider).buscar(id);
-
-  Future<void> renomear(String novoNome) async {
-    final atual = state.requireValue; // captura ANTES de alterar o estado
-    state = const AsyncLoading<Perfil>().copyWithPrevious(state);
-    state = await AsyncValue.guard(
-      () => ref.read(perfilRepositoryProvider).renomear(atual.id, novoNome),
-    );
-  }
-}
-
-class PerfilScreen extends ConsumerWidget {
-  const PerfilScreen({super.key, required this.id});
-  final String id;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final perfil = ref.watch(perfilNotifierProvider(id));
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Perfil')),
-      body: perfil.when(
-        data: (p) => Center(child: Text('Bem-vindo, ${p.nome}')),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => const Center(child: Text('Não foi possível carregar o perfil.')),
-      ),
-    );
-  }
-}
-```
-
-### 2.2. Processamento pesado fora da thread de interface
-
-```dart
-import 'dart:convert';
-import 'dart:isolate';
-
-// Mobile e desktop. Na web, Isolate.run não está disponível: use compute() ou um web worker.
-Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
-  return Isolate.run(
-    () => (jsonDecode(bruto) as List<dynamic>).cast<Map<String, dynamic>>(),
-  );
-}
-```
+Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): estado assíncrono com Riverpod (`AsyncNotifier` + `copyWithPrevious`) e processamento de JSON pesado com `Isolate.run`.
 
 ---
 
@@ -134,6 +67,7 @@ Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
 - **Lista grande sem `ListView.builder`.**
 - **Chave de API ou segredo dentro do app.**
 - **`Isolate.run` sem considerar a web.**
+- **Loop de build/lint (*fix loop*)**: insistir em correções sucessivas após 3 falhas sem acionar o circuit breaker.
 
 ---
 
@@ -142,5 +76,5 @@ Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
 1. Assinatura na primeira mensagem (seção 0) e o modo usado.
 2. Código com `const`, estados de carregamento, erro e dados tratados, e I/O atrás de repositórios, com links relativos.
 3. Se implementar nova query em banco local (SQLite/Drift): verificação de performance e script de criação dos índices adequados.
-4. Resultado de `flutter analyze` e `flutter test`, ou o motivo de não ter executado.
-5. Pendências: se houver, pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-flutter`, P1 a P3; fallback em lista no chat).
+4. Resultado de `flutter analyze` e `flutter test`, o motivo de não ter executado ou o relato do circuit breaker.
+5. Somente se restarem pendências relevantes não resolvidas: pergunte se o usuário quer registrar no `TASKS.md` via `sk-tasks` (modo Importar, origem `tech-flutter`, P1 a P3; fallback em lista no chat).
