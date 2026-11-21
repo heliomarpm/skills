@@ -1,7 +1,7 @@
 ---
 name: sk-tech-typescript
 description: "Orienta TypeScript rigoroso em qualquer stack: tsconfig estrito, tipos sem any, uniões discriminadas com verificação de exaustividade, validação de fronteira com schemas, tipos derivados e marcados (branded), erros tipados e lint. Use sempre que o usuário pedir 'tipe isto', 'remova os any', 'tsconfig', 'erro de tipo', 'generics', 'migre para TypeScript' ou 'ative o strict', mesmo sem dizer 'TypeScript'. NÃO use para detalhes de framework (isso é sk-tech-react, sk-tech-vue ou sk-tech-angular) nem de runtime de servidor (isso é sk-tech-nodejs)."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
 # TypeScript: tipos que protegem de verdade
@@ -102,7 +102,7 @@ export type PedidoId = string & { readonly __marca: 'PedidoId' };
 
 ## 4. Integrações
 
-Testes de tipos e de comportamento no `sk-testing`; validação de entrada e segredos no `sk-security`; contratos no `sk-api-design`; stacks em `sk-tech-nodejs`, `sk-tech-react`, `sk-tech-vue` e `sk-tech-angular`. Se alguma não existir, siga o padrão desta skill sem a integração.
+Testes de tipos e de comportamento no `sk-testing`; validação de entrada e segredos no `sk-security`; contratos no `sk-api-design`; consultas e índices no `sk-sql`; stacks em `sk-tech-nodejs`, `sk-tech-react`, `sk-tech-vue` e `sk-tech-angular`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 

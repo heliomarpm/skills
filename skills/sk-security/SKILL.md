@@ -1,7 +1,7 @@
 ---
 name: sk-security
 description: "Audita e projeta a segurança de aplicações: autenticação e sessão (OAuth com PKCE, OIDC, JWT), autorização por recurso (RBAC/ABAC, BOLA/IDOR), entrada e injeções, criptografia e segredos, dependências, cabeçalhos web, logs e privacidade, com checklist baseado no OWASP, achados com severidade e plano de remediação. Use sempre que o usuário pedir 'audite a segurança', 'isto é seguro?', 'revise a autenticação', 'proteja este endpoint', 'vazou um segredo', 'vulnerabilidades', 'OWASP', 'hash de senha', 'CSP' ou 'permissões', mesmo sem a palavra 'segurança'. NÃO use para desenhar contratos de API (isso é sk-api-design), infraestrutura e pipelines (isso é sk-devops) nem para revisar um diff em geral (isso é sk-code-review)."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm audit), Bash(npm audit --omit=dev), Bash(pnpm audit), Bash(pip-audit), Bash(pip-audit -r *), Bash(composer audit), Bash(cargo audit), Bash(dotnet list * --vulnerable), Bash(trivy fs *), Bash(gitleaks detect *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm audit), Bash(npm audit --omit=dev), Bash(pnpm audit), Bash(pip-audit), Bash(pip-audit -r *), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(trivy fs *), Bash(gitleaks detect *)
 ---
 
 # Security: segurança defensiva de aplicações

@@ -1,7 +1,7 @@
 ---
 name: sk-git
 description: "Orienta e executa fluxos de Git com segurança: commits atômicos e Conventional Commits, nomes de branch, atualização de branch, higiene de histórico local, resolução de conflitos, abertura de Pull Requests e recuperação de erros, respeitando a estratégia e as convenções do projeto, incluindo integridade UTF-8 e finais de linha no Windows. Use sempre que o usuário pedir 'faça o commit', 'mensagem de commit', 'abra a PR', 'crie a branch', 'faça o rebase', 'resolva o conflito', 'limpe o histórico', 'squash', 'desfaça este commit' ou 'como fica o fluxo de branches', mesmo sem a palavra 'git'. NÃO use para revisar código (isso é sk-code-review) nem para pipelines de CI/CD e automação de releases (isso é sk-devops)."
-allowed-tools: Read, Write, Grep, Glob, Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git branch *), Bash(git switch *), Bash(git add *), Bash(git commit *), Bash(git fetch *), Bash(git rev-parse *), Bash(git merge-base *), Bash(git symbolic-ref *), Bash(git remote *), Bash(git reflog *), Bash(gh auth status), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr checks *), Bash(gh pr list *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git show *), Bash(git branch *), Bash(git switch *), Bash(git add *), Bash(git commit *), Bash(git fetch *), Bash(git rev-parse *), Bash(git merge-base *), Bash(git symbolic-ref *), Bash(git remote *), Bash(git reflog *), Bash(gh auth status), Bash(gh pr create *), Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr checks *), Bash(gh pr list *)
 ---
 
 # Git: fluxo profissional, seguro e rastreável
@@ -58,7 +58,7 @@ Antes de agir, leia: `git branch -a`, `git log --oneline -20`, `CONTRIBUTING.md`
 - **Estratégia de branches** (Trunk-Based, GitHub Flow, GitFlow, base `main` ou `develop`): siga a do projeto. Recomende Trunk-Based (branches curtas, integração frequente, feature flags) somente se não houver convenção.
 - **Política de integração** (squash, merge commit ou rebase): respeite-a e nunca escolha a estratégia de merge de uma PR.
 - **Formato e idioma dos commits**: se o repositório não usa Conventional Commits, siga o padrão que ele usa.
-- **Ambiente**: se for Windows (caminhos `C:\`, PowerShell ou Git Bash), aplique a seção 8.
+- **Ambiente**: se for Windows (caminhos `C:\`, PowerShell ou Git Bash), aplique a seção 9.
 
 ---
 
@@ -66,7 +66,7 @@ Antes de agir, leia: `git branch -a`, `git log --oneline -20`, `CONTRIBUTING.md`
 
 **Atômicos**: uma mudança lógica coesa por commit. Não misture refatoração, formatação e regra de negócio no mesmo commit; isso impede cherry-pick e rollback seguros.
 
-**Conventional Commits** (quando o projeto os usa): `tipo(escopo opcional): gitmoji descrição no imperativo`, com assunto de até ~72 caracteres.
+**Conventional Commits** (quando o projeto os usa): `tipo(escopo opcional): descrição no imperativo` (use gitmoji após os dois-pontos apenas se o histórico do projeto adotar), com assunto de até ~72 caracteres.
 
 - Tipos: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
 - Quebra de contrato: `!` após o tipo (`feat(api)!:`) ou rodapé `BREAKING CHANGE:`.
@@ -181,6 +181,7 @@ Regras essenciais:
 | `sk-testing` | Testes após conflitos e rebases |
 | `sk-security` | Rotação de credenciais vazadas |
 | `sk-devops` | Automação de releases (semantic-release, changelog) e CI |
+| `sk-changelog` | Histórico de versões a partir das tags e commits; commit `docs(changelog): ...` e criação de tags |
 
 Se alguma não existir, siga o padrão desta skill sem a integração.
 

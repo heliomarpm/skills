@@ -1,6 +1,6 @@
 ---
 name: sk-code-review
-description: "Faz revisão técnica de código, diffs e Pull Requests em dois eixos independentes (especificação/escopo e engenharia/segurança/padrões), com severidades, evidências e correções acionáveis. Somente leitura: registra pendências no TASKS.md apenas via sk-tasks e com confirmação do usuário. Use sempre que o usuário pedir 'faça o code review', 'revise o PR', 'revise este diff', 'revise minhas mudanças', 'o que acha dessas alterações' 'veja se está pronto para merge', 'audite este módulo' ou 'procure bugs neste código', mesmo sem a expressão 'code review'. NÃO use para perguntas pontuais sobre um trecho de código, revisão de texto ou documentação, nem para corrigir o código (isso é implementação ou sk-refactor)."
+description: "Faz revisão técnica de código, diffs e Pull Requests em dois eixos independentes (especificação/escopo e engenharia/segurança/padrões), com severidades, evidências e correções acionáveis. Somente leitura: registra pendências no TASKS.md apenas via sk-tasks e com confirmação do usuário. Use sempre que o usuário pedir 'faça o code review', 'revise o PR', 'revise este diff', 'revise minhas mudanças', 'o que acha dessas alterações', 'veja se está pronto para merge', 'audite este módulo' ou 'procure bugs neste código', mesmo sem a expressão 'code review'. NÃO use para perguntas pontuais sobre um trecho de código, revisão de texto ou documentação, diagnóstico amplo de saúde do repositório inteiro (isso é sk-assessment) nem para corrigir o código (isso é implementação ou sk-refactor)."
 allowed-tools: Read, Grep, Glob, Bash(git diff *), Bash(git log *), Bash(git status *), Bash(git show *), Bash(git rev-parse *), Bash(git branch *), Bash(git symbolic-ref *), Bash(git merge-base *), Bash(gh pr view *), Bash(gh pr diff *), Bash(gh pr checks *), Agent
 ---
 
@@ -235,6 +235,7 @@ Cada tarefa leva origem `code-review`, link relativo para o local (`./caminho/ar
 | `sk-security`, `sk-sql`, `sk-api-design`, `sk-system-design`, `sk-observability`, `sk-design-system`, `sk-tech-*` | Checklists complementares do Eixo 2 |
 | `sk-adr` | ADRs aceitos como fonte de padrões; uma decisão nova no PR sugere registrar um ADR |
 | `sk-debug` | Achado de bug que precisa de causa raiz é encaminhado para lá |
+| `sk-assessment` | Diagnóstico 360° do repositório inteiro; a revisão aqui foca no diff, PR ou módulo pontual |
 
 Se alguma não existir, use os critérios da seção 3 como padrão.
 

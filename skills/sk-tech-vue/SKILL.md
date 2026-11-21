@@ -1,7 +1,7 @@
 ---
 name: sk-tech-vue
 description: "Orienta interfaces com Vue 3 e TypeScript: script setup, Composition API tipada, defineModel e props reativas, composables reutilizáveis com cancelamento, Pinia, reatividade correta (shallowRef, toRefs), desempenho e testes. Use sempre que o usuário pedir 'componente Vue', 'composable', 'Pinia', 'v-model', 'reatividade' ou 'migre para Vue 3', mesmo sem dizer 'Vue'. NÃO use para tokens e acessibilidade em profundidade (isso é sk-design-system), tipagem em geral (isso é sk-tech-typescript) nem para o backend."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx vue-tsc *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx vue-tsc *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
 # Vue 3: reatividade previsível e componentes enxutos

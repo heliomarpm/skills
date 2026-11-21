@@ -91,11 +91,12 @@ Adapte à realidade do projeto. **Cada seção só entra se houver dado concreto
 
 ## 5. Entrega
 
-1. Arquivo criado ou atualizado, com link relativo.
-2. Resumo do que mudou (`git diff --stat`) e do que foi preservado.
-3. Itens `[A CONFIRMAR]` e comandos `não verificado`.
-4. Sugestões: se não há CHANGELOG, ofereça o `sk-changelog`. Para commit ou PR, o `sk-git`, sob confirmação (`docs(readme): ...`).
-5. Se restaram lacunas, pergunte se o usuário quer registrá-las no `TASKS.md` via `sk-tasks` (modo Importar, origem `readme`, P2 a P3; fallback em lista no chat).
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivo criado ou atualizado, com link relativo.
+3. Resumo do que mudou (`git diff --stat`) e do que foi preservado.
+4. Itens `[A CONFIRMAR]` e comandos `não verificado`.
+5. Sugestões: se não há CHANGELOG, ofereça o `sk-changelog`; se não houver arquivos de contexto de IA (`CONTEXT.md`, `AGENTS.md`), sugira o `sk-discovery`. Para commit ou PR, o `sk-git`, sob confirmação (`docs(readme): ...`).
+6. Se restaram lacunas, pergunte se o usuário quer registrá-las no `TASKS.md` via `sk-tasks` (modo Importar, origem `readme`, P2 a P3; fallback em lista no chat).
 
 ---
 

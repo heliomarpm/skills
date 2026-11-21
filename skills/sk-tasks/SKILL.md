@@ -86,7 +86,7 @@ Prioridade é uma dimensão separada do estado: **P0** crítico (segurança, pro
 
 ### 3.3. Campos de uma tarefa
 
-Toda tarefa tem: ID, prioridade, título, **origem** (`manual`, `bug`, `spec <id> / T-NN`, `adr ADR-NNN` ou o nome da skill que a gerou, como `sk-discovery`, `sk-code-review`, `sk-testing`, `sk-refactor`, `sk-debug`, `sk-security`, `sk-devops`, `sk-sql`, `sk-observability`, `sk-api-design`, `sk-system-design`, `sk-ai-engineering`, `sk-design-system` e `sk-tech-*`), **dependências**, **referências** a arquivos e **critérios de aceite** (DoD) observáveis.
+Toda tarefa tem: ID, prioridade, título, **origem** (`manual`, `bug`, `spec <id> / T-NN`, `adr ADR-NNN` ou o nome da skill sem o prefixo `sk-`, como `discovery`, `assessment`, `alignment`, `bootstrap`, `code-review`, `testing`, `refactor`, `debug`, `security`, `devops`, `sql`, `observability`, `api-design`, `system-design`, `ai-engineering`, `design-system`, `readme`, `changelog` e `tech-*`), **dependências**, **referências** a arquivos e **critérios de aceite** (DoD) observáveis.
 
 - **IDs**: `T-NNN`, globais no arquivo, alocados como o maior ID existente (incluindo concluídas, canceladas e arquivadas) mais um. Nunca reutilize um ID.
 - **Links**: sempre relativos ao arquivo, com linha quando útil: `[arquivo.ts](./src/arquivo.ts#L45-L60)`. Nunca `file:///`.
@@ -194,20 +194,20 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
   - Origem: bug | Dep.: nenhuma
   - Ref: [callback_handler.ts](./src/handlers/callback_handler.ts#L45-L60)
   - DoD: URIs fora da whitelist ou sem `https://` retornam `400`; teste cobre os dois casos.
-- [ ] **T-006 · P2 · Endpoint `/oauth/v2/token` (RFC 6749)**
-  - Origem: spec 003 / T-03 | Dep.: T-003, T-004
+- [ ] **T-003 · P1 · Repositório Redis para armazenamento transitório de tokens**
+  - Origem: spec 003 / T-01 | Dep.: nenhuma
 
 ### Média Prioridade
 
-- [ ] **T-003 · P1 · Repositório Redis para armazenamento transitório de tokens**
-  - Origem: spec 003 / T-01 | Dep.: nenhuma
+- [ ] **T-006 · P2 · Endpoint `/oauth/v2/token` (RFC 6749)**
+  - Origem: spec 003 / T-03 | Dep.: T-003, T-004
 - [ ] **T-007 · P2 · Rota de revogação `/oauth/v2/revoke` (RFC 7009)**
   - Origem: spec 003 / T-04 | Dep.: T-006
-- [ ] **T-008 · P3 · Trocar o hash síncrono por Argon2id nativo**
-  - Origem: discovery | Dep.: nenhuma
 
 ### Baixa Prioridade
 
+- [ ] **T-008 · P3 · Trocar o hash síncrono por Argon2id nativo**
+  - Origem: discovery | Dep.: nenhuma
 - [ ] **T-010 · P3 · Documentar o fluxo de autenticação no README**
   - Origem: discovery | Dep.: nenhuma
 
@@ -256,7 +256,7 @@ Ilustrativo. Em arquivo existente, adapte-se ao formato dele (seção 3.1).
 | `sk-challenge` | Dúvidas em aberto de uma tarefa podem ser resolvidas com uma sessão de questionamento antes de refiná-la |
 | `sk-testing` | A evidência de testes vem de lá; os critérios de aceite da spec alimentam o DoD |
 | `sk-git` | O ID da tarefa vai na branch e no rodapé `Refs:` do commit |
-| Demais skills (`sk-code-review`, `sk-refactor`, `sk-debug`, `sk-security`, `sk-devops`, `sk-sql`, `sk-observability`, `sk-api-design`, `sk-system-design`, `sk-adr`, `sk-ai-engineering`, `sk-design-system`, `sk-tech-*`) | Chamam o modo **Importar** com a origem própria e a prioridade P0 a P3 que definem; o `sk-tasks` deduplica e atribui os IDs globais |
+| Demais skills (`sk-assessment`, `sk-alignment`, `sk-bootstrap`, `sk-code-review`, `sk-refactor`, `sk-debug`, `sk-security`, `sk-devops`, `sk-sql`, `sk-observability`, `sk-api-design`, `sk-system-design`, `sk-adr`, `sk-ai-engineering`, `sk-design-system`, `sk-readme`, `sk-changelog`, `sk-tech-*`) | Chamam o modo **Importar** com a origem própria (sem prefixo `sk-`) e a prioridade P0 a P3 que definem; o `sk-tasks` deduplica e atribui os IDs globais |
 
 **Fallback**: se `sk-discovery` ou `sk-spec` não estiverem disponíveis, aceite as pendências como lista simples no chat e importe da mesma forma, com a origem informada pelo usuário.
 

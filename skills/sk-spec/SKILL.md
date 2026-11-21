@@ -34,7 +34,7 @@ Escolha a profundidade pela complexidade e diga qual escolheu:
 
 | Perfil | Quando | Seções |
 | :--- | :--- | :--- |
-| **Leve** | Feature pequena, baixo risco, sem contrato novo | 1, 3, 7 e 9 (premissas) |
+| **Leve** | Feature pequena, baixo risco, sem contrato novo | 1, 3, 7, 9 (premissas), 11 (rastreabilidade) e 13 (histórico) |
 | **Completa** | Feature grande, contratos novos, dados, integração ou alto risco | Todas |
 
 Mantenha cada spec em até ~250 linhas. Se passar disso, proponha dividi-la em specs menores, com dependências explícitas entre elas.
@@ -98,10 +98,12 @@ Cabeçalho de metadados no topo de toda spec:
 ---
 id: 003
 titulo: Cobrança recorrente
-status: rascunho   # rascunho | aprovada | implementada | obsoleta
+status: rascunho         # rascunho | aprovada | implementada | obsoleta
 versao: 0.1.0
 atualizado: AAAA-MM-DD
-depende-de: []     # ids de outras specs, se houver
+depende-de: []           # ids de outras specs, se houver
+substitui: null          # id da spec anterior, se substituir
+substituida-por: null    # id da spec sucessora, quando status: obsoleta
 ---
 ```
 
@@ -167,6 +169,7 @@ Specs `implementada` continuam vivas: qualquer mudança futura de comportamento 
 | Skill | Quando entra |
 | :--- | :--- |
 | `sk-discovery` | Em projeto existente sem arquivos de contexto, sugira rodá-lo antes (apenas sugira) |
+| `sk-assessment` | Diagnóstico do projeto pode gerar propostas de evolução e novas funcionalidades que entram aqui como spec |
 | `sk-adr` | Quando a spec exigir uma decisão arquitetural relevante |
 | `sk-api-design` | Quando a seção de contratos for não trivial |
 | `sk-tasks` | Ao fim do plano de implementação, **com confirmação do usuário**, para registrar as tarefas |

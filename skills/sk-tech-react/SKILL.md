@@ -1,7 +1,7 @@
 ---
 name: sk-tech-react
 description: "Orienta interfaces com React e TypeScript: componentes e props tipados, estado local, de servidor (TanStack Query ou o data layer do framework) e global, Actions e hooks do React 19, formulários, uso correto de efeitos, desempenho com medição, tratamento de erros e acessibilidade. Use sempre que o usuário pedir 'componente React', 'hook', 'formulário', 'estado', 'busca de dados', 'otimize renderização' ou 'migre para React 19', mesmo sem dizer 'React'. NÃO use para tokens e acessibilidade em profundidade (isso é sk-design-system), tipagem em geral (isso é sk-tech-typescript) nem para o backend."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
 # React: interfaces tipadas, previsíveis e rápidas

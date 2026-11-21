@@ -103,7 +103,7 @@ Não aja sobre o resumo sem a confirmação explícita do usuário de que há en
 
 ## 6. Próximos passos
 
-Ofereça, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica), `sk-system-design` (arquitetura) ou `sk-tasks` (plano de trabalho). O resumo serve de insumo: as decisões viram requisitos ou o contexto de um ADR, e as premissas e os riscos vão para a seção de premissas da spec.
+Ofereça, sem executar: `sk-spec` (funcionalidade), `sk-adr` (decisão técnica), `sk-system-design` (arquitetura), `sk-bootstrap` (iniciar repositório novo após decisões), `sk-alignment` (confirmar entendimento com cliente/demandante) ou `sk-tasks` (plano de trabalho). O resumo serve de insumo: as decisões viram requisitos ou o contexto de um ADR, as premissas e os riscos vão para a seção de premissas da spec, e achados do `sk-assessment` podem alimentar novas rodadas.
 
 ---
 

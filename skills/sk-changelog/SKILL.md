@@ -131,11 +131,12 @@ O histórico das versões anteriores a 1.1.0 está disponível nas [tags do repo
 
 ## 6. Entrega
 
-1. Arquivo criado ou atualizado, com link relativo.
-2. **Versões adicionadas** (com datas), lacunas antigas encontradas e o intervalo coberto no `[Unreleased]`.
-3. Itens `(inferido)`, commits ignorados e linhas manuais mantidas sem correspondência, para o usuário conferir.
-4. Sugestões: link do CHANGELOG no `README.md` (`sk-readme`); commit (`docs(changelog): ...`) e tag via `sk-git`; automação de releases via `sk-devops`, sob confirmação.
-5. Se restaram pendências, pergunte se o usuário quer registrá-las no `TASKS.md` via `sk-tasks` (modo Importar, origem `changelog`, P2 a P3; fallback em lista no chat).
+1. Assinatura na primeira mensagem (seção 0) e o modo usado (seção 1).
+2. Arquivo criado ou atualizado, com link relativo.
+3. **Versões adicionadas** (com datas), lacunas antigas encontradas e o intervalo coberto no `[Unreleased]`.
+4. Itens `(inferido)`, commits ignorados e linhas manuais mantidas sem correspondência, para o usuário conferir.
+5. Sugestões: link do CHANGELOG no `README.md` (`sk-readme`); commit (`docs(changelog): ...`) e tag via `sk-git`; automação de releases via `sk-devops`, sob confirmação.
+6. Se restaram pendências, pergunte se o usuário quer registrá-las no `TASKS.md` via `sk-tasks` (modo Importar, origem `changelog`, P2 a P3; fallback em lista no chat).
 
 ---
 

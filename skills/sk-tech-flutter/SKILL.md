@@ -118,7 +118,7 @@ Future<List<Map<String, dynamic>>> parseJsonGrande(String bruto) {
 
 ## 3. Integrações
 
-`sk-design-system` (tokens e acessibilidade), `sk-testing`, `sk-security` (armazenamento e segredos), `sk-api-design` (contratos), `sk-observability` (erros e desempenho), `sk-devops` (build e distribuição), `sk-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
+`sk-design-system` (tokens e acessibilidade), `sk-testing`, `sk-sql` (consultas e índices em persistência local SQLite/Drift), `sk-security` (armazenamento e segredos), `sk-api-design` (contratos), `sk-observability` (erros e desempenho), `sk-devops` (build e distribuição), `sk-code-review`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 

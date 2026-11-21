@@ -182,6 +182,10 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `adr 
 | `sk-refactor` | Decisões estruturais relevantes geram ADR |
 | `sk-observability` | Post-mortem que muda a arquitetura gera ADR |
 | `sk-security` | Decisões de segurança passam pelas regras da seção 0 |
+| `sk-challenge` | Explora e tensiona opções antes de formalizar o ADR |
+| `sk-alignment` | Traduz as decisões e trade-offs registrados para o cliente |
+| `sk-assessment` | Achados arquiteturais do diagnóstico demandam registro de decisão aqui |
+| `sk-bootstrap` | Consome os ADRs iniciais aprovados para montar a base do projeto |
 
 Se alguma não existir, siga o padrão desta skill sem a integração.
 

@@ -1,7 +1,7 @@
 ---
 name: sk-tech-nodejs
 description: "Orienta serviços e pacotes em Node.js moderno: ESM, módulos nativos com prefixo node:, validação de ambiente e de entrada, streams com cancelamento, I/O assíncrono, tratamento de erros, encerramento gracioso e desempenho do event loop. Use sempre que o usuário pedir 'API em Node', 'worker', 'processar arquivo ou stream', 'variáveis de ambiente', 'bloqueou o event loop' ou 'estruture o projeto Node', mesmo sem dizer 'Node.js'. NÃO use para tipagem em geral (isso é sk-tech-typescript), contratos de API (isso é sk-api-design) nem para interfaces (isso é sk-tech-react, sk-tech-vue ou sk-tech-angular)."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(node --test *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(node --test *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
 # Node.js: serviços robustos e eficientes
@@ -112,7 +112,7 @@ await app.listen({ port: env.PORT, host: '0.0.0.0' });
 
 ---
 
-## 3. Segurança, testes e desempenho
+## 3. Integrações
 
 Segredos, validação de entrada e dependências no `sk-security`; testes no `sk-testing`; consultas no `sk-sql`; métricas e shutdown no `sk-observability`; contêiner e CI no `sk-devops`. Para investigar o event loop, meça o atraso (`monitorEventLoopDelay`) e use perfis antes de otimizar.
 

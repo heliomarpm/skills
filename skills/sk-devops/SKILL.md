@@ -249,6 +249,7 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `devo
 | Skill | Como se integra |
 | :--- | :--- |
 | `sk-git` | Convenção de commits que alimenta as releases |
+| `sk-changelog` | Detecta automações de release configuradas aqui para evitar edição manual do CHANGELOG |
 | `sk-security` | Segredos, scanners e hardening |
 | `sk-observability` | Probes, Collector, dashboards e alertas como código |
 | `sk-testing` | Estágios de teste no pipeline |

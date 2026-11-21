@@ -141,10 +141,10 @@ export class ResumoCarrinhoComponent {
 ### 3.3. Busca com `model`, `linkedSignal` e interop com RxJS
 
 ```ts
-import { ChangeDetectionStrategy, Component, inject, linkedSignal, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, linkedSignal, model, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
-import { catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 
 interface Resultado {
   id: string;
@@ -157,6 +157,9 @@ interface Resultado {
   template: `
     <input #campo [value]="termo()" (input)="termo.set(campo.value)" aria-label="Buscar" />
     <p>Página {{ pagina() }}</p>
+    @if (erro()) {
+      <p role="alert">{{ erro() }}</p>
+    }
     <ul>
       @for (r of resultados(); track r.id) {
         <li>{{ r.titulo }}</li>
@@ -169,16 +172,25 @@ export class BuscaComponent {
 
   readonly termo = model(''); // uso no pai: [(termo)]="texto"
   readonly pagina = linkedSignal({ source: this.termo, computation: () => 1 }); // volta à página 1 quando o termo muda (Angular 19+)
+  readonly erro = signal<string | null>(null);
 
   readonly resultados = toSignal(
     toObservable(this.termo).pipe(
       debounceTime(300),
       distinctUntilChanged(),
-      switchMap((t) =>
-        t.length < 2
-          ? of<Resultado[]>([])
-          : this.http.get<Resultado[]>('/api/busca', { params: { q: t } }).pipe(catchError(() => of<Resultado[]>([]))),
-      ),
+      switchMap((t) => {
+        if (t.length < 2) {
+          this.erro.set(null);
+          return of<Resultado[]>([]);
+        }
+        return this.http.get<Resultado[]>('/api/busca', { params: { q: t } }).pipe(
+          tap(() => this.erro.set(null)),
+          catchError(() => {
+            this.erro.set('Não foi possível carregar os resultados.');
+            return of<Resultado[]>([]);
+          }),
+        );
+      }),
     ),
     { initialValue: [] as Resultado[] },
   );

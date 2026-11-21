@@ -2,7 +2,7 @@
 name: sk-bootstrap
 description: "Cria a base de um projeto novo em repositório vazio (ou quase): transforma as decisões já tomadas (stack, arquitetura, spec do MVP) em estrutura de pastas, manifesto, qualidade (linter, formatador, testes), CI mínimo, documentos de contexto iniciais e primeiro commit, sempre com plano aprovado antes de gravar. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir 'inicie o projeto', 'crie a base do projeto', 'bootstrap', 'monte o esqueleto' ou 'configure um repositório novo'. NÃO use em repositório com código existente (isso é sk-discovery), para decidir a stack ou a arquitetura (isso é sk-challenge, sk-system-design e sk-adr) nem para implementar funcionalidades (isso é sk-spec e as sk-tech-*)."
 disable-model-invocation: true
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git ls-files *), Bash(git init), Bash(git branch *), Bash(git add *), Bash(git commit *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *), Bash(dotnet build *), Bash(dotnet test *), Bash(go build *), Bash(go test *), Bash(go vet *), Bash(pytest *), Bash(python -m pytest *), Bash(ruff *), Bash(cargo test *), Bash(flutter test *), Bash(flutter analyze *), Bash(composer test *), Bash(mvn test *), Bash(./gradlew test *)
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git ls-files *), Bash(git init), Bash(git branch *), Bash(git add *), Bash(git commit *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *), Bash(dotnet build *), Bash(dotnet test *), Bash(go build *), Bash(go test *), Bash(go vet *), Bash(pytest *), Bash(python -m pytest *), Bash(uv run pytest *), Bash(ruff *), Bash(flutter test *), Bash(flutter analyze *), Bash(dart test *), Bash(composer test *), Bash(mvn test *), Bash(./mvnw test *), Bash(gradle test *), Bash(./gradlew test *)
 ---
 
 # Bootstrap: da decisão ao repositório utilizável
@@ -94,9 +94,9 @@ Mantenha o **mínimo viável**: nada de microsserviços, orquestração ou dez f
 | Decisão | Valor | Origem |
 | :--- | :--- | :--- |
 | Tipo | API REST | spec 001 |
-| Stack | TypeScript e Node (versão LTS atual) | ADR-0001 |
+| Stack | TypeScript e Node (versão LTS atual) | ADR-001 |
 | Gerenciador de pacotes | pnpm | (assumido) |
-| Banco | PostgreSQL | ADR-0002 |
+| Banco | PostgreSQL | ADR-002 |
 | CI | GitHub Actions | usuário |
 | Licença | MIT | usuário |
 

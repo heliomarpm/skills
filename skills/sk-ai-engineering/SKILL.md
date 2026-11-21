@@ -186,7 +186,12 @@ export async function executarCriarPedido(args: unknown, sessao: Sessao): Promis
 ```python
 import asyncio
 from collections import defaultdict
-from typing import Any
+from typing import Any, Protocol
+
+
+class Usuario(Protocol):
+    tenant_id: str
+    grupos: list[str]
 
 
 def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
@@ -195,10 +200,10 @@ def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
     for ranking in rankings:
         for pos, doc_id in enumerate(ranking, start=1):
             scores[doc_id] += 1.0 / (k + pos)
-    return sorted(scores, key=scores.get, reverse=True)
+    return sorted(scores, key=lambda doc_id: scores[doc_id], reverse=True)
 
 
-async def retrieve(query: str, usuario, top_k: int = 5) -> list[dict[str, Any]]:
+async def retrieve(query: str, usuario: Usuario, top_k: int = 5) -> list[dict[str, Any]]:
     # Permissões aplicadas NA busca, antes de recuperar
     filtro = {"tenant": usuario.tenant_id, "acl": usuario.grupos}
 

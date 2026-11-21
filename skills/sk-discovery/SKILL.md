@@ -1,6 +1,6 @@
 ---
 name: sk-discovery
-description: "Explora repositórios existentes (brownfield/legados) e gera ou atualiza a base de documentação de contexto para assistentes de IA: CONTEXT.md e AGENTS.md sempre, e, conforme o que o repositório justificar, ARCHITECTURE.md, DATA.md, PRD.md, GUIDELINE.md, TESTING.md, OPERATIONS.md, DECISIONS.md e GLOSSARY.md. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir discovery, mapeamento, onboarding, exploração do repositório ou a criação/atualização desses arquivos (ex.: 'faça o discovery do projeto', 'mapeie este repositório', 'gere o PRD.md e o ARCHITECTURE.md', 'atualize o CONTEXT.md'). Nunca acione em tarefas comuns de código, refatoração, correção de bugs ou perguntas pontuais."
+description: "Explora repositórios existentes (brownfield/legados) e gera ou atualiza a base de documentação de contexto para assistentes de IA: CONTEXT.md e AGENTS.md sempre, e, conforme o que o repositório justificar, ARCHITECTURE.md, DATA.md, PRD.md, GUIDELINE.md, TESTING.md, OPERATIONS.md, DECISIONS.md e GLOSSARY.md. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir discovery, mapeamento, onboarding, exploração do repositório ou a criação/atualização desses arquivos (ex.: 'faça o discovery do projeto', 'mapeie este repositório', 'gere o PRD.md e o ARCHITECTURE.md', 'atualize o CONTEXT.md'). Nunca acione em tarefas comuns de código, refatoração, correção de bugs ou perguntas pontuais. NÃO use em repositório novo/vazio (isso é sk-bootstrap) nem para diagnóstico crítico de saúde e roadmap de melhorias (isso é sk-assessment)."
 disable-model-invocation: true
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git status *), Bash(git log *), Bash(git remote *), Bash(git branch *), Bash(git rev-parse *), Bash(git ls-files *)
 ---
@@ -17,7 +17,7 @@ Orienta a exploração metódica de bases de código preexistentes e a síntese 
 
 As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
-**Ativação exclusivamente explícita.** Nunca execute esta skill por conta própria durante codificação, refatoração ou correção de bugs. Gatilhos válidos são pedidos diretos como "faça o discovery", "explore o repositório e gere o contexto", "crie ou atualize o CONTEXT.md / AGENTS.md / PRD.md". Para uma pergunta pontual de código, responda normalmente, sem varredura completa.
+**Ativação exclusivamente explícita.** Nunca execute esta skill por conta própria durante codificação, refatoração ou correção de bugs. Gatilhos válidos são pedidos diretos como "faça o discovery", "explore o repositório e gere o contexto", "crie ou atualize o CONTEXT.md / AGENTS.md / PRD.md". Para uma pergunta pontual de código, responda normalmente, sem varredura completa. Se o repositório estiver vazio (sem código-fonte), pare e sugira o `sk-bootstrap`.
 
 **Evidência antes de afirmação.** Todo fato escrito nos artefatos deve ser rastreável a um arquivo do repositório. O que for dedução recebe a marca `(inferido)`; o que não puder ser deduzido recebe `[A CONFIRMAR]`. Nunca invente metas de negócio, comandos, versões ou nomes de serviços.
 
@@ -239,7 +239,7 @@ As seções **Skills aplicáveis** e **Decisões críticas** são opcionais: a p
 
 ### 4.3. Artefatos condicionais
 
-Para cada artefato aprovado no plano de entrega, siga o cabeçalho e o rodapé da seção 3.5 e inclua, no mínimo:
+Para cada artefato aprovado no plano de entrega, use os esqueletos de [templates/artefatos-condicionais.md](./templates/artefatos-condicionais.md), siga o cabeçalho e o rodapé da seção 3.5 e inclua, no mínimo:
 
 - **`ARCHITECTURE.md`**: estilo arquitetural e justificativa observável; diagrama de componentes em Mermaid (um só, enxuto); fluxo da requisição ou do caso de uso principal; tabela de módulos com responsabilidade e dependências; pontos de extensão; riscos arquiteturais observados. Para C4 completo ou decisões de desenho, aponte o `sk-system-design`.
 - **`DATA.md`**: banco e ferramenta de migração; 5 a 10 entidades centrais com papel e relacionamentos; mensageria e cache; sistemas externos (autenticação, pagamentos, APIs terceiras) com onde são chamados.
@@ -252,13 +252,21 @@ Para cada artefato aprovado no plano de entrega, siga o cabeçalho e o rodapé d
 
 ---
 
-## 5. Integração com `sk-tasks` (ao final)
+## 5. Integrações e registro via `sk-tasks`
 
 Se a varredura encontrou débitos técnicos, documentação divergente do código, ausência de testes ou lacunas marcadas `[A CONFIRMAR]`, pergunte:
 
 > *"Mapeamento concluído. Identifiquei débitos e lacunas durante a varredura. Deseja que eu os registre no `TASKS.md` do projeto?"*
 
-Com a confirmação, acione a skill `sk-tasks`. **Fallback**: se `sk-tasks` não estiver disponível, crie ou atualize o `TASKS.md` diretamente, com uma lista de itens (título, motivo, arquivo de origem), ou apresente a lista no chat se o usuário preferir. Não registre nada sem confirmação.
+Com a confirmação, acione a skill `sk-tasks` (modo Importar, origem `discovery`). **Fallback**: se `sk-tasks` não estiver disponível, crie ou atualize o `TASKS.md` diretamente, com uma lista de itens (título, motivo, arquivo de origem), ou apresente a lista no chat se o usuário preferir. Não registre nada sem confirmação.
+
+| Skill | Como se integra |
+| :--- | :--- |
+| `sk-bootstrap` | Repositório vazio ou sem código-fonte deve iniciar por lá |
+| `sk-assessment` | Diagnóstico crítico 360° e plano de melhorias após gerar o contexto |
+| `sk-challenge` / `sk-spec` | Próximos passos de decisão técnica e especificação sobre o contexto gerado |
+| `sk-adr` | Índice em `DECISIONS.md` e criação de ADRs retroativos completos |
+| `sk-readme` | Documentação de entrada para humanos usando o contexto descoberto como fonte |
 
 ---
 

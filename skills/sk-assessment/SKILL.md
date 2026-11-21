@@ -2,7 +2,7 @@
 name: sk-assessment
 description: "Avalia um projeto existente como um todo com rigor crítico e franqueza, apontando fraquezas, dívidas e potencial de excelência sem bajulação: diagnostica arquitetura, clean code, performance, segurança, dados e observabilidade, identifica duplicidades para mesclar ou podar, recomenda novas funcionalidades e traça roadmap de curto a longo prazo com evidências e prioridades. ATIVAÇÃO EXCLUSIVAMENTE EXPLÍCITA: use somente quando o usuário pedir 'avalie o projeto', 'o que posso melhorar?', 'faça um diagnóstico do projeto', 'sugira evoluções e novas funcionalidades', 'audite a arquitetura' ou 'faça um health check do repositório'. NÃO use para revisar um diff (isso é sk-code-review), mapear o contexto (isso é sk-discovery), decidir ou especificar (isso é sk-challenge e sk-spec) nem para corrigir os problemas encontrados."
 disable-model-invocation: true
-allowed-tools: Read, Write, Grep, Glob, Bash(git log *), Bash(git ls-files *), Bash(git status *), Bash(git shortlog *), Bash(git remote *), Bash(npm audit), Bash(npm outdated), Bash(pnpm audit), Bash(pnpm outdated), Bash(pip-audit), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(dotnet list * --outdated)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *), Bash(git ls-files *), Bash(git status *), Bash(git shortlog *), Bash(git remote *), Bash(npm audit), Bash(npm outdated), Bash(pnpm audit), Bash(pnpm outdated), Bash(pip-audit), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(dotnet list * --outdated)
 ---
 
 # Assessment: diagnóstico crítico, excelência técnica e evolução contínua
@@ -224,7 +224,7 @@ _Espaço reservado para anotações manuais da equipe. A skill não altera esta 
 | `sk-spec` & `sk-adr` | Especificam os critérios de aceite das melhorias e registram as decisões técnicas aprovadas. |
 | `sk-refactor` | Executa a fusão de módulos, eliminação de duplicidades e melhorias de clean code. |
 | `sk-testing`, `sk-sql`, `sk-security`, `sk-observability`, `sk-devops` | Implementam os achados técnicos específicos de cada especialidade. |
-| `sk-tasks` | Recebe e rastreia os achados aprovados no backlog (`TASKS.md`), classificados por horizonte e prioridade. |
+| `sk-tasks` | Recebe e rastreia os achados aprovados no backlog (`TASKS.md`) (modo Importar, origem `assessment`, classificados por horizonte e prioridade; fallback em lista no chat). |
 
 ---
 

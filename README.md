@@ -50,7 +50,7 @@ Skills com etapas, pontos de aprovação e integração entre si. Ordem típica:
 
 
 ***🔒 indica ativação exclusivamente explícita.***
-> 💡 **[Guia prático com exemplo de uso do `sk-spec` (SDD)](GUIA_PRATICO_SDD.md)**
+> 💡 **[Guia prático com exemplo de uso do `sk-spec` (SDD)](docs/GUIA_PRATICO_SDD.md)**
 
 ### 1.2. Domínios e práticas
 
@@ -160,7 +160,7 @@ Vincular **cada skill** (e não a pasta `skills/` inteira) evita um nível extra
 $destino = "$HOME\.claude\skills" # ou \.agent\skills, \.gemini\skills, \.codex\skills, etc.
 New-Item -ItemType Directory -Force $destino | Out-Null
 
-Get-ChildItem .\skills -Directory | ForEach-Object {
+Get-ChildItem .\skills -Directory -Filter "sk-*" | ForEach-Object {
   New-Item -ItemType Junction -Path (Join-Path $destino $_.Name) -Target $_.FullName
 }
 ```
