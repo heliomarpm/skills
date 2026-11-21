@@ -39,12 +39,12 @@ sequenceDiagram
     VOCE->>IA: 2. "Spec Aprovada! Registre as tarefas com sk-tasks"
     activate IA
     IA->>SPEC: Altera status para "aprovada"
-    IA->>TASKS: Importa tarefas atômicas (T-01, T-02...)
+    IA->>TASKS: Importa tarefas atômicas (T-01..T-04 viram T-001, T-002...)
     IA-->>VOCE: "Backlog pronto em TASKS.md. Podemos codificar?"
     deactivate IA
 
     Note over VOCE, CODE: FASE 3: IMPLEMENTAÇÃO TDD
-    VOCE->>IA: 3. "Implemente a tarefa T-01 seguindo sk-testing"
+    VOCE->>IA: 3. "Implemente a tarefa T-001 seguindo a stack e sk-testing"
     activate IA
     IA->>CODE: Escreve teste do critério Given/When/Then (🔴 Vermelho)
     IA->>CODE: Escreve código para passar o teste (🟢 Verde)
@@ -52,16 +52,19 @@ sequenceDiagram
     IA-->>VOCE: Reporta testes passando e tarefa finalizada
     deactivate IA
 
-    Note over VOCE, CODE: FASE 4: FECHAMENTO & RASTREABILIDADE
-    VOCE->>IA: 4. "Tudo validado! Feche a spec e gere o commit"
+    Note over VOCE, CODE: FASE 4: REVISÃO, FECHAMENTO & RASTREABILIDADE
+    VOCE->>IA: 4. "Revise o diff, feche a spec e gere o commit"
     activate IA
+    IA->>CODE: Executa sk-code-review (2 eixos: spec + qualidade)
     IA->>SPEC: Preenche rastreabilidade e muda status para "implementada"
     IA-->>VOCE: Prepara commit semântico via sk-git
     deactivate IA
 ```
 
 * 👤 **Você (Humano):** Pensa, define o objetivo, revisa, aprova e decide se está pronto. **Você é o Diretor.**
-* 🤖 **A IA:** Pesquisa código existente, formata requisitos, escreve cenários de teste (*Given/When/Then*), decompõe tarefas, codifica e roda testes. **Ela é o Braço Operacional.**
+* 🤖 **A IA:** Pesquisa código existente, formata requisitos, escreve cenários de teste (*Given/When/Then*), decompõe tarefas, codifica, revisa e roda testes. **Ela é o Braço Operacional.**
+
+> 💡 **Dicas de entrada no fluxo:** em repositório existente sem contexto, rode antes `/sk-discovery`; em projeto do zero, crie a base com `/sk-bootstrap` após aprovar a spec inicial. Se a ideia ainda tiver dúvidas ou opções em aberto, tensione antes com `sk-challenge`; se precisar validar o entendimento com cliente não técnico, use `/sk-alignment`.
 
 ---
 
@@ -77,7 +80,7 @@ Imagine uma demanda comum de produto: permitir que uma pessoa **recupere o acess
   > *"Precisamos permitir que a pessoa recupere o acesso à conta quando esquecer a senha. Pensei em enviar um link por e-mail para ela criar uma nova senha. Analise o fluxo atual de autenticação e proponha os requisitos e critérios de aceite dessa mudança. Primeiro quero revisar a especificação; não implemente ainda."*
 
 * 🤖 **A IA FAZ (Automático):**
-  1. Ativa a skill com a assinatura: `> 🧠 **Skill Ativada**: sk-spec`.
+  1. Ativa a skill com a assinatura: ``> 🧠 **Skill Ativada**: `sk-spec` ``.
   2. Cria o arquivo `docs/specs/001-recuperacao-de-senha.md` com `status: rascunho`.
   3. Escreve os requisitos (`RF-01`, `RF-02`), os cenários de teste Given/When/Then (`CA-01`, `CA-02`) e o plano preliminar (`T-01..T-04`).
   4. 🛑 **A IA PUXA O FREIO DE MÃO:** Ela **para obrigatoriamente** e pergunta: *"Posso aprovar e gerar as tarefas?"*.
@@ -92,33 +95,34 @@ Imagine uma demanda comum de produto: permitir que uma pessoa **recupere o acess
 * 🤖 **A IA FAZ (Automático):**
   1. Altera o frontmatter da spec para `status: aprovada`.
   2. Aciona `sk-tasks` no modo **Importar**.
-  3. Registra as tarefas no `TASKS.md` com origem, prioridade e vínculo aos requisitos.
+  3. Registra as tarefas no `TASKS.md` com origem, prioridade e vínculo aos requisitos (os passos `T-01..T-04` da spec viram IDs globais `T-001, T-002...` no backlog).
 
 ---
 
 ### Passo 3: Implementação Tarefa por Tarefa
 * 👤 **VOCÊ FAZ (Manual):** Você autoriza o início da codificação.
   > **Prompt:**  
-  > *"Inicie a implementação da T-001 e T-002 seguindo sk-tech-typescript e sk-testing."*
+  > *"Inicie a implementação da T-001 e T-002 seguindo a stack do projeto e sk-testing."*
 
 * 🤖 **A IA FAZ (Automático):**
   1. Cria o teste automatizado primeiro (TDD) refletindo o critério Given/When/Then.
   2. Executa o teste e confirma que falhou (vermelho).
-  3. Escreve a implementação em TypeScript estrito.
+  3. Escreve a implementação seguindo a stack do projeto (ex.: TypeScript + Node.js).
   4. Executa o teste novamente e confirma que passou (verde).
   5. Vai no `TASKS.md` e marca a tarefa com `[x]`.
 
 ---
 
-### Passo 4: Fechando a Spec
-* 👤 **VOCÊ FAZ (Manual):** Após ver todas as tarefas concluídas, pede o fechamento.
+### Passo 4: Revisando e Fechando a Spec
+* 👤 **VOCÊ FAZ (Manual):** Após ver todas as tarefas concluídas, pede revisão e fechamento.
   > **Prompt:**  
-  > *"Todas as tarefas da Spec 001 foram concluídas com os testes passando. Finalize a spec e gere o commit."*
+  > *"Todas as tarefas da Spec 001 foram concluídas com os testes passando. Faça o code review, finalize a spec e gere o commit."*
 
 * 🤖 **A IA FAZ (Automático):**
-  1. Abre `docs/specs/001-recuperacao-de-senha.md` e muda para `status: implementada`.
-  2. Preenche a tabela de rastreabilidade (ligando cada critério `CA-NN` ao arquivo de teste real criado).
-  3. Aciona a skill `sk-git` e prepara o commit semântico (ex: `feat(auth): implementar recuperação de senha por link`).
+  1. Executa `sk-code-review` sobre o diff (aderência à spec + qualidade/segurança).
+  2. Abre `docs/specs/001-recuperacao-de-senha.md` e muda para `status: implementada`.
+  3. Preenche a tabela de rastreabilidade (ligando cada critério `CA-NN` ao arquivo de teste real criado).
+  4. Aciona a skill `sk-git` e prepara o commit semântico (ex: `feat(auth): implementar recuperação de senha por link`).
 
 > 📌 **Resultado do Ciclo 1:** A `Spec 001` está no repositório com `status: implementada`. Ela **NÃO é deletada** nem arquivada; ela é agora a documentação viva e oficial do fluxo de recuperação de senha.
 
@@ -173,16 +177,17 @@ Durante a implementação, o produto decide que links de recuperação podem ser
 
 ---
 
-### Passo 4: Fechando a Nova Spec
+### Passo 4: Revisando e Fechando a Nova Spec
 * 👤 **VOCÊ FAZ (Manual):**
   > **Prompt:**  
-  > *"Tudo testado e aprovado. Feche a Spec 002 e prepare o commit."*
+  > *"Tudo testado e aprovado. Revise com sk-code-review, feche a Spec 002 e prepare o commit."*
 
 * 🤖 **A IA FAZ (Automático):**
-  1. Muda a `Spec 002` para `status: implementada`.
-  2. Preenche a rastreabilidade com os novos testes do fluxo de recuperação por código.
-  3. Gera o commit semântico:  
-     `feat(auth): ✨ substituir link por código na recuperação de senha`
+  1. Executa `sk-code-review` para garantir remoção segura do fluxo legado e conformidade com a Spec 002.
+  2. Muda a `Spec 002` para `status: implementada`.
+  3. Preenche a rastreabilidade com os novos testes do fluxo de recuperação por código.
+  4. Gera o commit semântico (padrão limpo; gitmoji é opcional):  
+     `feat(auth): substituir link por código na recuperação de senha`
 
 ---
 
@@ -205,5 +210,7 @@ Durante a implementação, o produto decide que links de recuperação podem ser
 2. **Spec antiga nunca vai para a lixeira:**  
    Não delete arquivos de spec. Mudar para `status: obsoleta` preserva a memória histórica de por que o sistema funcionava daquele jeito antes.
 3. **Spec é O QUÊ / ADR é POR QUÊ:**  
-   - Se você está definindo regras de negócio, telas, rotas e testes $\to$ **Use `sk-spec`**.
-   - Se você está escolhendo entre MongoDB ou PostgreSQL, Kafka ou RabbitMQ $\to$ **Use `sk-adr`**.
+   - Se você está definindo regras de negócio, telas, rotas e testes → **Use `sk-spec`**.
+   - Se você está escolhendo entre MongoDB ou PostgreSQL, Kafka ou RabbitMQ → **Use `sk-adr`**.
+
+> 🛡️ **Para o dia a dia render sem surpresas:** para mudanças pequenas, a `sk-spec` oferece o perfil **Leve** (enxuto) em vez da **Completa**; durante o código, as skills usam **Circuit Breaker** — se um teste ou build falhar **3 vezes seguidas**, a IA para e pede sua orientação antes de ficar em loop.
