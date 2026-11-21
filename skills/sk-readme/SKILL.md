@@ -81,6 +81,7 @@ Adapte à realidade do projeto. **Cada seção só entra se houver dado concreto
 ## 4. Qualidade
 
 - Sem texto genérico: cada afirmação aponta para algo do repositório.
+- Voz ativa e direta: corte aberturas de enrolação (*"No cenário atual..."*, *"Vale ressaltar que..."*), advérbios vazios e contrastes artificiais (*"não apenas X, mas também Y"*).
 - Blocos de código com a linguagem indicada (`bash`, `typescript`...).
 - Links relativos e **validados** (confira a existência dos arquivos com `Glob`).
 - Árvores de diretório alinhadas à hierarquia real.

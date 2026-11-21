@@ -30,4 +30,11 @@ Contrato comum das 34 skills `sk-*`. No modo plugin, este arquivo é instalado c
 
 ## 7. Higiene no Windows, UTF-8 e finais de linha
 - Gere e edite arquivos de documentação, código e scripts Unix em **UTF-8 sem BOM** com final de linha **LF**; scripts PowerShell (`*.ps1`) usam **CRLF**.
-- Ao commitar ou abrir PR pelo terminal no Windows com textos acentuados ou multilinhas, grave a mensagem em arquivo UTF-8 e use `-F <arquivo>` em vez de passar strings inline no PowerShell.
+- Ao commitar ou abrir PR pelo terminal com textos acentuados ou multilinhas no Windows, grave a mensagem em arquivo UTF-8 e use `-F <arquivo>` em vez de passar strings inline no PowerShell.
+
+## 8. Escrita clara e direta (sem vícios de IA)
+- Use **voz ativa** e nomeie quem age ou decide (evite falsa agência como *"a decisão emergiu"* ou *"os dados mostram por si"*).
+- Corte aberturas de enrolação (*"Vale ressaltar que"*, *"No cenário atual"*) e advérbios vazios (*"realmente"*, *"simplesmente"*, *"fundamentalmente"*).
+- Elimine contrastes binários artificiais (*"não é X, é Y"*, *"não apenas X, mas também Y"*): afirme direto o ponto concreto.
+- Substitua declarativas vagas (*"impacto significativo"*) por número, comportamento ou restrição verificada.
+- Mantenha postura consistente da equipe (**voz**) e adapte o **tom** ao público (cliente, incidente, documentação técnica).

@@ -152,7 +152,7 @@ Se restarem pendências relevantes não resolvidas, pergunte ao final se o usuá
 - **Inventar versão, data ou links.**
 - **Incluir ruído** (`chore`, `ci`, formatação).
 - **Editar à mão um arquivo gerado por automação.**
-- **Texto técnico demais**: descreva o efeito para quem usa o projeto.
+- **Texto técnico demais ou vago**: descreva em voz ativa o que mudou e o efeito concreto para quem usa o projeto (evite entradas genéricas como *"melhorias gerais de performance"*).
 - **Perder as quebras de contrato**: devem aparecer em destaque.
 
 ---

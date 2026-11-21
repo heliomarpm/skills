@@ -23,7 +23,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Sem compromissos novos.** Não inclua prazo, custo, garantia ou promessa que não estejam nas fontes.
 
-**Linguagem do público.** Frases curtas, sem jargão (ou com a explicação no próprio texto) e com exemplos concretos do dia a dia do cliente. O idioma é o do cliente; sem essa informação, o da spec.
+**Linguagem do público.** Frases curtas, voz ativa, sem jargão (ou com a explicação no próprio texto) e sem vícios artificiais de texto (enrolação, advérbios vazios, contrastes *"não é X, é Y"*). O idioma é o do cliente; sem essa informação, o da spec. Para revisão de clareza, tom e roteiro visual, consulte [references/clear-writing-and-slides.md](./references/clear-writing-and-slides.md).
 
 **Conteúdo sensível.** Não exponha vulnerabilidades, segredos, custos internos nem detalhes que só interessam ao time. Segurança aparece em termos de efeito ("o acesso depende do perfil do usuário").
 
@@ -102,7 +102,7 @@ O documento tem **versão** e **status** no cabeçalho: `Rascunho`, `Enviado`, `
 ## 6. Formato e modelo
 
 - **Markdown** em `docs/alignments/<id-da-spec>-<tema>.md`.
-- **Word, PDF ou apresentação**: converta somente a pedido, se o ambiente tiver ferramentas de documento. Para apresentação, ofereça antes um **roteiro de 5 a 8 slides** (título e pontos de cada um), com a mesma estrutura do documento.
+- **Word, PDF ou apresentação**: converta somente a pedido, se o ambiente tiver ferramentas de documento. Para apresentação, ofereça antes um **roteiro de 6 a 8 slides** seguindo os formatos de layout e densidade em [references/clear-writing-and-slides.md](./references/clear-writing-and-slides.md).
 - Consulte o modelo de referência em [references/alignment-template.md](./references/alignment-template.md) ao gerar um documento novo.
 
 ---

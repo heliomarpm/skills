@@ -1,6 +1,6 @@
-# Referência: Tokens no Tailwind CSS v4 e Composição shadcn/ui (`sk-design-system`)
+# Referência: Tailwind CSS, Responsividade e Composição shadcn/ui (`sk-design-system`)
 
-Consulte este guia quando o projeto adotar **Tailwind CSS** (especialmente v4 com `@theme`) e/ou **shadcn/ui + Radix UI**. A implementação final de código React/Vue/Angular fica na `sk-tech-*` da stack.
+Consulte este guia quando o projeto adotar **Tailwind CSS** (v3 ou v4 com `@theme`) e/ou **componentes baseados em Radix / composição**. A implementação final em React, Vue ou Angular fica na `sk-tech-*` da stack.
 
 ## 1. Mapeamento das 3 camadas para Tailwind v4 (`@theme inline`)
 - **Primitivos** e **semânticos** continuam definidos como custom properties CSS (`:root` para claro, `[data-theme="dark"]` ou `.dark` para escuro).
@@ -40,18 +40,33 @@ Consulte este guia quando o projeto adotar **Tailwind CSS** (especialmente v4 co
 }
 ```
 
-## 2. Regras de composição com shadcn/ui e Radix
-- **Não trate shadcn/ui como biblioteca opaca**: os componentes vivem no repositório do projeto (`components/ui/*`). Audite foco, contraste e estados ao adicioná-los e ajuste usando os tokens semânticos acima.
-- **Polimorfismo seguro (`asChild` / `Slot`)**: mantenha semântica HTML correta ao compor botão com link (`<Button asChild><a href="...">...</a></Button>`) em vez de aninhar `<a>` dentro de `<button>`.
-- **Variantes tipadas (`cva` + `cn`)**: concentre variantes (`variant`, `size`) e classes de foco (`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`) no componente base; nunca remova `ring` sem substituto visível.
-- **Estados obrigatórios**: garanta estilos distintos para `hover`, `active`, `focus-visible`, `disabled` / `aria-disabled` e `aria-invalid="true"` nos controles de formulário.
-- **Tema sem FOUC**: em apps SSR/Next.js, sincronize a classe `.dark` ou `data-theme` em script inline mínimo antes da hidratação para evitar flash claro→escuro.
+> Você pode gerar esse arquivo automaticamente a partir do [design-tokens-starter.json](../templates/design-tokens-starter.json) usando [generate-tokens.cjs](../scripts/generate-tokens.cjs) (`--format tailwind-v4`).
 
-## 3. Auditoria de valores fixos (`Grep`) e checklist
+---
+
+## 2. Composição acessível, teclado e leitores de tela (Radix / shadcn)
+- **Não trate componentes gerados em `components/ui/*` como caixa-preta**: audite foco, contraste nos dois temas e papéis ARIA ao incorporá-los.
+- **Polimorfismo seguro (`asChild` / `Slot`)**: mantenha semântica HTML correta ao compor botão com link (`<Button asChild><a href="...">...</a></Button>`) em vez de aninhar `<a>` dentro de `<button>`.
+- **Atalho de salto (*Skip link*)**: forneça `<a href="#main-content" className="sr-only focus:not-sr-only ...">` no topo de layouts com navegação extensa.
+- **Regiões dinâmicas (*Live regions*)**: status não urgentes usam `aria-live="polite" aria-atomic="true"`; erros críticos imediatos usam `role="alert"` ou `aria-live="assertive"`.
+- **Modais, menus e abas**: garanta armadilha de foco (*focus trap*), fechamento por `Esc`, retorno do foco ao gatilho ao fechar e navegação por setas em listas/menus.
+- **Formulários**: agrupe controles relacionados com `<fieldset>` + `<legend>`, associe erros com `aria-invalid` + `aria-describedby` apontando para o `id` da mensagem e reserve indicação de obrigatório para leitores de tela (`sr-only`).
+- **Variantes tipadas (`cva` + `cn`) e movimento reduzido**: mantenha anel visível (`focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`) e respeite `motion-reduce:transition-none` (e `@media (prefers-reduced-motion: reduce)` no CSS global).
+
+---
+
+## 3. Responsividade mobile-first e Container Queries
+- **Mobile-first real**: defina o layout base em `1` coluna para telas pequenas (`320–375 px`) e evolua com `md:` / `lg:`. Limite cada componente a **`2–3` breakpoints** consistentes em vez de misturar 6 prefixos diferentes no mesmo elemento.
+- **Container Queries (`@container`) para componentes reutilizáveis**: quando um card, widget ou painel precisa se adaptar ao espaço do pai (sidebar vs área principal) e não à viewport, envolva o pai com `@container` e estilize filhos com `@md:grid-cols-2`, `@lg:grid-cols-3`.
+- **Limites obrigatórios de teste**: verifique `320–375 px`, `640 px`, `768 px`, `1024 px`, `1280 px`, orientação paisagem e zoom de `200%` (sem scroll horizontal indesejado nem texto sobreposto).
+
+---
+
+## 4. Auditoria de valores fixos e conformidade
 Antes de aprovar componentes estilizados com Tailwind:
-1. Busque cores e dimensões arbitrárias hardcoded com `Grep`:
+1. Rode o auditor automático [validate-tokens.cjs](../scripts/validate-tokens.cjs) (`node <pasta-sk-design-system>/scripts/validate-tokens.cjs --dir src/`) ou busque padrões fixos com `Grep`:
    - `bg-\[#|text-\[#|border-\[#|ring-\[#`
-   - `#[0-9a-fA-F]{3,8}` em componentes UI fora da definição de tokens primitivos
+   - `#[0-9a-fA-F]{3,8}` fora de arquivos de definição de tokens (`tokens.*`, `globals.css`)
 2. Mapeie cada ocorrência para o token semântico equivalente em `@theme inline`.
-3. Valide razão de contraste **nos dois temas** (claro e escuro), inclusive em texto secundário (`muted-foreground`), bordas de `input` (>= 3:1) e estados de erro.
-4. Prefira `rem` (escala padrão do Tailwind respeita o zoom de fonte do navegador); reserve `px` fixo para bordas (`1px`) e ícones alinhados ao alvo mínimo de `24×24 px` (ou área clicável equivalente).
+3. Valide razão de contraste **nos dois temas** (claro e escuro), inclusive em texto secundário (`muted-foreground`), bordas de `input` (`>= 3:1`) e estados de erro.
+4. Prefira `rem` (a escala padrão do Tailwind respeita o zoom de fonte do navegador); reserve `px` fixo para bordas (`1px`) e garanta alvos clicáveis de no mínimo `24×24 px` (web) ou `44×44 px` (fluxos mobile).

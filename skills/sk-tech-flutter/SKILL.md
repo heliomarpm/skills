@@ -38,7 +38,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - **Processamento pesado** fora da thread de interface: `Isolate.run` (não existe na web; use `compute` ou um *web worker* nesse caso).
 - **Erros**: mapeie para mensagens ao usuário; nunca exiba a exceção bruta; registre em um serviço de observabilidade (`sk-observability`).
 - **Segurança**: nenhuma chave secreta dentro do app (é extraível); armazenamento seguro para tokens; validação no servidor (`sk-security`).
-- **Acessibilidade**: `Semantics`, contraste, alvos de toque e texto ampliável (`sk-design-system`).
+- **Acessibilidade**: `Semantics`, alvos de toque `>= 44×44 pt` (iOS) / `>= 48×48 dp` (Android), `SafeArea` em cabeçalhos e barras fixas, ícones vetoriais (sem emojis estruturais), texto ampliável e contraste validado em claro e escuro (`sk-design-system`).
 - **Testes**: testes de widget, *golden*, `integration_test` e `mocktail`, com repositórios falsos (`sk-testing`).
 
 ---

@@ -80,7 +80,7 @@ Em execução não interativa use `docs/adr/`.
 
 1. **Contexto**: procure ADRs existentes (duplicatas e conflitos) e leia `ARCHITECTURE.md`, `DECISIONS.md` e a spec relacionada.
 2. **Escolha o formato**: o **curto** para decisões simples (contexto, decisão, consequências); o **completo** quando há várias alternativas ou impacto amplo. Limite de ~100 linhas por ADR.
-3. **Redija com neutralidade**: inclua o status quo entre as alternativas, apresente cada opção não escolhida no seu melhor argumento e liste consequências negativas reais.
+3. **Redija com neutralidade**: inclua o status quo entre as alternativas, apresente cada opção não escolhida no seu melhor argumento e liste consequências negativas reais. Use voz ativa e consequências concretas (nada de *"a decisão emergiu"* nem *"implicações significativas"* sem número ou efeito real).
 4. **Recomende** uma opção, com a justificativa, e deixe o ADR como **Proposto**.
 5. **Aprovação**: ao receber a aprovação explícita, mude para **Aceito** e atualize o índice.
 6. **Vínculos**: linke a spec, as tarefas e os ADRs relacionados; peça ao usuário para referenciar os ADRs críticos no `AGENTS.md` e no `GUIDELINE.md`.

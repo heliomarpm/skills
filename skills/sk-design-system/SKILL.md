@@ -53,9 +53,9 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Governança**: nomes por **função**, não por aparência (nunca `--blue`); versionamento e depreciação de tokens; formato DTCG e Style Dictionary quando houver múltiplas plataformas. Defina o tema antes da primeira pintura para evitar o flash de tema (FOUC).
 
-**Escalas completas**: tipografia (em `rem`, respeitando o zoom do usuário), espaçamento, raios, elevação, movimento, breakpoints e densidade. Consulte a implementação CSS completa (claro e escuro) em [examples/tokens-and-components.md](./examples/tokens-and-components.md).
+**Escalas completas**: tipografia (em `rem`, respeitando o zoom do usuário), espaçamento, raios, elevação, movimento, breakpoints e densidade. Consulte o starter JSON DTCG em [templates/design-tokens-starter.json](./templates/design-tokens-starter.json), o gerador CSS/`@theme` em [scripts/generate-tokens.cjs](./scripts/generate-tokens.cjs) e a implementação CSS completa (claro e escuro) em [examples/tokens-and-components.md](./examples/tokens-and-components.md).
 
-Para mapeamento de tokens em **Tailwind CSS v4 (`@theme inline`)**, composição acessível com **shadcn/ui + Radix** e auditoria de valores fixos, consulte [references/tailwind-and-shadcn.md](./references/tailwind-and-shadcn.md).
+Para direção visual (*Design Dials*), memória hierárquica (`MASTER.md` + `pages/<tela>.md`), proporção cromática `60/30/10`, ícones vetoriais e regras mobile, consulte [references/ui-craft-and-audit.md](./references/ui-craft-and-audit.md). Para mapeamento em **Tailwind CSS v4 (`@theme inline`)**, Container Queries e composição acessível, consulte [references/tailwind-and-shadcn.md](./references/tailwind-and-shadcn.md).
 
 ---
 
@@ -96,9 +96,9 @@ Ferramentas automáticas (axe, Lighthouse, jest-axe) detectam apenas parte dos p
 
 ## 7. Auditoria e migração
 
-**Auditar**: liste os achados com critério WCAG, local (`[arquivo.ext](./caminho/arquivo.ext#L15-L28)`), impacto e correção, com severidade (bloqueia uso, atrapalha, melhoria). Não declare "acessível": o resultado é uma lista de achados.
+**Auditar**: liste os achados com critério WCAG, local (`[arquivo.ext](./caminho/arquivo.ext#L15-L28)`), impacto e correção, com severidade (bloqueia uso, atrapalha, melhoria), seguindo o checklist pré-entrega e paridade claro/escuro de [references/ui-craft-and-audit.md](./references/ui-craft-and-audit.md). Não declare "acessível": o resultado é uma lista de achados.
 
-**Migrar para tokens**: encontre valores fixos com `Grep` (hexadecimais, `px` de espaçamento), mapeie para o token semântico mais próximo, proponha novos tokens só para valores recorrentes e migre por componente, com revisão visual.
+**Migrar para tokens**: encontre valores fixos com `Grep` ou orientando a execução de [scripts/validate-tokens.cjs](./scripts/validate-tokens.cjs) (`node <pasta-da-skill>/scripts/validate-tokens.cjs --dir src/`), mapeie para o token semântico mais próximo e migre por componente com revisão visual nos dois temas.
 
 ---
 
@@ -134,6 +134,7 @@ Se alguma não existir, siga o padrão desta skill sem a integração.
 - **Contraste não validado**: textos "discretos" e bordas de campos costumam reprovar.
 - **`pointer-events: none` em desabilitado**: tira tooltips e explicações.
 - **Salto de layout** por conteúdo assíncrono sem dimensões reservadas.
+- **Emojis usados como ícones estruturais** ou **contraste do tema escuro inferido pelo tema claro** sem validação independente.
 - **Declarar o resultado de uma ferramenta automática como "acessível".**
 
 ---

@@ -27,6 +27,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 - É proibido usar elogios de cortesia ou frases de validação emocional (*"excelente trabalho"*, *"código muito bem estruturado"*, *"parabéns pela iniciativa"*).
 - Não suavize problemas sérios com eufemismos. Se uma classe está sobrecarregada, se há acoplamento perigoso ou se faltam testes, declare o fato de forma técnica, crua e direta.
 - Pontos fortes só entram se forem fatos técnicos comprovados por evidências verificáveis (ex.: *"cobertura de testes de 92% com suíte determinística"* ou *"contratos de API estritamente validados com schemas"*).
+- Use voz ativa nomeando o agente e o impacto real: sem advérbios vazios, falsa agência em objetos inanimados nem contrastes retóricos (*"não é X, é Y"*).
 
 **Régua alta de excelência.**
 - A perfeição na engenharia não é atingida quando não há mais nada a acrescentar, mas quando não há mais nada a retirar.
