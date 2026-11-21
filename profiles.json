@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "pillars": [
+    {
+      "number": 1,
+      "id": "pilar-1-fundacao",
+      "name": "Fundação e Saúde",
+      "explicitOnly": true,
+      "skills": [
+        "sk-discovery",
+        "sk-assessment",
+        "sk-bootstrap"
+      ]
+    },
+    {
+      "number": 2,
+      "id": "pilar-2-descoberta-sdd",
+      "name": "Descoberta, Decisão e SDD",
+      "explicitOnly": false,
+      "skills": [
+        "sk-challenge",
+        "sk-adr",
+        "sk-spec",
+        "sk-alignment",
+        "sk-tasks"
+      ]
+    },
+    {
+      "number": 3,
+      "id": "pilar-3-engenharia-entrega",
+      "name": "Engenharia Diária e Entrega",
+      "explicitOnly": false,
+      "skills": [
+        "sk-testing",
+        "sk-debug",
+        "sk-refactor",
+        "sk-code-review",
+        "sk-git",
+        "sk-readme",
+        "sk-changelog"
+      ]
+    },
+    {
+      "number": 4,
+      "id": "pilar-4-dominios",
+      "name": "Domínios Transversais",
+      "explicitOnly": false,
+      "skills": [
+        "sk-system-design",
+        "sk-api-design",
+        "sk-sql",
+        "sk-security",
+        "sk-observability",
+        "sk-devops",
+        "sk-design-system",
+        "sk-ai-engineering"
+      ]
+    },
+    {
+      "number": 5,
+      "id": "pilar-5-stacks",
+      "name": "Stacks (sk-tech-*)",
+      "explicitOnly": false,
+      "skills": [
+        "sk-tech-typescript",
+        "sk-tech-nodejs",
+        "sk-tech-react",
+        "sk-tech-vue",
+        "sk-tech-angular",
+        "sk-tech-dotnet",
+        "sk-tech-java",
+        "sk-tech-golang",
+        "sk-tech-python",
+        "sk-tech-php",
+        "sk-tech-flutter"
+      ]
+    }
+  ],
+  "profiles": {
+    "core": {
+      "description": "Fluxo essencial SDD, fundacao e engenharia diaria (Pilares 1, 2 e 3)",
+      "pillars": [1, 2, 3]
+    },
+    "domains-backend": {
+      "description": "Dominios para servicos, APIs, bancos, seguranca, SRE e CI/CD",
+      "skills": [
+        "sk-system-design",
+        "sk-api-design",
+        "sk-sql",
+        "sk-security",
+        "sk-observability",
+        "sk-devops"
+      ]
+    },
+    "domains-frontend": {
+      "description": "Dominios para UI/acessibilidade, contratos de API e AppSec frontend",
+      "skills": [
+        "sk-design-system",
+        "sk-api-design",
+        "sk-security"
+      ]
+    },
+    "domains-ai": {
+      "description": "Engenharia com LLMs, RAG, agentes e avaliacoes",
+      "skills": [
+        "sk-ai-engineering"
+      ]
+    },
+    "domains-all": {
+      "description": "Todos os 8 dominios transversais (Pilar 4)",
+      "pillars": [4]
+    },
+    "stack-ts": {
+      "description": "TypeScript estrito e tipagem avancada",
+      "skills": ["sk-tech-typescript"]
+    },
+    "stack-node": {
+      "description": "Servicos Node.js com TypeScript",
+      "extends": ["stack-ts"],
+      "skills": ["sk-tech-nodejs"]
+    },
+    "stack-react": {
+      "description": "Interfaces React com TypeScript",
+      "extends": ["stack-ts"],
+      "skills": ["sk-tech-react"]
+    },
+    "stack-vue": {
+      "description": "Interfaces Vue 3 com TypeScript",
+      "extends": ["stack-ts"],
+      "skills": ["sk-tech-vue"]
+    },
+    "stack-angular": {
+      "description": "Aplicacoes Angular com TypeScript e Signals",
+      "extends": ["stack-ts"],
+      "skills": ["sk-tech-angular"]
+    },
+    "stack-dotnet": {
+      "description": "Servicos e APIs C# / .NET",
+      "skills": ["sk-tech-dotnet"]
+    },
+    "stack-java": {
+      "description": "APIs Java e Spring Boot 3",
+      "skills": ["sk-tech-java"]
+    },
+    "stack-go": {
+      "description": "Servicos e concorrencia em Go",
+      "skills": ["sk-tech-golang"]
+    },
+    "stack-python": {
+      "description": "APIs, scripts e asyncio em Python",
+      "skills": ["sk-tech-python"]
+    },
+    "stack-php": {
+      "description": "Aplicacoes e APIs em PHP moderno",
+      "skills": ["sk-tech-php"]
+    },
+    "stack-flutter": {
+      "description": "Apps Flutter e Dart 3",
+      "skills": ["sk-tech-flutter"]
+    },
+    "fullstack-js": {
+      "description": "Core + dominios backend/frontend + Node.js + React",
+      "extends": ["core", "domains-backend", "domains-frontend", "stack-node", "stack-react"]
+    },
+    "frontend-react": {
+      "description": "Core + dominios frontend + React/TypeScript",
+      "extends": ["core", "domains-frontend", "stack-react"]
+    },
+    "frontend-angular": {
+      "description": "Core + dominios frontend + Angular/TypeScript",
+      "extends": ["core", "domains-frontend", "stack-angular"]
+    },
+    "frontend-vue": {
+      "description": "Core + dominios frontend + Vue 3/TypeScript",
+      "extends": ["core", "domains-frontend", "stack-vue"]
+    },
+    "backend-dotnet": {
+      "description": "Core + dominios backend + .NET/C#",
+      "extends": ["core", "domains-backend", "stack-dotnet"]
+    },
+    "backend-java": {
+      "description": "Core + dominios backend + Java/Spring Boot",
+      "extends": ["core", "domains-backend", "stack-java"]
+    },
+    "backend-go": {
+      "description": "Core + dominios backend + Go",
+      "extends": ["core", "domains-backend", "stack-go"]
+    },
+    "backend-python": {
+      "description": "Core + dominios backend + AI + Python",
+      "extends": ["core", "domains-backend", "domains-ai", "stack-python"]
+    },
+    "backend-php": {
+      "description": "Core + dominios backend + PHP",
+      "extends": ["core", "domains-backend", "stack-php"]
+    },
+    "mobile-flutter": {
+      "description": "Core + dominios frontend/UI + Flutter",
+      "extends": ["core", "domains-frontend", "stack-flutter"]
+    },
+    "all": {
+      "description": "Catalogo completo (todos os 5 pilares, 34 skills sk-*)",
+      "pillars": [1, 2, 3, 4, 5]
+    }
+  },
+  "pluginDefaults": {
+    "name": "sk-engineering-toolbox",
+    "description": "Catalogo modular de Agent Skills sk-* (Camada 0 + perfil selecionado)",
+    "author": "Heliomar P. Marques",
+    "homepage": "https://github.com/heliomarpm/skills",
+    "repository": "https://github.com/heliomarpm/skills",
+    "license": "MIT"
+  }
+}

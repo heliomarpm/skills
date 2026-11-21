@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import glob
+import json
 import os
 import re
 import sys
@@ -67,6 +68,162 @@ def check_eol_and_bom(paths: list[str], errors: list[str]) -> None:
             errors.append(f"[EOL] {rel} contem CRLF; esperado LF.")
 
 
+def validate_profiles_and_layer0(
+    sk_set: set[str],
+    skill_meta: dict[str, tuple[int, bool]],
+    errors: list[str],
+) -> dict[str, tuple[int, int, int]]:
+    """Valida profiles.json, Camada 0 (rules/sk-core.md) e instaladores."""
+    profile_metrics: dict[str, tuple[int, int, int]] = {}
+    profiles_path = os.path.join(REPO_ROOT, "profiles.json")
+    if not os.path.isfile(profiles_path):
+        errors.append("[profiles.json] Arquivo ausente na raiz do repositorio.")
+        return profile_metrics
+
+    try:
+        with open(profiles_path, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+    except json.JSONDecodeError as exc:
+        errors.append(f"[profiles.json] JSON invalido: {exc}")
+        return profile_metrics
+
+    defaults = cfg.get("pluginDefaults", {})
+    for req_key in ("author", "repository", "homepage", "license"):
+        if not defaults.get(req_key):
+            errors.append(f"[profiles.json] pluginDefaults.{req_key} ausente ou vazio.")
+
+    pillars = cfg.get("pillars")
+    if not isinstance(pillars, list) or len(pillars) != 5:
+        errors.append("[profiles.json] Esperado exatamente 5 pilares em 'pillars'.")
+        return profile_metrics
+
+    pillar_numbers = set()
+    pillar_map: dict[int, list[str]] = {}
+    seen_in_pillars: dict[str, int] = {}
+
+    for p in pillars:
+        num = p.get("number")
+        if not isinstance(num, int) or num not in (1, 2, 3, 4, 5):
+            errors.append(f"[profiles.json] Numero de pilar invalido: {num!r}.")
+            continue
+        pillar_numbers.add(num)
+        for field in ("id", "name", "skills"):
+            if not p.get(field):
+                errors.append(f"[profiles.json] Pilar {num} sem campo '{field}'.")
+        skills_list = p.get("skills", [])
+        pillar_map[num] = list(skills_list)
+        for sk in skills_list:
+            if sk not in sk_set:
+                errors.append(f"[profiles.json] Pilar {num} referencia skill inexistente: '{sk}'.")
+            if sk in seen_in_pillars:
+                errors.append(
+                    f"[profiles.json] Skill '{sk}' duplicada nos pilares {seen_in_pillars[sk]} e {num}."
+                )
+            else:
+                seen_in_pillars[sk] = num
+
+    if pillar_numbers != {1, 2, 3, 4, 5}:
+        errors.append(f"[profiles.json] Numeracao de pilares incompleta: {sorted(pillar_numbers)}.")
+
+    missing_from_pillars = sorted(sk_set - set(seen_in_pillars))
+    if missing_from_pillars:
+        errors.append(
+            f"[profiles.json] Skills ausentes da particao dos 5 pilares: {', '.join(missing_from_pillars)}."
+        )
+
+    profiles = cfg.get("profiles")
+    if not isinstance(profiles, dict) or "all" not in profiles or "core" not in profiles:
+        errors.append("[profiles.json] 'profiles' deve definir ao menos 'core' e 'all'.")
+        return profile_metrics
+
+    resolved_cache: dict[str, list[str]] = {}
+
+    def resolve_profile(name: str, visiting: set[str]) -> list[str]:
+        if name in resolved_cache:
+            return resolved_cache[name]
+        if name in visiting:
+            raise ValueError(f"Ciclo em extends envolvendo perfil '{name}'.")
+        if name not in profiles:
+            raise ValueError(f"Perfil '{name}' nao encontrado.")
+        visiting.add(name)
+        prof = profiles[name]
+        acc: list[str] = []
+        acc_set: set[str] = set()
+
+        for parent in prof.get("extends", []):
+            for sk in resolve_profile(parent, visiting):
+                if sk not in acc_set:
+                    acc_set.add(sk)
+                    acc.append(sk)
+
+        for p_num in prof.get("pillars", []):
+            if p_num not in pillar_map:
+                raise ValueError(f"Perfil '{name}' referencia pilar inexistente {p_num}.")
+            for sk in pillar_map[p_num]:
+                if sk not in acc_set:
+                    acc_set.add(sk)
+                    acc.append(sk)
+
+        for sk in prof.get("skills", []):
+            if sk not in sk_set:
+                raise ValueError(f"Perfil '{name}' referencia skill inexistente '{sk}'.")
+            if sk not in acc_set:
+                acc_set.add(sk)
+                acc.append(sk)
+
+        visiting.remove(name)
+        resolved_cache[name] = acc
+        return acc
+
+    for pname in profiles:
+        try:
+            rskills = resolve_profile(pname, set())
+            imp_chars = sum(skill_meta[s][0] for s in rskills if s in skill_meta and not skill_meta[s][1])
+            imp_count = sum(1 for s in rskills if s in skill_meta and not skill_meta[s][1])
+            profile_metrics[pname] = (len(rskills), imp_count, round(imp_chars / 3.7))
+        except ValueError as exc:
+            errors.append(f"[profiles.json] {exc}")
+
+    if "all" in resolved_cache and set(resolved_cache["all"]) != sk_set:
+        errors.append("[profiles.json] Perfil 'all' nao resolve exatamente para todas as 34 skills sk-*.")
+
+    # Layer 0 check
+    rules_dir = os.path.join(REPO_ROOT, "rules")
+    rules_core = os.path.join(rules_dir, "sk-core.md")
+    if not os.path.isfile(rules_core):
+        errors.append("[rules/sk-core.md] Arquivo de Camada 0 ausente.")
+    else:
+        with open(rules_core, "r", encoding="utf-8") as f:
+            rules_txt = f.read()
+        if not rules_txt.strip():
+            errors.append("[rules/sk-core.md] Arquivo vazio.")
+        rules_prose = strip_non_prose_links(rules_txt)
+        for link in re.findall(r"\[[^\]]+\]\(([^)]+)\)", rules_prose):
+            if link.startswith(("http://", "https://", "#", "mailto:")):
+                continue
+            target = link.split("#")[0]
+            if target and not os.path.exists(os.path.normpath(os.path.join(rules_dir, target))):
+                errors.append(f"[rules/sk-core.md] Link relativo quebrado: {link}")
+
+    # Install scripts presence & encoding/EOL check
+    install_sh = os.path.join(REPO_ROOT, "scripts", "install.sh")
+    if not os.path.isfile(install_sh) or os.path.getsize(install_sh) == 0:
+        errors.append("[scripts/install.sh] Script ausente ou vazio.")
+
+    install_ps1 = os.path.join(REPO_ROOT, "scripts", "install.ps1")
+    if not os.path.isfile(install_ps1) or os.path.getsize(install_ps1) == 0:
+        errors.append("[scripts/install.ps1] Script ausente ou vazio.")
+    else:
+        with open(install_ps1, "rb") as f:
+            ps1_raw = f.read()
+        if ps1_raw.startswith(b"\xef\xbb\xbf"):
+            errors.append("[BOM] scripts/install.ps1 contem UTF-8 BOM.")
+        if b"\r\n" not in ps1_raw:
+            errors.append("[EOL] scripts/install.ps1 deve usar CRLF conforme .gitattributes.")
+
+    return profile_metrics
+
+
 def validate() -> int:
     errors: list[str] = []
 
@@ -82,12 +239,16 @@ def validate() -> int:
     sk_set = set(sk_dirs)
     tech_skills = {s for s in sk_dirs if s.startswith("sk-tech-")}
     incoming_refs: dict[str, set[str]] = {s: set() for s in sk_dirs}
+    skill_meta: dict[str, tuple[int, bool]] = {}
 
     eol_targets = [
         os.path.join(REPO_ROOT, "README.md"),
         os.path.join(REPO_ROOT, "CHANGELOG.md"),
         os.path.join(REPO_ROOT, ".gitattributes"),
+        os.path.join(REPO_ROOT, "profiles.json"),
+        os.path.join(REPO_ROOT, "rules", "sk-core.md"),
         os.path.join(REPO_ROOT, "scripts", "validate_skills.py"),
+        os.path.join(REPO_ROOT, "scripts", "install.sh"),
         os.path.join(REPO_ROOT, ".github", "workflows", "validate-skills.yml"),
     ]
     eol_targets.extend(glob.glob(os.path.join(REPO_ROOT, "docs", "*.md")))
@@ -139,6 +300,7 @@ def validate() -> int:
 
         total_desc_chars_all += len(desc)
         is_explicit = fm.get("disable-model-invocation", "").lower() == "true"
+        skill_meta[skill] = (len(desc), is_explicit)
         if not is_explicit:
             total_desc_chars_implicit += len(desc)
             implicit_count += 1
@@ -249,7 +411,10 @@ def validate() -> int:
         if not callers:
             errors.append(f"[{skill}] Ilha no grafo: nenhuma outra skill sk-* a referencia.")
 
-    # 8. EOL & BOM check
+    # 8. Profiles, Layer 0 & installers check
+    profile_metrics = validate_profiles_and_layer0(sk_set, skill_meta, errors)
+
+    # 9. EOL & BOM check
     existing_eol_targets = [p for p in eol_targets if os.path.exists(p)]
     check_eol_and_bom(existing_eol_targets, errors)
 
@@ -260,6 +425,12 @@ def validate() -> int:
     print(f"Total de linhas em SKILL.md: {total_lines}")
     print(f"Custo fixo description (implicitas): {total_desc_chars_implicit} chars (~{est_tokens_implicit} tokens)")
     print(f"Custo fixo description (todas 34):   {total_desc_chars_all} chars (~{est_tokens_all} tokens)")
+    if profile_metrics:
+        print("Perfis selecionados (skills | implicitas | ~tokens/turno):")
+        for key in ("core", "frontend-react", "backend-java", "fullstack-js", "backend-python", "all"):
+            if key in profile_metrics:
+                tot, imp, tok = profile_metrics[key]
+                print(f" - {key:<15}: {tot:>2} skills | {imp:>2} implicitas | ~{tok:>4} tokens/turno")
 
     if errors:
         print(f"\nFALHAS DE VALIDACAO ({len(errors)}):")
