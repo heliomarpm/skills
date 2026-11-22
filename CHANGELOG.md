@@ -5,6 +5,23 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.14.0](https://github.com/heliomarpm/skills/compare/v1.13.0...v1.14.0) (2026-11-22)
+
+
+### Bug Fixes
+
+* **skills:** corrigir inconsistências, amarrações e paridade de allowed-tools ([35d6a0f](https://github.com/heliomarpm/skills/commit/35d6a0f07ad6571ab3cf86d51681f7d1ff7e15f0))
+
+
+### Features
+
+* **installer:** adicionar 5 pilares, camada 0 e instaladores seletivos por perfil e plugin ([b11ac5a](https://github.com/heliomarpm/skills/commit/b11ac5ada868f5c07a9050f7a85b7abc37ccf9cc))
+* **installer:** ajustar plugin Antigravity, adicionar cliente copilot e detalhar instalação no README ([026983d](https://github.com/heliomarpm/skills/commit/026983db3985c4f88fa92c323bfa57660202fe92))
+* **installer:** suportar múltiplos clientes separados por vírgula com deduplicação ([37c69ed](https://github.com/heliomarpm/skills/commit/37c69ed70ca84178cc276944233561bde27a0cec))
+* **skills:** adicionar referências modulares de NoSQL/Redis, Kubernetes, performance e Tailwind/shadcn ([f6f4992](https://github.com/heliomarpm/skills/commit/f6f49921533bd203c97130e86cc9e933a7f38c9d))
+* **skills:** expandir catálogo para 39 skills com sk-upgrade, 4 stacks e referências ([4a4b6c3](https://github.com/heliomarpm/skills/commit/4a4b6c3b44db9995c68901c587adba40de5f7c81))
+* **skills:** incorporar escrita clara, craft visual/mobile e utilitários de tokens ([c80a843](https://github.com/heliomarpm/skills/commit/c80a8436b43bcdca4ba9e71ead141e221519cd9f))
+
 # [1.13.0](https://github.com/heliomarpm/skills/compare/v1.12.0...v1.13.0) (2026-11-17)
 
 
