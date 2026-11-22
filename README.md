@@ -78,7 +78,7 @@ Em vez de vincular todas as 39 skills globalmente, instale **apenas o perfil do 
 | `claude` | `~/.claude/skills/` | `~/.claude/plugins/sk-engineering-toolbox/` |
 | `codex` | `~/.codex/skills/` | `~/.codex/plugins/sk-engineering-toolbox/` |
 
-> **Nota para GitHub Copilot:** use o modo `link` escolhendo **apenas um** destino (`-Client agents` ou `-Client copilot`) para o Copilot não enxergar cada skill em duplicidade.
+> **Nota para GitHub Copilot:** use o modo `link` escolhendo **apenas um** destino (`-Client agents` ou `-Client copilot`) para o Copilot não enxergar cada skill em duplicidade. Ao passar múltiplos clientes separados por vírgula (`antigravity,copilot`), todos recebem o mesmo modo (`link` ou `plugin`) e destinos equivalentes (`antigravity,gemini`) são deduplicados automaticamente.
 
 ### Windows (PowerShell)
 
@@ -92,8 +92,9 @@ Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag
 .\scripts\install.ps1 -Profile backend-java -Mode plugin -Client antigravity -Prune
 .\scripts\install.ps1 -Profile all -Mode plugin -Client antigravity -Prune
 
-# 3. Instalar apenas como skills soltas (-Mode link, padrão — ex.: GitHub Copilot em ~/.copilot/skills ou ~/.agents/skills)
+# 3. Instalar apenas como skills soltas (-Mode link, padrão — um ou mais clientes separados por vírgula)
 .\scripts\install.ps1 -Profile all -Client copilot -Prune
+.\scripts\install.ps1 -Profile all -Client antigravity,copilot -Prune
 
 # 4. Compor perfis customizados ou instalar só no projeto atual (com -DryRun prévio)
 .\scripts\install.ps1 -Profile core,domains-backend,stack-node -Target .\.agents\skills -DryRun
@@ -109,8 +110,8 @@ Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag
 ./scripts/install.sh --profile backend-java --mode plugin --client antigravity --prune
 ./scripts/install.sh --profile all --mode plugin --client antigravity --prune
 
-# 3. Instalar apenas como skills soltas (--mode link — ex.: GitHub Copilot ou perfis combinados)
-./scripts/install.sh --profile all --client copilot --prune
+# 3. Instalar apenas como skills soltas (--mode link — um ou vários clientes e perfis combinados)
+./scripts/install.sh --profile all --client antigravity,copilot --prune
 ./scripts/install.sh --profile core,domains-backend,stack-node --client claude --prune
 ```
 

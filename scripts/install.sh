@@ -27,7 +27,7 @@ usage() {
   cat <<'EOF'
 Usage: scripts/install.sh [options]
   --profile <name[,name2]>   Comma-separated profile(s) (default: core)
-  --client <name>            claude | antigravity | gemini | agents | codex | copilot
+  --client <name[,name2]>    claude | antigravity | gemini | agents | codex | copilot
   --target <path>            Explicit destination path (overrides --client)
   --mode <link|plugin>       link (default) or plugin
   --plugin-name <name>       Plugin folder name (default: sk-engineering-toolbox)
@@ -119,9 +119,19 @@ if mode not in ("link", "plugin"):
     print(f"Invalid --mode '{mode}'. Expected 'link' or 'plugin'.", file=sys.stderr)
     sys.exit(1)
 
-if client not in ("", "claude", "antigravity", "gemini", "agents", "codex", "copilot"):
-    print(f"Invalid --client '{client}'. Expected claude, antigravity, gemini, agents, codex, or copilot.", file=sys.stderr)
-    sys.exit(1)
+valid_clients = ("claude", "antigravity", "gemini", "agents", "codex", "copilot")
+parsed_clients = []
+seen_clients = set()
+for token in client.split(","):
+    c = token.strip().lower()
+    if not c:
+        continue
+    if c not in valid_clients:
+        print(f"Invalid --client '{c}'. Expected one of: {', '.join(valid_clients)}.", file=sys.stderr)
+        sys.exit(1)
+    if c not in seen_clients:
+        seen_clients.add(c)
+        parsed_clients.append(c)
 
 profiles_path = os.path.join(repo_root, "profiles.json")
 skills_root = os.path.join(repo_root, "skills")
@@ -227,12 +237,14 @@ if list_mode:
         print(f"{name:<22} | {tot:>2} skills ({imp:>2} impl, {exp:>1} expl) | ~{tok:>4} tok/turn | {prof.get('description', '')}")
     sys.exit(0)
 
-if not target and not client:
-    print("Error: specify --client <claude|antigravity|gemini|agents|codex|copilot> or --target <path> (or --list).", file=sys.stderr)
+if not target and not parsed_clients:
+    print("Error: specify --client <claude|antigravity|gemini|agents|codex|copilot> (comma-separated for multiple) or --target <path> (or --list).", file=sys.stderr)
     sys.exit(1)
 
+target_list = []
+target_seen = set()
 if target:
-    resolved_target = os.path.abspath(os.path.expanduser(target))
+    target_list.append(os.path.abspath(os.path.expanduser(target)))
 else:
     home = os.path.expanduser("~")
     if mode == "link":
@@ -255,7 +267,12 @@ else:
             "agents": os.path.join(home, ".agents", "plugins"),
             "default": os.path.join(home, ".agents", "plugins"),
         }
-    resolved_target = os.path.abspath(client_dirs[client])
+    for c in parsed_clients:
+        full_path = os.path.abspath(client_dirs[c])
+        key = os.path.normcase(full_path)
+        if key not in target_seen:
+            target_seen.add(key)
+            target_list.append(full_path)
 
 try:
     selected_skills = resolve_profile_spec(profile_spec)
@@ -269,13 +286,6 @@ for sk in selected_skills:
         print(f"Error: skill directory missing in repository: {src_check}", file=sys.stderr)
         sys.exit(1)
 
-tot, imp, exp, est_tokens = token_stats(selected_skills)
-print(f"Profile: {profile_spec} | Mode: {mode} | Target: {resolved_target}")
-print(f"Selected: {tot} skills ({imp} implicit, {exp} explicit) | Estimated fixed cost: ~{est_tokens} tok/turn")
-if dry_run:
-    print("[DRY-RUN] No filesystem changes will be written.")
-
-skills_dest = resolved_target
 if mode == "plugin":
     if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$", plugin_name):
         print(f"Error: invalid --plugin-name '{plugin_name}'.", file=sys.stderr)
@@ -283,97 +293,112 @@ if mode == "plugin":
     if not os.path.isfile(rules_core_path):
         print(f"Error: Layer 0 rules file not found: {rules_core_path}", file=sys.stderr)
         sys.exit(1)
-    plugin_root = os.path.join(resolved_target, plugin_name)
-    plugin_json_path = os.path.join(plugin_root, "plugin.json")
-    plugin_rules_dir = os.path.join(plugin_root, "rules")
-    plugin_agents_path = os.path.join(plugin_rules_dir, "AGENTS.md")
-    skills_dest = os.path.join(plugin_root, "skills")
 
-    defaults = config["pluginDefaults"]
-    manifest = {
-        "name": plugin_name,
-        "displayName": "SK Engineering Toolbox",
-        "description": f"{defaults['description']} (profile: {profile_spec})",
-        "author": defaults["author"],
-        "homepage": defaults["homepage"],
-        "repository": defaults["repository"],
-    }
+tot, imp, exp, est_tokens = token_stats(selected_skills)
+
+for idx, resolved_target in enumerate(target_list):
+    if idx > 0:
+        print("")
+        print("-" * 60)
+
+    print(f"Profile: {profile_spec} | Mode: {mode} | Target: {resolved_target}")
+    print(f"Selected: {tot} skills ({imp} implicit, {exp} explicit) | Estimated fixed cost: ~{est_tokens} tok/turn")
     if dry_run:
-        print(f"[WRITE] {plugin_json_path}")
-        print(f"[COPY]  {rules_core_path} -> {plugin_agents_path}")
-    else:
+        print("[DRY-RUN] No filesystem changes will be written.")
+
+    skills_dest = resolved_target
+    if mode == "plugin":
+        plugin_root = os.path.join(resolved_target, plugin_name)
+        plugin_json_path = os.path.join(plugin_root, "plugin.json")
+        plugin_rules_dir = os.path.join(plugin_root, "rules")
+        plugin_agents_path = os.path.join(plugin_rules_dir, "AGENTS.md")
+        skills_dest = os.path.join(plugin_root, "skills")
+
+        defaults = config["pluginDefaults"]
+        manifest = {
+            "name": plugin_name,
+            "displayName": "SK Engineering Toolbox",
+            "description": f"{defaults['description']} (profile: {profile_spec})",
+            "author": defaults["author"],
+            "homepage": defaults["homepage"],
+            "repository": defaults["repository"],
+        }
+        if dry_run:
+            print(f"[WRITE] {plugin_json_path}")
+            print(f"[COPY]  {rules_core_path} -> {plugin_agents_path}")
+        else:
+            os.makedirs(skills_dest, exist_ok=True)
+            os.makedirs(plugin_rules_dir, exist_ok=True)
+            with open(plugin_json_path, "w", encoding="utf-8", newline="\n") as f:
+                f.write(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
+            with open(rules_core_path, "r", encoding="utf-8") as rf:
+                rules_text = rf.read().replace("\r\n", "\n")
+            with open(plugin_agents_path, "w", encoding="utf-8", newline="\n") as wf:
+                wf.write(rules_text)
+            print(f"[OK]    plugin.json and rules/AGENTS.md written in {plugin_root}")
+    elif not dry_run:
         os.makedirs(skills_dest, exist_ok=True)
-        os.makedirs(plugin_rules_dir, exist_ok=True)
-        with open(plugin_json_path, "w", encoding="utf-8", newline="\n") as f:
-            f.write(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
-        with open(rules_core_path, "r", encoding="utf-8") as rf:
-            rules_text = rf.read().replace("\r\n", "\n")
-        with open(plugin_agents_path, "w", encoding="utf-8", newline="\n") as wf:
-            wf.write(rules_text)
-        print(f"[OK]    plugin.json and rules/AGENTS.md written in {plugin_root}")
-elif not dry_run:
-    os.makedirs(skills_dest, exist_ok=True)
 
-created = updated = unchanged = skipped = pruned = 0
+    created = updated = unchanged = skipped = pruned = 0
 
-for sk in selected_skills:
-    src = os.path.abspath(os.path.join(skills_root, sk))
-    dst = os.path.join(skills_dest, sk)
-    if os.path.lexists(dst):
-        if os.path.islink(dst):
-            cur = os.path.realpath(dst)
-            if cur == os.path.realpath(src):
-                unchanged += 1
-                print(f"[OK]     {sk}")
-            else:
+    for sk in selected_skills:
+        src = os.path.abspath(os.path.join(skills_root, sk))
+        dst = os.path.join(skills_dest, sk)
+        if os.path.lexists(dst):
+            if os.path.islink(dst):
+                cur = os.path.realpath(dst)
+                if cur == os.path.realpath(src):
+                    unchanged += 1
+                    print(f"[OK]     {sk}")
+                else:
+                    updated += 1
+                    print(f"[UPDATE] {sk} -> {src}")
+                    if not dry_run:
+                        os.unlink(dst)
+                        os.symlink(src, dst, target_is_directory=True)
+            elif force:
                 updated += 1
-                print(f"[UPDATE] {sk} -> {src}")
+                print(f"[REPLACE] {sk} -> {src}")
                 if not dry_run:
-                    os.unlink(dst)
+                    if os.path.isdir(dst):
+                        shutil.rmtree(dst)
+                    else:
+                        os.unlink(dst)
                     os.symlink(src, dst, target_is_directory=True)
-        elif force:
-            updated += 1
-            print(f"[REPLACE] {sk} -> {src}")
+            else:
+                skipped += 1
+                print(f"[SKIP] {sk} already exists as a real entry (use --force to replace)", file=sys.stderr)
+        else:
+            created += 1
+            print(f"[LINK]   {sk} -> {src}")
             if not dry_run:
-                if os.path.isdir(dst):
-                    shutil.rmtree(dst)
-                else:
-                    os.unlink(dst)
                 os.symlink(src, dst, target_is_directory=True)
-        else:
-            skipped += 1
-            print(f"[SKIP] {sk} already exists as a real entry (use --force to replace)", file=sys.stderr)
-    else:
-        created += 1
-        print(f"[LINK]   {sk} -> {src}")
-        if not dry_run:
-            os.symlink(src, dst, target_is_directory=True)
 
-if prune and os.path.isdir(skills_dest):
-    selected_set = set(selected_skills)
-    for entry in sorted(os.listdir(skills_dest)):
-        if not entry.startswith("sk-"):
-            continue
-        if entry in selected_set:
-            continue
-        cand = os.path.join(skills_dest, entry)
-        if os.path.islink(cand):
-            pruned += 1
-            print(f"[PRUNE]  {entry}")
-            if not dry_run:
-                os.unlink(cand)
-        elif force:
-            pruned += 1
-            print(f"[PRUNE-FORCE] {entry}")
-            if not dry_run:
-                if os.path.isdir(cand):
-                    shutil.rmtree(cand)
-                else:
+    if prune and os.path.isdir(skills_dest):
+        selected_set = set(selected_skills)
+        for entry in sorted(os.listdir(skills_dest)):
+            if not entry.startswith("sk-"):
+                continue
+            if entry in selected_set:
+                continue
+            cand = os.path.join(skills_dest, entry)
+            if os.path.islink(cand):
+                pruned += 1
+                print(f"[PRUNE]  {entry}")
+                if not dry_run:
                     os.unlink(cand)
-        else:
-            skipped += 1
-            print(f"[SKIP-PRUNE] {entry} is a real directory (use --force to remove)", file=sys.stderr)
+            elif force:
+                pruned += 1
+                print(f"[PRUNE-FORCE] {entry}")
+                if not dry_run:
+                    if os.path.isdir(cand):
+                        shutil.rmtree(cand)
+                    else:
+                        os.unlink(cand)
+            else:
+                skipped += 1
+                print(f"[SKIP-PRUNE] {entry} is a real directory (use --force to remove)", file=sys.stderr)
 
-print("")
-print(f"Summary: created={created}, updated={updated}, ok={unchanged}, pruned={pruned}, skipped={skipped} | Fixed cost: ~{est_tokens} tok/turn")
+    print("")
+    print(f"Summary: created={created}, updated={updated}, ok={unchanged}, pruned={pruned}, skipped={skipped} | Fixed cost: ~{est_tokens} tok/turn")
 PYEOF
