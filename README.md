@@ -3,7 +3,7 @@
    <img src="./logo.png" width="256" alt="Logo"/>
    <h1>Agent Skills: Engineering Toolbox <a href="https://navto.me/heliomarpm" target="_blank"><img src="https://navto.me/assets/navigatetome-brand.png" width="32"/></a></h1>
 
-   [![Skills](https://img.shields.io/badge/34%20Skills-5%20Pilares%20%C2%B7%20PT--BR-blueviolet?style=for-the-badge)](./skills/)
+   [![Skills](https://img.shields.io/badge/39%20Skills-5%20Pilares%20%C2%B7%20PT--BR-blueviolet?style=for-the-badge)](./skills/)
    [![Multi-Agent](https://img.shields.io/badge/Multi--Agent-Model--Agnostic-0052CC?style=for-the-badge)](./profiles.json)
    [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
@@ -23,7 +23,7 @@ Transforme assistentes de IA e IDEs agênticas em uma equipe de engenharia previ
 
 Catálogo agnóstico de modelo e portável entre diferentes clientes compatíveis com Agent Skills (`SKILL.md`).
 
-> **Navegação rápida:** [Por que usar](#por-que-usar) · [O que encontra aqui](#o-que-encontra) · [Início rápido](#inicio-rapido) · [Fluxo por cenário](#fluxo) · [Catálogo completo (34 skills)](#catalogo) · [Como funciona](#como-funciona)
+> **Navegação rápida:** [Por que usar](#por-que-usar) · [O que encontra aqui](#o-que-encontra) · [Início rápido](#inicio-rapido) · [Fluxo por cenário](#fluxo) · [Catálogo completo (39 skills)](#catalogo) · [Como funciona](#como-funciona)
 
 ---
 
@@ -37,7 +37,7 @@ Sem direcionamento, agentes de código tendem a pular requisitos, gerar código 
 | Escreve código direto a partir de pedido ambíguo | **SDD com portão humano (`sk-spec`)**: especifica contratos, dados e critérios *Given/When/Then* e para para aprovação antes do código |
 | Presume comandos, versões e números que não conferiu | **Evidência obrigatória**: lê manifestos reais e marca qualquer lacuna com `[A CONFIRMAR]` ou `(inferido)` |
 | Fica preso corrigindo o mesmo erro de build/teste | **Circuit Breaker**: interrompe após **3 tentativas consecutivas** sobre a mesma falha e pede direção ao usuário |
-| Carrega instruções enormes e concorrentes em todo turno | **Economia de tokens**: divulgação progressiva + perfis seletivos reduzem o custo fixo para `~771` a `~1.655` tokens/turno |
+| Carrega instruções enormes e concorrentes em todo turno | **Economia de tokens**: divulgação progressiva + perfis seletivos reduzem o custo fixo para `~771` a `~1.642` tokens/turno |
 | Esquece índices, segurança, acessibilidade ou texto prolixo | **Rigor técnico nativo**: queries com índice obrigatório + rollback, revisão em 2 eixos, defesa contra *prompt injection*, WCAG 2.2 AA e escrita direta sem vícios |
 | Depende de um fornecedor ou modelo específico | **Autocontida e validada em CI**: zero dependências externas obrigatórias, neutra de modelo e checada por [scripts/validate_skills.py](scripts/validate_skills.py) |
 
@@ -46,8 +46,9 @@ Sem direcionamento, agentes de código tendem a pular requisitos, gerar código 
 <a id="o-que-encontra"></a>
 ## 📦 O que você encontra aqui
 
-- **34 skills `sk-*` divididas em 5 Pilares** ([profiles.json](profiles.json)): cobrem entrada em projeto legado, descoberta de produto/SDD, engenharia diária, 8 domínios transversais e 11 stacks técnicas.
+- **39 skills `sk-*` divididas em 5 Pilares** ([profiles.json](profiles.json)): cobrem entrada em projeto legado, descoberta de produto/SDD, engenharia diária e upgrades, 8 domínios transversais e 15 stacks técnicas.
 - **[Guia Prático SDD "For Dummies"](docs/GUIA_PRATICO_SDD.md)**: manual passo a passo mostrando o que o humano decide e o que a IA executa, do rascunho até a evolução de specs antigas.
+- **[Guia de Autoria de Skills](docs/AUTHORING_SKILLS.md)**: contrato estrutural, teto de orçamento e checklist para propor novas skills `sk-*`.
 - **Instaladores seletivos por Perfil ou Plugin** ([scripts/install.ps1](scripts/install.ps1) e [scripts/install.sh](scripts/install.sh)): instale apenas os Pilares e Stacks do seu projeto, sem poluir o catálogo do agente.
 - **Camada 0 + utilitários locais sem dependências** ([rules/sk-core.md](rules/sk-core.md), `sk-design-system/templates/` e `sk-design-system/scripts/`): regras transversais compartilhadas e scripts Node.js puros para gerar e auditar tokens de design.
 - **Governança automatizada em CI** ([.github/workflows/validate-skills.yml](.github/workflows/validate-skills.yml)): valida estrutura, teto de `360` caracteres nas descrições, links internos, neutralidade e finais de linha `LF`.
@@ -57,7 +58,7 @@ Sem direcionamento, agentes de código tendem a pular requisitos, gerar código 
 <a id="inicio-rapido"></a>
 ## 🚀 Início rápido (Instalação seletiva)
 
-Em vez de vincular todas as 34 skills globalmente, instale **apenas o perfil do seu projeto**. Isso corta até metade do custo fixo por turno frente ao catálogo completo e evita sobreposição entre stacks que você não está usando.
+Em vez de vincular todas as 39 skills globalmente, instale **apenas o perfil do seu projeto**. Isso corta mais da metade do custo fixo por turno frente ao catálogo completo e evita sobreposição entre stacks que você não está usando.
 
 ### Windows (PowerShell)
 
@@ -95,18 +96,22 @@ Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag
 
 | Perfil | O que inclui | Qtd. Skills | Custo fixo estimado |
 | :--- | :--- | :---: | :---: |
-| `core` | Pilares 1, 2 e 3 (Fundação + SDD + Engenharia Diária) | `15` *(9 impl.)* | **~771 tok/turno** |
-| `mobile-flutter` | `core` + `domains-frontend` + `sk-tech-flutter` | `19` *(13 impl.)* | **~1.133 tok/turno** |
-| `frontend-react` | `core` + `domains-frontend` + TS + React | `20` *(14 impl.)* | **~1.219 tok/turno** |
-| `backend-java` | `core` + `domains-backend` + Java/Spring Boot | `22` *(16 impl.)* | **~1.391 tok/turno** |
-| `backend-python` | `core` + `domains-backend` + `domains-ai` + Python | `23` *(17 impl.)* | **~1.474 tok/turno** |
-| `fullstack-js` | `core` + backend + frontend + TS + Node + React | `25` *(19 impl.)* | **~1.655 tok/turno** |
-| `all` | Todos os 5 Pilares completos (`34` skills `sk-*`) | `34` *(28 impl.)* | **~2.464 tok/turno** |
+| `core` | Pilares 1, 2 e 3 (Fundação + SDD + Engenharia Diária + Upgrades) | `16` *(9 impl.)* | **~771 tok/turno** |
+| `mobile-flutter` | `core` + `domains-frontend` + `sk-tech-flutter` | `20` *(13 impl.)* | **~1.124 tok/turno** |
+| `frontend-react` | `core` + `domains-frontend` + TS + React | `21` *(14 impl.)* | **~1.210 tok/turno** |
+| `mobile-react-native` | `core` + `domains-frontend` + TS + React Native/Expo | `21` *(14 impl.)* | **~1.211 tok/turno** |
+| `mobile-ionic` | `core` + `domains-frontend` + TS + Angular + Ionic/Capacitor | `22` *(15 impl.)* | **~1.308 tok/turno** |
+| `backend-rust` | `core` + `domains-backend` + Rust | `23` *(16 impl.)* | **~1.381 tok/turno** |
+| `backend-kotlin` | `core` + `domains-backend` + Kotlin JVM | `23` *(16 impl.)* | **~1.382 tok/turno** |
+| `backend-java` | `core` + `domains-backend` + Java/Spring Boot | `23` *(16 impl.)* | **~1.382 tok/turno** |
+| `backend-python` | `core` + `domains-backend` + `domains-ai` + Python | `24` *(17 impl.)* | **~1.466 tok/turno** |
+| `fullstack-js` | `core` + backend + frontend + TS + Node + React | `26` *(19 impl.)* | **~1.642 tok/turno** |
+| `all` | Todos os 5 Pilares completos (`39` skills `sk-*`) | `39` *(32 impl.)* | **~2.812 tok/turno** |
 
-> Todos os perfis (`stack-*`, `domains-*`, `backend-dotnet`, `backend-go`, `backend-php`, `frontend-angular`, `frontend-vue`) podem ser combinados por vírgula e inspecionados com `-List` / `--list`.
+> Todos os perfis (`stack-*`, `domains-*`, `backend-dotnet`, `backend-go`, `backend-php`, `frontend-angular`, `frontend-vue`, `mobile-ionic-react`, `mobile-ionic-vue`, `mobile-android-kotlin`) podem ser combinados por vírgula e inspecionados com `-List` / `--list`.
 
 <details>
-<summary>Alternativa manual sem script (vincula todas as 34 sk-*)</summary>
+<summary>Alternativa manual sem script (vincula todas as 39 sk-*)</summary>
 
 **PowerShell (Windows):**
 ```powershell
@@ -163,14 +168,14 @@ flowchart TD
   REV --> GIT["sk-git: commit atômico e PR"]
 ```
 
-> **Atalhos fora do fluxo SDD:** correção de bugs pontuais (`sk-debug`), refatoração interna sem mudança de contrato (`sk-refactor`) e documentação pública (`/sk-readme` e `/sk-changelog`).
+> **Atalhos fora do fluxo SDD:** correção de bugs pontuais (`sk-debug`), refatoração interna sem mudança de contrato (`sk-refactor`), upgrades de versão major (`/sk-upgrade`) e documentação pública (`/sk-readme` e `/sk-changelog`).
 
 ---
 
 <a id="catalogo"></a>
 ## 📚 Catálogo completo (5 Pilares)
 
-As **34 skills `sk-*`** ficam em pasta plana dentro de `skills/` para compatibilidade universal de links. **`🔒` indica ativação exclusivamente explícita (`disable-model-invocation: true`).**
+As **39 skills `sk-*`** ficam em pasta plana dentro de `skills/` para compatibilidade universal de links. **`🔒` indica ativação exclusivamente explícita (`disable-model-invocation: true`).**
 
 ### Pilar 1 · Fundação e Saúde
 
@@ -209,6 +214,7 @@ Execução cotidiana de testes, depuração, refatoração, revisão, versioname
 | `sk-git` | Commits atômicos, PRs, histórico e conflitos | Ao commitar, abrir PR, atualizar branch, limpar histórico ou desfazer algo. Não para pipelines | "Prepare o commit e a PR desta mudança no padrão do projeto." |
 | `sk-readme` 🔒 | README.md de um repositório, a partir de evidências, preservando o texto da equipe | Quando o README não existe ou está desatualizado. Só por pedido explícito | "/sk-readme Atualize o README deste repositório com a stack e os comandos atuais." |
 | `sk-changelog` 🔒 | CHANGELOG.md no formato Keep a Changelog, a partir de commits e tags | Ao preparar uma release ou quando o CHANGELOG está desatualizado. Só por pedido explícito; não edita arquivo gerado por automação | "/sk-changelog Atualize o CHANGELOG com as mudanças desde a última tag." |
+| `sk-upgrade` 🔒 | Upgrades de versão major, matriz EOL/*breaking changes*, saltos incrementais, codemods e rollback | Ao migrar framework/runtime major ou remediar CVE com quebra. Só por pedido explícito | "/sk-upgrade Planeje o upgrade de versão major deste projeto em saltos incrementais com plano de rollback." |
 
 ### Pilar 4 · Domínios Transversais
 
@@ -219,7 +225,7 @@ Guias especializados acionados conforme a natureza técnica da tarefa, com refer
 | `sk-system-design` | Arquitetura de sistemas, mensageria, resiliência, cache e diagramas C4 | Projetar ou avaliar uma arquitetura, ou decidir se e como distribuir. Não para registrar a decisão (`sk-adr`) | "Projete uma arquitetura orientada a eventos com Outbox e consumidores idempotentes." |
 | `sk-api-design` | Contratos OpenAPI 3.1, erros, idempotência, versionamento e webhooks | Criar, revisar ou evoluir contratos de API, ou checar se uma mudança quebra consumidores | "Modele o contrato da API de pagamentos com chave de idempotência e webhooks assinados." |
 | `sk-sql` | Modelagem relacional, consultas performáticas, índices obrigatórios, transações, migrações seguras e NoSQL/Redis em apoio | Modelar banco, otimizar queries, criar índices/migrations ou modelar MongoDB/DynamoDB/Redis | "Otimize esta consulta no PostgreSQL e proponha o índice, ou defina a estratégia de TTL no Redis." |
-| `sk-security` | Autenticação, autorização, OWASP e segredos | Auditar ou projetar proteção de dados e acesso, ou tratar um segredo vazado | "Audite este fluxo de login e proponha as correções por severidade." |
+| `sk-security` | Autenticação, autorização, OWASP, privacidade/LGPD e segredos | Auditar ou projetar proteção de dados, LGPD e acesso, ou tratar um segredo vazado | "Audite este fluxo de login e a conformidade LGPD nos logs, propondo correções por severidade." |
 | `sk-observability` | OpenTelemetry, SLOs, alertas, probes, graceful shutdown, Web Vitals, testes de carga (k6) e post-mortem | Instrumentar, definir SLOs, planejar testes de carga/Web Vitals ou analisar incidentes | "Defina os SLOs da API de pagamentos, alertas por burn rate e o teste de carga em k6." |
 | `sk-devops` | Contêineres, Kubernetes/Helm, CI/CD, OIDC, releases e Terraform | Dockerfile, Compose, Kubernetes/Helm, pipeline GitOps, deploy, release automática ou IaC | "Crie um Dockerfile multiestágio não root, o Deployment endurecido e o workflow com OIDC." |
 | `sk-design-system` | Tokens em 3 camadas, WCAG 2.2 AA, Tailwind v4/shadcn, UI craft/mobile e scripts locais de geração e auditoria | Criar tokens (DTCG/CSS/`@theme`), projetar componentes, auditar contraste claro/escuro ou valores fixos | "Gere os tokens em Tailwind v4 e audite o contraste e a acessibilidade do modal." |
@@ -232,8 +238,8 @@ Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta.
 | Skill | Foco | Quando usar? | Exemplo de uso (prompt) |
 | :--- | :--- | :--- | :--- |
 | `sk-tech-typescript` | `tsconfig` estrito, sem `any`, validação de fronteira | Tipar código, remover `any`, configurar o `tsconfig` ou migrar para TypeScript | "Remova os `any` deste módulo e valide a entrada com um schema." |
-| `sk-tech-nodejs` | ESM, configuração validada, streams, encerramento gracioso | Serviços, workers, streams e ferramentas em Node.js | "Implemente um worker de compressão com streams, cancelamento e caminho confinado." |
-| `sk-tech-react` | Componentes tipados, estado de servidor, React 19 | Componentes, hooks, formulários e dados em React | "Crie um formulário com `useActionState`, atualização otimista e TanStack Query." |
+| `sk-tech-nodejs` | ESM, validação, streams, SQL e shutdown (TS e JS puro) | Serviços, workers, rotas Next/Nuxt e ferramentas Node.js (TS ou JS) | "Implemente um worker de compressão com streams, cancelamento e caminho confinado." |
+| `sk-tech-react` | Componentes tipados, estado de servidor, React 19 e SSR/RSC | Componentes, hooks, formulários, Next.js/Remix e dados em React | "Crie um formulário com `useActionState`, atualização otimista e Server Action validada." |
 | `sk-tech-vue` | `script setup`, `defineModel`, composables, Pinia | Componentes, composables e estado em Vue 3 | "Implemente um composable de busca sem condição de corrida e um componente com `defineModel`." |
 | `sk-tech-angular` | Signals, standalone, `OnPush`, `@defer` | Componentes, serviços de estado, rotas e formulários em Angular, ou migração para signals | "Crie um serviço de estado com signals e um componente de busca com `model` e `toSignal`." |
 | `sk-tech-dotnet` | EF Core eficiente, async, Minimal APIs | APIs, serviços e acesso a dados em C# e .NET | "Construa um endpoint Minimal API com projeção no EF Core e `TypedResults`." |
@@ -242,6 +248,10 @@ Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta.
 | `sk-tech-python` | Tipagem, Pydantic v2, `asyncio.TaskGroup` | Scripts, APIs e tarefas assíncronas em Python | "Crie uma rotina assíncrona com `TaskGroup`, tipagem moderna e validação com Pydantic." |
 | `sk-tech-php` | `strict_types`, PDO seguro, PHP 8.4 | Aplicações web e APIs em PHP, puro ou com framework | "Modele um DTO em PHP 8.4 com property hook e um repositório PDO seguro." |
 | `sk-tech-flutter` | Dart 3, Riverpod, camadas, renderização eficiente, a11y mobile | Telas, estado e navegação em aplicativos Flutter | "Estruture o estado desta tela com Riverpod `AsyncNotifier` e um repositório." |
+| `sk-tech-ionic` | Ionic 7/8 + Capacitor, ciclo `ionView*`, Shadow DOM, nativo e SQLite | Apps híbridos Ionic (Angular/React/Vue) para iOS, Android e Web | "Implemente uma página standalone Ionic com `ionViewWillEnter` e cache SQLite indexado." |
+| `sk-tech-react-native` | Expo / React Native, listas virtualizadas, `SecureStore`, a11y e SQLite | Aplicativos móveis em React Native ou Expo | "Crie uma listagem com `FlashList`, `useSafeAreaInsets` e armazenamento seguro de tokens." |
+| `sk-tech-kotlin` | Kotlin JVM (Spring/Ktor), Android Compose, Coroutines/Flow e JPA/Exposed/Room | Serviços JVM ou aplicativos Android modernos em Kotlin | "Estruture um caso de uso com `coroutineScope`, `sealed interface` e consulta Exposed indexada." |
+| `sk-tech-rust` | Ownership, `thiserror`/`anyhow`, `tokio`, `axum`/`actix` e `sqlx`/Diesel | Serviços HTTP, workers, bibliotecas e CLIs em Rust | "Implemente um handler `axum` sem `unwrap()`, com `sqlx` projetado, índice e shutdown." |
 
 ---
 
@@ -250,8 +260,8 @@ Cada skill lê a versão do projeto no manifesto e aplica só o que ela suporta.
 
 O repositório adota a **divulgação progressiva** (*progressive disclosure*): o assistente lê apenas os metadados (`description`) em todo turno e só abre o `SKILL.md` completo e os arquivos de apoio em `references/`, `templates/`, `examples/` ou `scripts/` quando a tarefa exige.
 
-1. **Ativação contextual (implícita)**: 28 skills são acionadas quando o pedido traz indícios suficientes da tarefa. Cada `description` cabe no orçamento máximo de **360 caracteres** e traz escopo positivo + exclusões (`NÃO use para ...`) para evitar colisões.
-2. **Ativação restrita (🔒 exclusivamente explícita)**: `sk-discovery`, `sk-assessment`, `sk-bootstrap`, `sk-alignment`, `sk-readme` e `sk-changelog` usam `disable-model-invocation: true` para evitar varreduras amplas ou edições públicas por inferência.
+1. **Ativação contextual (implícita)**: 32 skills são acionadas quando o pedido traz indícios suficientes da tarefa. Cada `description` cabe no orçamento máximo de **360 caracteres** e traz escopo positivo + exclusões (`NÃO use para ...`) para evitar colisões.
+2. **Ativação restrita (🔒 exclusivamente explícita)**: `sk-discovery`, `sk-assessment`, `sk-bootstrap`, `sk-alignment`, `sk-readme`, `sk-changelog` e `sk-upgrade` usam `disable-model-invocation: true` para evitar varreduras amplas, upgrades major ou edições públicas por inferência.
    - **Nota prática multi-cliente**: em assistentes que ocultam skills com `disable-model-invocation: true` do catálogo automático do modelo, invoque pelo comando `/sk-nome` ou citando explicitamente o nome da skill (por exemplo, `/sk-discovery` ou *"use a skill `sk-assessment` para auditar o projeto"*).
 3. **Assinatura**: a **primeira mensagem do fluxo** começa com ``> 🧠 **Skill Ativada**: `sk-nome-da-skill` ``, para auditar que a skill certa foi ativada. As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
@@ -265,6 +275,7 @@ O repositório adota a **divulgação progressiva** (*progressive disclosure*): 
 │   ├── semantic-release.yml
 │   └── validate-skills.yml         # CI de estrutura, budget, links, neutralidade e EOL
 ├── docs/
+│   ├── AUTHORING_SKILLS.md         # Guia de criacao de novas skills sk-*
 │   ├── CODE_OF_CONDUCT.md
 │   ├── CONTRIBUTING.md
 │   ├── GUIA_PRATICO_SDD.md         # Guia pratico SDD ("For Dummies")
@@ -276,16 +287,16 @@ O repositório adota a **divulgação progressiva** (*progressive disclosure*): 
 │   ├── install.ps1                 # Instalador seletivo Windows (link/plugin)
 │   ├── install.sh                  # Instalador seletivo Linux/macOS (link/plugin)
 │   └── validate_skills.py          # Validador automatizado do catalogo
-└── skills/                         # 34 pastas sk-* (SKILL.md + apoios sob demanda)
+└── skills/                         # 39 pastas sk-* (SKILL.md + apoios sob demanda)
 ```
 
-Cada pasta em `skills/sk-*/` contém um `SKILL.md` e subpastas opcionais `references/`, `templates/`, `examples/` e `scripts/` lidas ou executadas apenas sob demanda (ex.: `sk-code-review/references/domain-checklists.md`, `sk-alignment/references/clear-writing-and-slides.md`, `sk-sql/references/nosql-and-redis.md`, `sk-devops/references/kubernetes.md`, `sk-observability/references/web-and-load-perf.md`, `sk-design-system/references/ui-craft-and-audit.md` e `sk-design-system/scripts/validate-tokens.cjs`).
+Cada pasta em `skills/sk-*/` contém um `SKILL.md` e subpastas opcionais `references/`, `templates/`, `examples/` e `scripts/` lidas ou executadas apenas sob demanda (ex.: `sk-code-review/references/domain-checklists.md`, `sk-alignment/references/clear-writing-and-slides.md`, `sk-sql/references/nosql-and-redis.md`, `sk-security/references/lgpd-and-privacy.md`, `sk-tech-react/references/ssr-and-metaframeworks.md`, `sk-upgrade/references/upgrade-playbook.md`, `sk-devops/references/kubernetes.md`, `sk-observability/references/web-and-load-perf.md`, `sk-design-system/references/ui-craft-and-audit.md` e `sk-design-system/scripts/validate-tokens.cjs`).
 
 ---
 
 ## 🏗️ Padrão de construção de novas skills
 
-Cada skill é uma pasta iniciada por `sk-` com um `SKILL.md` (e subpastas opcionais `references/`, `templates/`, `examples/` e `scripts/` para *progressive disclosure*):
+Para propor uma nova skill dentro do padrão do catálogo, siga o [Guia de Autoria de Skills (AUTHORING_SKILLS.md)](docs/AUTHORING_SKILLS.md). Cada skill é uma pasta iniciada por `sk-` com um `SKILL.md` (e subpastas opcionais `references/`, `templates/`, `examples/` e `scripts/` para *progressive disclosure*):
 
 ```markdown
 ---
@@ -311,7 +322,7 @@ Diretrizes:
 - **Ordem final obrigatória**: `Integrações` → `Armadilhas` (em lista, nunca tabela) → `Padrão de entrega` (última seção, iniciando pela Assinatura).
 - **Progressive disclosure**: modelos, referências extensas e scripts utilitários locais (sem dependências externas) vão para `references/`, `templates/`, `examples/` ou `scripts/`, sempre linkados no `SKILL.md` (zero arquivos órfãos).
 - **Autocontenção e neutralidade**: nenhuma skill referencia recursos fora do catálogo, caminhos fixos de cliente nem modelos proprietários específicos.
-- **Circuit Breaker**: skills de execução/stack (`sk-tech-*`, `sk-debug`, `sk-refactor`, `sk-testing`, `sk-devops`, `sk-ai-engineering`) limitam tentativas consecutivas sobre a mesma falha e pausam para check-in.
+- **Circuit Breaker**: skills de execução/stack (`sk-tech-*`, `sk-debug`, `sk-refactor`, `sk-testing`, `sk-upgrade`, `sk-devops`, `sk-ai-engineering`) limitam tentativas consecutivas sobre a mesma falha e pausam para check-in.
 - **Qualidade e validação**: mantenha [profiles.json](profiles.json) atualizado ao criar novas skills e rode `python scripts/validate_skills.py` antes de commitar.
 
 ### 🔒 Gestão de permissões (`allowed-tools`)
@@ -322,7 +333,7 @@ O campo `allowed-tools` **pré-aprova** apenas o que a skill usa no dia a dia, e
 - **Pedem confirmação** (de propósito, fora do pré-aprovado): operações que alteram o mundo ou reescrevem histórico, como `git push`, `rebase`, `reset`, merge de PR, `terraform apply`, `kubectl apply`, `helm upgrade`, `docker push` e publicação de release.
 - **Sem `Bash`**: skills conceituais (`sk-tasks`, `sk-api-design`, `sk-system-design`, `sk-sql`, `sk-observability`, `sk-design-system`). Algumas só leem o histórico do Git (`sk-adr`, `sk-spec`).
 - **Modos somente leitura, por regra da skill**: `sk-code-review` só lê e registra pendências via `sk-tasks`, com confirmação; `sk-security` só edita no modo Corrigir, com aprovação. É uma instrução da skill, não um bloqueio técnico.
-- **Ativação explícita**: `sk-discovery`, `sk-assessment`, `sk-bootstrap`, `sk-alignment`, `sk-readme` e `sk-changelog` usam `disable-model-invocation: true`.
+- **Ativação explícita**: `sk-discovery`, `sk-assessment`, `sk-bootstrap`, `sk-alignment`, `sk-readme`, `sk-changelog` e `sk-upgrade` usam `disable-model-invocation: true`.
 
 > Para um bloqueio técnico real, use regras de `deny` nas configurações do cliente. O comportamento de `allowed-tools` e de `disable-model-invocation` pode variar entre clientes e versões: confirme no seu.
 
@@ -356,10 +367,9 @@ Se precisar de ajuda ou encontrou um problema, consulte o [Suporte](https://gith
 
 Obrigado a todos que já contribuíram:
 
-[![Contribuidores](https://contrib.nn.ci/api?repo=heliomarpm/skills&no_bot=true)](https://github.com/heliomarpm/skills/graphs/contributors)
+[![Contribuidores](https://contrib.rocks/image?repo=heliomarpm/skills)](https://github.com/heliomarpm/skills/graphs/contributors)
 
-###### Criado com [contrib.nn](https://contrib.nn.ci/?repo=heliomarpm/skills&no_bot=true)
-
+###### Criado com [contrib.rocks](https://contrib.rocks/image?repo=heliomarpm/skills-php)
 ---
 
 ## 💵 Apoie o Projeto

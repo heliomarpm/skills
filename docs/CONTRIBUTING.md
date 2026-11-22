@@ -20,6 +20,7 @@ Obrigado por considerar contribuir com este projeto! Sua colaboração é fundam
 * Escreva mensagens de commit claras e descritivas.
 * Atualize ou adicione testes quando aplicável.
 * Ao adicionar novos recursos, atualize a documentação correspondente.
+* Para propor ou criar uma nova skill `sk-*`, siga o [Guia de Autoria de Skills (AUTHORING_SKILLS.md)](./AUTHORING_SKILLS.md).
 
 <!-- 
 ## 📦 Scripts do Projeto
