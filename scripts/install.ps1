@@ -168,7 +168,7 @@ if ($List) {
     foreach ($prop in $Config.profiles.PSObject.Properties) {
         $resolved = Resolve-ProfileSpec -Spec $prop.Name
         $stats = Get-TokenStats -Skills $resolved
-        Write-Host ("{0,-18} | {1,2} skills ({2,2} impl, {3,1} expl) | ~{4,4} tok/turn | {5}" -f `
+        Write-Host ("{0,-22} | {1,2} skills ({2,2} impl, {3,1} expl) | ~{4,4} tok/turn | {5}" -f `
             $prop.Name, $stats.Total, $stats.Implicit, $stats.Explicit, $stats.Tokens, $prop.Value.description)
     }
     exit 0

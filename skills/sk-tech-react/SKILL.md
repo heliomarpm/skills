@@ -1,6 +1,6 @@
 ---
 name: sk-tech-react
-description: "Orienta React e TypeScript: componentes tipados, TanStack Query, Actions/hooks do React 19, formulários, efeitos, desempenho medido e testes. Use para componentes, hooks ou estado em React. NÃO use para tokens/WCAG (sk-design-system), tipagem geral (sk-tech-typescript) nem rotas/actions de servidor com banco (sk-tech-nodejs, sk-sql)."
+description: "Orienta React e TypeScript (SPA, Next.js/Remix/RSC): componentes tipados, TanStack Query, Actions/hooks do React 19, SSR/Server Actions, desempenho medido e testes. Use para componentes, hooks ou SSR em React. NÃO use para tokens/WCAG (sk-design-system), tipagem (sk-tech-typescript) nem servidor Node/SQL (sk-tech-nodejs, sk-sql)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
@@ -45,11 +45,13 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 Consulte implementações de referência em [examples/patterns.md](./examples/patterns.md): formulário com `useActionState` + `useOptimistic` (React 19) e queries/mutations com TanStack Query, `AbortSignal` e validação Zod na fronteira.
 
+Para meta-frameworks SSR/RSC (Next.js App Router, Remix / React Router), fronteira `'use client'`, Server Actions, hidratação e cache, consulte [references/ssr-and-metaframeworks.md](./references/ssr-and-metaframeworks.md).
+
 ---
 
 ## 3. Integrações
 
-`sk-tech-typescript` (tipos), `sk-design-system` (tokens e acessibilidade), `sk-testing` (testes de componente), `sk-api-design` (contratos), `sk-security` (XSS e tokens), `sk-code-review` e `sk-devops`. Para rotas de API, Server Actions ou loaders com acesso a banco (Next/Remix), acione `sk-tech-nodejs` e `sk-sql`. Se alguma não existir, siga o padrão desta skill sem a integração.
+`sk-tech-typescript` (tipos), `sk-design-system` (tokens e acessibilidade), `sk-tech-ionic` (quando React roda em app híbrido Ionic/Capacitor), `sk-testing` (testes de componente), `sk-api-design` (contratos), `sk-security` (XSS e tokens), `sk-upgrade`, `sk-code-review` e `sk-devops`. Para rotas de API, Server Actions ou loaders com acesso a banco (Next/Remix), acione `sk-tech-nodejs` e `sk-sql`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 

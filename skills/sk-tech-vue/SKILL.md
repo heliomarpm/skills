@@ -48,7 +48,7 @@ Consulte implementações de referência em [examples/patterns.md](./examples/pa
 
 ## 3. Integrações
 
-`sk-tech-typescript` (tipos), `sk-design-system` (tokens e acessibilidade), `sk-testing` (testes), `sk-api-design` (contratos), `sk-security` (XSS), `sk-code-review` e `sk-devops`. Para rotas/server handlers com banco (Nuxt), acione `sk-tech-nodejs` e `sk-sql`. Se alguma não existir, siga o padrão desta skill sem a integração.
+`sk-tech-typescript` (tipos), `sk-design-system` (tokens e acessibilidade), `sk-tech-ionic` (apps híbridos Ionic/Capacitor), `sk-testing` (testes), `sk-api-design` (contratos), `sk-security` (XSS), `sk-upgrade`, `sk-code-review` e `sk-devops`. Para rotas/server handlers com banco (Nuxt), acione `sk-tech-nodejs` e `sk-sql`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 

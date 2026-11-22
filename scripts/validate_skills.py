@@ -19,6 +19,7 @@ CIRCUIT_BREAKER_REQUIRED = {
     "sk-testing",
     "sk-devops",
     "sk-ai-engineering",
+    "sk-upgrade",
 }
 
 
@@ -215,7 +216,7 @@ def validate_profiles_and_layer0(
             errors.append(f"[profiles.json] {exc}")
 
     if "all" in resolved_cache and set(resolved_cache["all"]) != sk_set:
-        errors.append("[profiles.json] Perfil 'all' nao resolve exatamente para todas as 34 skills sk-*.")
+        errors.append(f"[profiles.json] Perfil 'all' nao resolve exatamente para todas as {len(sk_set)} skills sk-*.")
 
     # Layer 0 check
     rules_dir = os.path.join(REPO_ROOT, "rules")
@@ -305,10 +306,6 @@ def validate() -> int:
             text = f.read()
 
         total_lines += len(text.splitlines())
-
-        # Check cargo commands prohibition
-        if "cargo " in text:
-            errors.append(f"[{skill}] Ainda contem comando 'cargo ' em SKILL.md.")
 
         # 1. Frontmatter validation
         parsed = parse_frontmatter(text)
@@ -455,13 +452,24 @@ def validate() -> int:
     print(f"Skills sk-* validadas: {len(sk_dirs)} ({implicit_count} implicitas, {len(sk_dirs) - implicit_count} explicitas)")
     print(f"Total de linhas em SKILL.md: {total_lines}")
     print(f"Custo fixo description (implicitas): {total_desc_chars_implicit} chars (~{est_tokens_implicit} tokens)")
-    print(f"Custo fixo description (todas 34):   {total_desc_chars_all} chars (~{est_tokens_all} tokens)")
+    print(f"Custo fixo description (todas {len(sk_dirs)}):   {total_desc_chars_all} chars (~{est_tokens_all} tokens)")
     if profile_metrics:
         print("Perfis selecionados (skills | implicitas | ~tokens/turno):")
-        for key in ("core", "frontend-react", "backend-java", "fullstack-js", "backend-python", "all"):
+        for key in (
+            "core",
+            "frontend-react",
+            "mobile-ionic",
+            "mobile-react-native",
+            "backend-java",
+            "backend-kotlin",
+            "backend-rust",
+            "fullstack-js",
+            "backend-python",
+            "all",
+        ):
             if key in profile_metrics:
                 tot, imp, tok = profile_metrics[key]
-                print(f" - {key:<15}: {tot:>2} skills | {imp:>2} implicitas | ~{tok:>4} tokens/turno")
+                print(f" - {key:<22}: {tot:>2} skills | {imp:>2} implicitas | ~{tok:>4} tokens/turno")
 
     if errors:
         print(f"\nFALHAS DE VALIDACAO ({len(errors)}):")

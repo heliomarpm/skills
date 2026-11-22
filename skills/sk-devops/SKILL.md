@@ -136,6 +136,7 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `devo
 | `sk-testing` | Estágios de teste no pipeline |
 | `sk-sql` | Migrações no deploy |
 | `sk-adr` | Decisões de plataforma e estratégia de deploy |
+| `sk-upgrade` | Alinhamento de versões de runtime, imagens base e workflows em upgrades major |
 | `sk-system-design` | Arquitetura que a infraestrutura implementa |
 
 Se alguma não existir, siga o padrão desta skill sem a integração.

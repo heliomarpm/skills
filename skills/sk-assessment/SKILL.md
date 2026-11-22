@@ -2,7 +2,7 @@
 name: sk-assessment
 description: "ATIVAÇÃO EXPLÍCITA: diagnóstico crítico 360° sem bajulação do repositório inteiro (arquitetura, clean code, performance, segurança, dados), poda de duplicidades e roadmap. Use somente quando o usuário pedir avaliação/health check do projeto. NÃO use para revisar diff/PR (sk-code-review) nem mapear contexto (sk-discovery)."
 disable-model-invocation: true
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *), Bash(git ls-files *), Bash(git status *), Bash(git shortlog *), Bash(git remote *), Bash(npm audit), Bash(npm outdated), Bash(pnpm audit), Bash(pnpm outdated), Bash(pip-audit), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(dotnet list * --outdated)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(git log *), Bash(git ls-files *), Bash(git status *), Bash(git shortlog *), Bash(git remote *), Bash(npm audit), Bash(npm outdated), Bash(pnpm audit), Bash(pnpm outdated), Bash(pip-audit), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(dotnet list * --outdated), Bash(cargo audit)
 ---
 
 # Assessment: diagnóstico crítico, excelência técnica e evolução contínua
@@ -91,7 +91,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 | **Dados & Persistência** | Modelagem inadequada, falta de integridade referencial, transações longas, migrações arriscadas, deadlocks em potencial. | Modelagem expressiva, consultas eficientes com planos de execução saudáveis, migrações seguras sem downtime. | `sk-sql` |
 | **Observabilidade & Operabilidade** | Falta de rastreabilidade (tracing distribuído), logs não estruturados, ausência de health checks (liveness/readiness), silêncio em falhas críticas. | Telemetria OpenTelemetry contextual, SLOs acionáveis com alertas por burn rate e graceful shutdown. | `sk-observability` |
 | **Entrega & Infraestrutura (CI/CD)** | Pipelines lentos, imagens Docker inchadas, execução como root, falta de pinning de versões, deploy manual ou sem rollback automatizado. | Pipelines rápidos com cache, contêineres multi-stage mínimos e não-root, OIDC seguro. | `sk-devops`, `sk-git` |
-| **Dependências & Suporte** | Bibliotecas abandonadas, runtimes sem suporte de segurança (*EOL*), excesso de dependências para tarefas triviais. | Dependências enxutas, atualizadas e auditadas, mantendo a superfície de ataque mínima. | `sk-security`, as `sk-tech-*` |
+| **Dependências & Suporte** | Bibliotecas abandonadas, runtimes sem suporte de segurança (*EOL*), excesso de dependências para tarefas triviais. | Dependências enxutas, atualizadas e auditadas, mantendo a superfície de ataque mínima. | `sk-security`, `sk-upgrade`, as `sk-tech-*` |
 | **Documentação & Alinhamento** | README defasado, discrepâncias entre código e specs/ADRs, ausência de guias de arquitetura. | Documentação viva, precisa, espelhando a realidade atual do código. | `sk-readme`, `sk-discovery`, `sk-adr` |
 | **Produto, Evolução & Inovação** | Funcionalidades incompletas no PRD, atritos graves no fluxo do usuário, ausência de automações óbvias, oportunidades de mercado inexploradas. | Oportunidades de novas funcionalidades de alto valor, melhorias de UX e expansão do roadmap. | `sk-challenge`, `sk-spec` |
 
@@ -164,7 +164,7 @@ Para gerar o documento de diagnóstico, consulte a estrutura completa em [refere
 | `sk-challenge` | Submete hipóteses de produto, novas funcionalidades e grandes refatorações a estresse antes de especificar. |
 | `sk-spec` & `sk-adr` | Especificam os critérios de aceite das melhorias e registram as decisões técnicas aprovadas. |
 | `sk-refactor` | Executa a fusão de módulos, eliminação de duplicidades e melhorias de clean code. |
-| `sk-testing`, `sk-sql`, `sk-security`, `sk-observability`, `sk-devops` | Implementam os achados técnicos específicos de cada especialidade. |
+| `sk-testing`, `sk-sql`, `sk-security`, `sk-observability`, `sk-devops`, `sk-upgrade` | Implementam os achados técnicos específicos de cada especialidade e upgrades de versão. |
 | `sk-tasks` | Recebe e rastreia os achados aprovados no backlog (`TASKS.md`) (modo Importar, origem `assessment`, classificados por horizonte e prioridade; fallback em lista no chat). |
 
 ---

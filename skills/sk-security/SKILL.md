@@ -1,7 +1,7 @@
 ---
 name: sk-security
-description: "Audita e projeta segurança de aplicações: OAuth2/PKCE, OIDC, JWT, autorização por recurso (BOLA/IDOR), validação contra injeções, criptografia, segredos, auditoria de dependências e cabeçalhos web (OWASP). Use para revisar segurança ou tratar segredo vazado. NÃO use para contratos OpenAPI (sk-api-design), CI/CD (sk-devops) nem diff geral (sk-code-review)."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm audit), Bash(npm audit --omit=dev), Bash(pnpm audit), Bash(pip-audit), Bash(pip-audit -r *), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(trivy fs *), Bash(gitleaks detect *)
+description: "Audita e projeta segurança e privacidade (LGPD): OAuth2/PKCE, OIDC, JWT, BOLA/IDOR, injeções, criptografia, segredos, dependências e cabeçalhos web (OWASP). Use para revisar segurança, LGPD ou segredo vazado. NÃO use para OpenAPI (sk-api-design), CI/CD (sk-devops), upgrades major (sk-upgrade) nem diff geral (sk-code-review)."
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm audit), Bash(npm audit --omit=dev), Bash(pnpm audit), Bash(pip-audit), Bash(pip-audit -r *), Bash(composer audit), Bash(dotnet list * --vulnerable), Bash(cargo audit), Bash(trivy fs *), Bash(gitleaks detect *)
 ---
 
 # Security: segurança defensiva de aplicações
@@ -63,7 +63,7 @@ Referências: OWASP Top 10 e ASVS.
 | Dependências | `audit` da stack, lockfile versionado, scripts de instalação, SBOM quando exigido |
 | Web | CSP, HSTS, CORS restrito, CSRF, cookies seguros (seção 6) |
 | Logs e auditoria | Sem senhas, tokens ou PII em logs; trilha de ações sensíveis (`sk-observability`) |
-| Multitenancy e privacidade | Isolamento entre clientes, minimização de dados, retenção e LGPD |
+| Multitenancy e privacidade | Isolamento entre clientes, minimização, bases legais, direitos do titular e retenção ([references/lgpd-and-privacy.md](./references/lgpd-and-privacy.md)) |
 | Infra e contêineres | Segredos em CI, usuário não root, imagens mínimas (`sk-devops`) |
 
 ---
@@ -180,6 +180,7 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `secu
 | `sk-sql` | Parametrização e permissões de banco |
 | `sk-adr` | Decisões de autenticação e criptografia |
 | `sk-observability` | Logs de auditoria e alertas |
+| `sk-upgrade` | Remediação de CVEs que exigem salto de versão major |
 | `sk-git` | Reescrita de histórico após vazamento |
 
 Se alguma não existir, siga o padrão desta skill sem a integração.

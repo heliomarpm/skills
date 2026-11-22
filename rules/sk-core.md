@@ -1,14 +1,14 @@
 # Camada 0 · Regras Transversais (`sk-*`)
 
-Contrato comum das 34 skills `sk-*`. No modo plugin, este arquivo é instalado como `rules/AGENTS.md` e carregado em toda sessão sem duplicar texto em cada `SKILL.md`.
+Contrato comum das 39 skills `sk-*`. No modo plugin, este arquivo é instalado como `rules/AGENTS.md` e carregado em toda sessão sem duplicar texto em cada `SKILL.md`.
 
 ## 1. Ativação e assinatura
 - **Assinatura obrigatória**: a **primeira mensagem do fluxo** de qualquer skill inicia com ``> 🧠 **Skill Ativada**: `sk-nome-da-skill` ``. Mensagens seguintes do mesmo fluxo não repetem a assinatura.
-- **Ativação explícita (🔒)**: `sk-discovery`, `sk-assessment`, `sk-bootstrap`, `sk-alignment`, `sk-readme` e `sk-changelog` usam `disable-model-invocation: true` e só rodam por pedido expresso. Em clientes que ocultam skills explícitas do catálogo automático, oriente ou invoque pelo nome exato (`/sk-nome`).
+- **Ativação explícita (🔒)**: `sk-discovery`, `sk-assessment`, `sk-bootstrap`, `sk-alignment`, `sk-upgrade`, `sk-readme` e `sk-changelog` usam `disable-model-invocation: true` e só rodam por pedido expresso. Em clientes que ocultam skills explícitas do catálogo automático, oriente ou invoque pelo nome exato (`/sk-nome`).
 
 ## 2. Evidência e fidelidade ao projeto
 - Cite apenas arquivos, símbolos, medições e saídas realmente lidos na sessão. O que não foi verificado recebe `[A CONFIRMAR]`, `(inferido)` ou `(estimativa)`.
-- Confirme scripts, versões de runtime, linters e ferramentas de build nos manifestos do repositório (`package.json`, `pom.xml`, `go.mod`, `pyproject.toml`, `.csproj`, `composer.json`, `pubspec.yaml`, `.github/workflows/`) antes de sugerir comandos ou APIs novas.
+- Confirme scripts, versões de runtime, linters e ferramentas de build nos manifestos do repositório (`package.json`, `pom.xml`, `build.gradle.kts`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `.csproj`, `composer.json`, `pubspec.yaml`, `capacitor.config.*`, `.github/workflows/`) antes de sugerir comandos ou APIs novas.
 - **Divulgação progressiva**: leia arquivos de apoio em `references/`, `templates/` e `examples/` somente quando a tarefa exigir.
 
 ## 3. Segurança e ações mutáveis
@@ -17,7 +17,7 @@ Contrato comum das 34 skills `sk-*`. No modo plugin, este arquivo é instalado c
 - Operações que alteram estado remoto, reescrevem histórico ou destroem dados (`git push`, `rebase`, `reset --hard`, `terraform apply`, `kubectl apply`, `helm upgrade`, `docker push`, DDL/DML destrutivo, publicação de release) exigem **pedido ou confirmação explícita** do usuário.
 
 ## 4. Circuit Breaker
-- Em execuções iterativas de correção, testes, refatoração, build ou validação (`sk-tech-*`, `sk-testing`, `sk-debug`, `sk-refactor`, `sk-devops`, `sk-ai-engineering`), respeite o teto máximo de **3 tentativas consecutivas** sobre a mesma falha.
+- Em execuções iterativas de correção, testes, refatoração, build ou validação (`sk-tech-*`, `sk-testing`, `sk-debug`, `sk-refactor`, `sk-upgrade`, `sk-devops`, `sk-ai-engineering`), respeite o teto máximo de **3 tentativas consecutivas** sobre a mesma falha.
 - Ao atingir o limite, pare imediatamente, apresente comando executado, erro exato e hipóteses já descartadas, e aguarde decisão do usuário antes de tentar outra abordagem.
 
 ## 5. Consultas de banco e índices

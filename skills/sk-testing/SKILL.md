@@ -1,7 +1,7 @@
 ---
 name: sk-testing
 description: "Orienta estratégia, escrita e auditoria de testes automatizados (unitários, integração, contrato, E2E) agnósticos a linguagem: AAA, builders, dublês e determinismo. Use para 'escreva testes', TDD, flaky tests ou cobertura de critérios CA-NN. NÃO use para depurar causa raiz (sk-debug), revisar PR (sk-code-review) nem setup de stack (sk-tech-*)."
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run test *), Bash(pnpm test *), Bash(pnpm run test *), Bash(yarn test *), Bash(npx vitest *), Bash(npx jest *), Bash(pytest *), Bash(python -m pytest *), Bash(uv run pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(./mvnw test *), Bash(gradle test *), Bash(./gradlew test *), Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *), Bash(flutter test *), Bash(dart test *)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(npm test *), Bash(npm run test *), Bash(pnpm test *), Bash(pnpm run test *), Bash(yarn test *), Bash(npx vitest *), Bash(npx jest *), Bash(pytest *), Bash(python -m pytest *), Bash(uv run pytest *), Bash(go test *), Bash(dotnet test *), Bash(mvn test *), Bash(./mvnw test *), Bash(gradle test *), Bash(./gradlew test *), Bash(composer test *), Bash(vendor/bin/phpunit *), Bash(vendor/bin/pest *), Bash(flutter test *), Bash(dart test *), Bash(cargo test *)
 ---
 
 # Testing: estratégia e automação de testes

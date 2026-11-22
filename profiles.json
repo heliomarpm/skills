@@ -37,7 +37,8 @@
         "sk-code-review",
         "sk-git",
         "sk-readme",
-        "sk-changelog"
+        "sk-changelog",
+        "sk-upgrade"
       ]
     },
     {
@@ -72,7 +73,11 @@
         "sk-tech-golang",
         "sk-tech-python",
         "sk-tech-php",
-        "sk-tech-flutter"
+        "sk-tech-flutter",
+        "sk-tech-ionic",
+        "sk-tech-react-native",
+        "sk-tech-kotlin",
+        "sk-tech-rust"
       ]
     }
   ],
@@ -158,6 +163,24 @@
       "description": "Apps Flutter e Dart 3",
       "skills": ["sk-tech-flutter"]
     },
+    "stack-ionic": {
+      "description": "Apps hibridos Ionic 7/8 + Capacitor",
+      "extends": ["stack-ts"],
+      "skills": ["sk-tech-ionic"]
+    },
+    "stack-react-native": {
+      "description": "Apps React Native / Expo com TypeScript",
+      "extends": ["stack-ts"],
+      "skills": ["sk-tech-react-native"]
+    },
+    "stack-kotlin": {
+      "description": "Kotlin moderno (JVM Spring/Ktor e Android Compose)",
+      "skills": ["sk-tech-kotlin"]
+    },
+    "stack-rust": {
+      "description": "Servicos e CLIs em Rust idiomatico (tokio/axum/sqlx)",
+      "skills": ["sk-tech-rust"]
+    },
     "fullstack-js": {
       "description": "Core + dominios backend/frontend + Node.js + React",
       "extends": ["core", "domains-backend", "domains-frontend", "stack-node", "stack-react"]
@@ -198,8 +221,36 @@
       "description": "Core + dominios frontend/UI + Flutter",
       "extends": ["core", "domains-frontend", "stack-flutter"]
     },
+    "mobile-ionic": {
+      "description": "Core + dominios frontend/UI + Angular + Ionic/Capacitor",
+      "extends": ["core", "domains-frontend", "stack-angular", "stack-ionic"]
+    },
+    "mobile-ionic-react": {
+      "description": "Core + dominios frontend/UI + React + Ionic/Capacitor",
+      "extends": ["core", "domains-frontend", "stack-react", "stack-ionic"]
+    },
+    "mobile-ionic-vue": {
+      "description": "Core + dominios frontend/UI + Vue 3 + Ionic/Capacitor",
+      "extends": ["core", "domains-frontend", "stack-vue", "stack-ionic"]
+    },
+    "mobile-react-native": {
+      "description": "Core + dominios frontend/UI + React Native / Expo",
+      "extends": ["core", "domains-frontend", "stack-react-native"]
+    },
+    "backend-kotlin": {
+      "description": "Core + dominios backend + Kotlin JVM",
+      "extends": ["core", "domains-backend", "stack-kotlin"]
+    },
+    "mobile-android-kotlin": {
+      "description": "Core + dominios frontend/UI + Kotlin Android/Compose",
+      "extends": ["core", "domains-frontend", "stack-kotlin"]
+    },
+    "backend-rust": {
+      "description": "Core + dominios backend + Rust",
+      "extends": ["core", "domains-backend", "stack-rust"]
+    },
     "all": {
-      "description": "Catalogo completo (todos os 5 pilares, 34 skills sk-*)",
+      "description": "Catalogo completo (todos os 5 pilares, 39 skills sk-*)",
       "pillars": [1, 2, 3, 4, 5]
     }
   },

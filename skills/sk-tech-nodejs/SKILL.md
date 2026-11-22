@@ -1,6 +1,6 @@
 ---
 name: sk-tech-nodejs
-description: "Orienta serviços Node.js modernos (e rotas/actions de servidor Next/Nuxt): ESM, node:, validação de env/entrada, streams, AbortSignal, event loop, acesso SQL performático com índices e graceful shutdown. Use para backend Node.js ou workers. NÃO use para tipagem TS geral (sk-tech-typescript), OpenAPI (sk-api-design) nem UI (sk-tech-react/vue/angular)."
+description: "Orienta serviços Node.js modernos (TypeScript ou JavaScript puro e rotas Next/Nuxt): ESM, node:, validação de env/entrada, streams, AbortSignal, event loop, SQL performático com índices e graceful shutdown. Use para backend Node.js ou workers. NÃO use para tipagem TS (sk-tech-typescript), OpenAPI (sk-api-design) nem UI (sk-tech-react)."
 allowed-tools: Read, Edit, Write, Grep, Glob, Bash(node --test *), Bash(npx tsc *), Bash(npx vitest *), Bash(npx jest *), Bash(npx eslint *), Bash(npm test *), Bash(npm run test *), Bash(npm run lint *), Bash(npm run typecheck *), Bash(npm run build *), Bash(pnpm test *), Bash(pnpm run test *), Bash(pnpm run lint *), Bash(pnpm run typecheck *), Bash(pnpm run build *)
 ---
 
@@ -16,7 +16,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Versão.** Leia a versão de Node em `engines`, `.nvmrc` ou `.tool-versions`, use uma LTS suportada e apenas recursos que ela oferece. APIs recentes ou experimentais: confirme na documentação oficial da versão.
 
-**Siga o projeto.** Respeite gerenciador de pacotes, framework (Fastify, Express, Nest, rotas/actions de servidor Next/Nuxt), logger e estrutura existentes. Regras de tipagem estão em `sk-tech-typescript`.
+**Siga o projeto.** Respeite gerenciador de pacotes, framework (Fastify, Express, Nest, rotas/actions de servidor Next/Nuxt), logger e estrutura existentes. Em projetos TypeScript, siga `sk-tech-typescript`; em projetos **JavaScript puro**, mantenha ESM, JSDoc tipado quando útil e validação rigorosa de schema na borda.
 
 **Timebox e Circuit Breaker.** Ao corrigir erros de compilação, tipos, build, lint ou testes, pare após **3 tentativas consecutivas** sobre a mesma falha. Informe o erro exato, o que foi tentado e a causa provável, e peça direção ao usuário.
 

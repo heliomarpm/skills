@@ -18,7 +18,7 @@ As mensagens seguintes do mesmo fluxo não repetem a assinatura.
 
 **Valide com ferramenta.** Razões de contraste citadas aqui são aproximadas: confirme com uma ferramenta de contraste antes de adotar uma cor.
 
-**Escopo.** A skill especifica tokens, API de componentes e critérios de acessibilidade; o código em React, Vue, Angular ou Flutter é da `sk-tech-*` correspondente.
+**Escopo.** A skill especifica tokens, API de componentes e critérios de acessibilidade; o código em React, Vue, Angular, Ionic, React Native, Kotlin/Compose ou Flutter é da `sk-tech-*` correspondente.
 
 **Idioma.** O do usuário; nomes de tokens e componentes seguem o projeto.
 
@@ -112,7 +112,7 @@ Com a confirmação, acione a skill `sk-tasks` (modo Importar), com origem `desi
 
 | Skill | Como se integra |
 | :--- | :--- |
-| `sk-tech-react`, `sk-tech-vue`, `sk-tech-angular`, `sk-tech-flutter` | Implementam os componentes e tokens na stack |
+| `sk-tech-react`, `sk-tech-vue`, `sk-tech-angular`, `sk-tech-ionic`, `sk-tech-react-native`, `sk-tech-kotlin`, `sk-tech-flutter` | Implementam os componentes e tokens na stack |
 | `sk-testing` | Testes de acessibilidade e regressão visual |
 | `sk-code-review` | Verifica tokens e acessibilidade em PRs |
 | `sk-spec` | Estados e critérios de aceite de interface |

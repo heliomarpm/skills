@@ -224,7 +224,7 @@ if list_mode:
     for name, prof in profile_map.items():
         resolved = resolve_profile_spec(name)
         tot, imp, exp, tok = token_stats(resolved)
-        print(f"{name:<18} | {tot:>2} skills ({imp:>2} impl, {exp:>1} expl) | ~{tok:>4} tok/turn | {prof.get('description', '')}")
+        print(f"{name:<22} | {tot:>2} skills ({imp:>2} impl, {exp:>1} expl) | ~{tok:>4} tok/turn | {prof.get('description', '')}")
     sys.exit(0)
 
 if not target and not client:

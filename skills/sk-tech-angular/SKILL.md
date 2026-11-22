@@ -78,7 +78,7 @@ Migre por etapas: control flow (`@if`, `@for`) com o schematic oficial; inputs, 
 
 ## 5. Integrações
 
-`sk-tech-typescript` (tipos), `sk-design-system` (tokens e acessibilidade), `sk-testing` (testes de componente), `sk-api-design` (contratos), `sk-security`, `sk-code-review` e `sk-devops`. Para rotas/actions de servidor SSR com banco, acione `sk-tech-nodejs` e `sk-sql`. Se alguma não existir, siga o padrão desta skill sem a integração.
+`sk-tech-typescript` (tipos), `sk-design-system` (tokens e acessibilidade), `sk-tech-ionic` (apps híbridos Ionic/Capacitor), `sk-testing` (testes de componente), `sk-api-design` (contratos), `sk-security`, `sk-upgrade`, `sk-code-review` e `sk-devops`. Para rotas/actions de servidor SSR com banco, acione `sk-tech-nodejs` e `sk-sql`. Se alguma não existir, siga o padrão desta skill sem a integração.
 
 ---
 
