@@ -62,27 +62,27 @@ Em vez de vincular todas as 39 skills globalmente, instale **apenas o perfil do 
 
 **Como o instalador funciona na sua máquina:**
 
-- **Sem cópias físicas**: os scripts criam **Junctions** (Windows, sem exigir Admin) ou **symlinks** (Linux/macOS) apontando para `skills/sk-*` deste repositório. Qualquer `git pull` ou edição local reflete automaticamente no agente.
+- **Cópia sincronizada por padrão (`-Strategy copy` / `--strategy copy`)**: copia apenas as pastas `sk-*` do perfil selecionado com atualização incremental (`[OK]`/`[SYNC]`/`[PRUNE]`). Isso garante descoberta em **todos** os clientes — inclusive no Antigravity e no Windows, onde leitores de diretório ignoram NTFS Junctions/symlinks (`ReparsePoint`). Após `git pull` ou edição local, basta reexecutar o instalador para sincronizar. *(Se preferir links em clientes que os suportem, passe `-Strategy junction` no Windows ou `--strategy symlink` no Linux/macOS.)*
 - **Escolha apenas UM modo por cliente** (nunca ambos no mesmo cliente, para não duplicar skills):
-  - **Modo `link` (padrão — skills soltas)**: vincula apenas as skills do perfil direto na pasta `skills/` do cliente; não instala a Camada 0 ([rules/sk-core.md](rules/sk-core.md)).
-  - **Modo `plugin` (pacote único — recomendado em clientes com suporte a plugins)**: cria `plugins/sk-engineering-toolbox/` contendo `plugin.json`, a Camada 0 em `rules/AGENTS.md` e os links `skills/sk-*`. Permite ligar, atualizar ou desligar o conjunto inteiro como uma unidade. *Ao migrar de skills soltas ou cópias antigas para plugin, remova os diretórios `sk-*` antigos da pasta `skills/` do cliente.*
+  - **Modo `link` (padrão — skills soltas)**: instala as skills do perfil direto na pasta `skills/` do cliente (use este modo para **GitHub Copilot** em `-Client copilot` ou `-Client agents`); não instala a Camada 0 ([rules/sk-core.md](rules/sk-core.md)).
+  - **Modo `plugin` (pacote único — recomendado no Antigravity e clientes com suporte a plugins)**: cria `plugins/sk-engineering-toolbox/` contendo `plugin.json`, a Camada 0 em `rules/AGENTS.md` e as skills `skills/sk-*`. Permite ligar, atualizar ou desligar o conjunto inteiro como uma unidade. *Ao migrar de skills soltas para plugin, remova os diretórios `sk-*` antigos da pasta `skills/` do cliente.*
 - **Escopo global vs. projeto**: `-Client <nome>` (`--client`) instala na pasta global da máquina (todos os projetos); `-Target <caminho>` (`--target`, ex.: `.\.agents\skills`) instala apenas no repositório atual. `-Profile` filtra o subconjunto desejado (se omitido, usa `core`; para todas as `39` skills, passe `-Profile all`).
 
 ### Destinos globais por cliente
 
 | `-Client` / `--client` | Modo `link` (padrão) | Modo `plugin` |
 | :--- | :--- | :--- |
-| `antigravity` / `gemini` | `~/.gemini/config/skills/` | `~/.gemini/config/plugins/sk-engineering-toolbox/` |
-| `copilot` *(GitHub Copilot nativo)* | `~/.copilot/skills/` | `~/.copilot/plugins/sk-engineering-toolbox/` |
-| `agents` *(padrão compartilhado / Copilot / outros)* | `~/.agents/skills/` | `~/.agents/plugins/sk-engineering-toolbox/` |
+| `antigravity` / `gemini` | `~/.gemini/config/skills/` | `~/.gemini/config/plugins/sk-engineering-toolbox/` *(recomendado)* |
+| `copilot` *(GitHub Copilot nativo)* | `~/.copilot/skills/` *(recomendado)* | `~/.copilot/plugins/sk-engineering-toolbox/` |
+| `agents` *(padrão compartilhado / Copilot / outros)* | `~/.agents/skills/` *(recomendado para Copilot)* | `~/.agents/plugins/sk-engineering-toolbox/` |
 | `claude` | `~/.claude/skills/` | `~/.claude/plugins/sk-engineering-toolbox/` |
 | `codex` | `~/.codex/skills/` | `~/.codex/plugins/sk-engineering-toolbox/` |
 
-> **Nota para GitHub Copilot:** use o modo `link` escolhendo **apenas um** destino (`-Client agents` ou `-Client copilot`) para o Copilot não enxergar cada skill em duplicidade. Ao passar múltiplos clientes separados por vírgula (`antigravity,copilot`), todos recebem o mesmo modo (`link` ou `plugin`) e destinos equivalentes (`antigravity,gemini`) são deduplicados automaticamente.
+> **Nota para GitHub Copilot:** o Copilot lê `skills/` (modo `link`), não `plugins/`. Escolha **apenas um** destino (`-Client copilot` ou `-Client agents`) para não duplicar. Ao passar múltiplos clientes separados por vírgula (`antigravity,copilot`), todos recebem o mesmo modo (`link` ou `plugin`) e destinos equivalentes (`antigravity,gemini`) são deduplicados automaticamente.
 
 ### Windows (PowerShell)
 
-Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag `-Prune` remove links antigos `sk-*` fora do perfil sem tocar em nenhuma outra skill do seu diretório.
+Não exige PowerShell elevado nem Modo de Desenvolvedor. A flag `-Prune` remove skills antigas `sk-*` fora do perfil sem tocar em nenhuma outra skill do seu diretório (e migra automaticamente junctions antigos para cópia sincronizada).
 
 ```powershell
 # 1. Listar os 5 pilares, todos os perfis e o custo fixo estimado/turno

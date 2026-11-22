@@ -17,6 +17,7 @@ PROFILE="core"
 CLIENT=""
 TARGET=""
 MODE="link"
+STRATEGY="copy"
 PLUGIN_NAME="sk-engineering-toolbox"
 PRUNE=0
 FORCE=0
@@ -30,9 +31,10 @@ Usage: scripts/install.sh [options]
   --client <name[,name2]>    claude | antigravity | gemini | agents | codex | copilot
   --target <path>            Explicit destination path (overrides --client)
   --mode <link|plugin>       link (default) or plugin
+  --strategy <copy|symlink>  copy (default, compatible with all clients) or symlink
   --plugin-name <name>       Plugin folder name (default: sk-engineering-toolbox)
-  --prune                    Remove extra sk-* links not in selected profile
-  --force                    Replace or prune non-symlink real directories
+  --prune                    Remove extra sk-* entries not in selected profile
+  --force                    Replace or prune unmanaged real directories
   --list                     Show 5 pillars, profiles and estimated tokens/turn
   --dry-run                  Simulate actions without writing to disk
   -h, --help                 Show this help
@@ -55,6 +57,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --mode)
       MODE="${2:-}"
+      shift 2
+      ;;
+    --strategy)
+      STRATEGY="${2:-}"
       shift 2
       ;;
     --plugin-name)
@@ -89,7 +95,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-exec "$PYTHON_BIN" - "$REPO_ROOT" "$PROFILE" "$CLIENT" "$TARGET" "$MODE" "$PLUGIN_NAME" "$PRUNE" "$FORCE" "$LIST" "$DRY_RUN" <<'PYEOF'
+exec "$PYTHON_BIN" - "$REPO_ROOT" "$PROFILE" "$CLIENT" "$TARGET" "$MODE" "$STRATEGY" "$PLUGIN_NAME" "$PRUNE" "$FORCE" "$LIST" "$DRY_RUN" <<'PYEOF'
 import json
 import os
 import re
@@ -103,6 +109,7 @@ import sys
     client,
     target,
     mode,
+    strategy,
     plugin_name,
     prune_s,
     force_s,
@@ -117,6 +124,10 @@ dry_run = dry_run_s == "1"
 
 if mode not in ("link", "plugin"):
     print(f"Invalid --mode '{mode}'. Expected 'link' or 'plugin'.", file=sys.stderr)
+    sys.exit(1)
+
+if strategy not in ("copy", "symlink"):
+    print(f"Invalid --strategy '{strategy}'. Expected 'copy' or 'symlink'.", file=sys.stderr)
     sys.exit(1)
 
 valid_clients = ("claude", "antigravity", "gemini", "agents", "codex", "copilot")
@@ -294,6 +305,61 @@ if mode == "plugin":
         print(f"Error: Layer 0 rules file not found: {rules_core_path}", file=sys.stderr)
         sys.exit(1)
 
+def relative_file_map(root_dir):
+    mapping = {}
+    if not os.path.isdir(root_dir):
+        return mapping
+    for r, _, files in os.walk(root_dir):
+        for fn in files:
+            fp = os.path.join(r, fn)
+            rel = os.path.relpath(fp, root_dir).replace("\\", "/")
+            mapping[rel] = fp
+    return mapping
+
+
+def skill_dirs_equal(src_dir, dst_dir):
+    if os.path.islink(dst_dir) or not os.path.isdir(dst_dir):
+        return False
+    src_map = relative_file_map(src_dir)
+    dst_map = relative_file_map(dst_dir)
+    if set(src_map.keys()) != set(dst_map.keys()):
+        return False
+    for rel, sfp in src_map.items():
+        dfp = dst_map[rel]
+        if os.path.getsize(sfp) != os.path.getsize(dfp):
+            return False
+        with open(sfp, "rb") as sf, open(dfp, "rb") as df:
+            if sf.read() != df.read():
+                return False
+    return True
+
+
+def remove_entry_safe(entry_path):
+    norm_entry = os.path.normcase(os.path.abspath(entry_path))
+    norm_repo = os.path.normcase(os.path.abspath(skills_root))
+    if norm_entry.startswith(norm_repo):
+        raise RuntimeError(f"Refusing to delete inside repository skills directory: {entry_path}")
+    if os.path.islink(entry_path):
+        os.unlink(entry_path)
+    elif os.path.isdir(entry_path):
+        shutil.rmtree(entry_path)
+    elif os.path.exists(entry_path):
+        os.unlink(entry_path)
+
+
+def read_managed_manifest(manifest_path):
+    managed = set()
+    if os.path.isfile(manifest_path):
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for item in data.get("skills", []):
+                managed.add(str(item))
+        except Exception:
+            print(f"Warning: could not parse manifest {manifest_path}; ignoring.", file=sys.stderr)
+    return managed
+
+
 tot, imp, exp, est_tokens = token_stats(selected_skills)
 
 for idx, resolved_target in enumerate(target_list):
@@ -301,7 +367,7 @@ for idx, resolved_target in enumerate(target_list):
         print("")
         print("-" * 60)
 
-    print(f"Profile: {profile_spec} | Mode: {mode} | Target: {resolved_target}")
+    print(f"Profile: {profile_spec} | Mode: {mode} | Strategy: {strategy} | Target: {resolved_target}")
     print(f"Selected: {tot} skills ({imp} implicit, {exp} explicit) | Estimated fixed cost: ~{est_tokens} tok/turn")
     if dry_run:
         print("[DRY-RUN] No filesystem changes will be written.")
@@ -339,40 +405,73 @@ for idx, resolved_target in enumerate(target_list):
     elif not dry_run:
         os.makedirs(skills_dest, exist_ok=True)
 
+    managed_manifest_path = os.path.join(skills_dest, ".sk-toolbox-manifest.json")
+    previous_managed = read_managed_manifest(managed_manifest_path)
+    current_managed = []
+
     created = updated = unchanged = skipped = pruned = 0
 
     for sk in selected_skills:
         src = os.path.abspath(os.path.join(skills_root, sk))
         dst = os.path.join(skills_dest, sk)
-        if os.path.lexists(dst):
-            if os.path.islink(dst):
-                cur = os.path.realpath(dst)
-                if cur == os.path.realpath(src):
-                    unchanged += 1
-                    print(f"[OK]     {sk}")
-                else:
+
+        if strategy == "copy":
+            if os.path.lexists(dst):
+                if os.path.islink(dst):
                     updated += 1
-                    print(f"[UPDATE] {sk} -> {src}")
+                    print(f"[MIGRATE] {sk} (symlink -> copy)")
                     if not dry_run:
                         os.unlink(dst)
-                        os.symlink(src, dst, target_is_directory=True)
-            elif force:
-                updated += 1
-                print(f"[REPLACE] {sk} -> {src}")
-                if not dry_run:
-                    if os.path.isdir(dst):
-                        shutil.rmtree(dst)
-                    else:
-                        os.unlink(dst)
-                    os.symlink(src, dst, target_is_directory=True)
+                        shutil.copytree(src, dst)
+                    current_managed.append(sk)
+                elif skill_dirs_equal(src, dst):
+                    unchanged += 1
+                    print(f"[OK]     {sk}")
+                    if mode == "plugin" or force or sk in previous_managed:
+                        current_managed.append(sk)
+                elif mode == "plugin" or force or sk in previous_managed:
+                    updated += 1
+                    print(f"[SYNC]   {sk}")
+                    if not dry_run:
+                        remove_entry_safe(dst)
+                        shutil.copytree(src, dst)
+                    current_managed.append(sk)
+                else:
+                    skipped += 1
+                    print(f"[SKIP] {sk} already exists as an unmanaged directory (use --force to replace and sync)", file=sys.stderr)
             else:
-                skipped += 1
-                print(f"[SKIP] {sk} already exists as a real entry (use --force to replace)", file=sys.stderr)
+                created += 1
+                print(f"[COPY]   {sk}")
+                if not dry_run:
+                    shutil.copytree(src, dst)
+                current_managed.append(sk)
         else:
-            created += 1
-            print(f"[LINK]   {sk} -> {src}")
-            if not dry_run:
-                os.symlink(src, dst, target_is_directory=True)
+            if os.path.lexists(dst):
+                if os.path.islink(dst):
+                    cur = os.path.realpath(dst)
+                    if cur == os.path.realpath(src):
+                        unchanged += 1
+                        print(f"[OK]     {sk}")
+                    else:
+                        updated += 1
+                        print(f"[UPDATE] {sk} -> {src}")
+                        if not dry_run:
+                            os.unlink(dst)
+                            os.symlink(src, dst, target_is_directory=True)
+                elif force or mode == "plugin" or sk in previous_managed:
+                    updated += 1
+                    print(f"[REPLACE] {sk} -> {src}")
+                    if not dry_run:
+                        remove_entry_safe(dst)
+                        os.symlink(src, dst, target_is_directory=True)
+                else:
+                    skipped += 1
+                    print(f"[SKIP] {sk} already exists as a real entry (use --force to replace)", file=sys.stderr)
+            else:
+                created += 1
+                print(f"[LINK]   {sk} -> {src}")
+                if not dry_run:
+                    os.symlink(src, dst, target_is_directory=True)
 
     if prune and os.path.isdir(skills_dest):
         selected_set = set(selected_skills)
@@ -387,17 +486,27 @@ for idx, resolved_target in enumerate(target_list):
                 print(f"[PRUNE]  {entry}")
                 if not dry_run:
                     os.unlink(cand)
-            elif force:
+            elif mode == "plugin" or force or entry in previous_managed:
                 pruned += 1
-                print(f"[PRUNE-FORCE] {entry}")
+                print(f"[PRUNE]  {entry}")
                 if not dry_run:
-                    if os.path.isdir(cand):
-                        shutil.rmtree(cand)
-                    else:
-                        os.unlink(cand)
+                    remove_entry_safe(cand)
             else:
                 skipped += 1
-                print(f"[SKIP-PRUNE] {entry} is a real directory (use --force to remove)", file=sys.stderr)
+                print(f"[SKIP-PRUNE] {entry} is an unmanaged real directory (use --force to remove)", file=sys.stderr)
+
+    if not dry_run and mode == "link":
+        if strategy == "copy" and current_managed:
+            m_obj = {
+                "managedBy": "sk-engineering-toolbox",
+                "profile": profile_spec,
+                "strategy": strategy,
+                "skills": current_managed,
+            }
+            with open(managed_manifest_path, "w", encoding="utf-8", newline="\n") as mf:
+                mf.write(json.dumps(m_obj, indent=2, ensure_ascii=False) + "\n")
+        elif strategy == "symlink" and os.path.isfile(managed_manifest_path):
+            os.unlink(managed_manifest_path)
 
     print("")
     print(f"Summary: created={created}, updated={updated}, ok={unchanged}, pruned={pruned}, skipped={skipped} | Fixed cost: ~{est_tokens} tok/turn")

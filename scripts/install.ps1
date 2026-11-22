@@ -5,6 +5,8 @@ param(
     [string]$Target = "",
     [ValidateSet("link", "plugin")]
     [string]$Mode = "link",
+    [ValidateSet("copy", "junction")]
+    [string]$Strategy = "copy",
     [string]$PluginName = "sk-engineering-toolbox",
     [switch]$Prune,
     [switch]$Force,
@@ -267,6 +269,79 @@ function Normalize-TargetPath {
     catch { return $clean.TrimEnd('\', '/') }
 }
 
+function Get-RelativeFileMap {
+    param([string]$RootDir)
+    $map = @{}
+    if (-not (Test-Path -LiteralPath $RootDir)) { return $map }
+    $baseFull = [System.IO.Path]::GetFullPath($RootDir).TrimEnd('\', '/')
+    $prefixLen = $baseFull.Length + 1
+    Get-ChildItem -LiteralPath $RootDir -Recurse -File -Force | ForEach-Object {
+        $rel = $_.FullName.Substring($prefixLen).Replace('\', '/')
+        $map[$rel] = $_.FullName
+    }
+    return $map
+}
+
+function Test-SkillDirEqual {
+    param([string]$SrcDir, [string]$DstDir)
+    $dstItem = Get-Item -LiteralPath $DstDir -Force -ErrorAction SilentlyContinue
+    if ($null -eq $dstItem -or -not $dstItem.PSIsContainer) { return $false }
+    if (($dstItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { return $false }
+    $srcMap = Get-RelativeFileMap -RootDir $SrcDir
+    $dstMap = Get-RelativeFileMap -RootDir $DstDir
+    if ($srcMap.Count -ne $dstMap.Count) { return $false }
+    foreach ($rel in $srcMap.Keys) {
+        if (-not $dstMap.ContainsKey($rel)) { return $false }
+        $sInfo = Get-Item -LiteralPath $srcMap[$rel] -Force
+        $dInfo = Get-Item -LiteralPath $dstMap[$rel] -Force
+        if ($sInfo.Length -ne $dInfo.Length) { return $false }
+        $sBytes = [System.IO.File]::ReadAllBytes($srcMap[$rel])
+        $dBytes = [System.IO.File]::ReadAllBytes($dstMap[$rel])
+        for ($i = 0; $i -lt $sBytes.Length; $i++) {
+            if ($sBytes[$i] -ne $dBytes[$i]) { return $false }
+        }
+    }
+    return $true
+}
+
+function Remove-SkillEntrySafe {
+    param([string]$EntryPath)
+    $item = Get-Item -LiteralPath $EntryPath -Force -ErrorAction SilentlyContinue
+    if ($null -eq $item) { return }
+    $normEntry = Normalize-TargetPath -RawPath $EntryPath
+    $normRepoSkills = Normalize-TargetPath -RawPath $SkillsRoot
+    if ($normEntry.StartsWith($normRepoSkills, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Refusing to remove entry inside repository skills directory: $EntryPath"
+    }
+    $isReparse = ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0
+    if ($isReparse) {
+        [System.IO.Directory]::Delete($EntryPath)
+    }
+    elseif ($item.PSIsContainer) {
+        Remove-Item -LiteralPath $EntryPath -Recurse -Force
+    }
+    else {
+        Remove-Item -LiteralPath $EntryPath -Force
+    }
+}
+
+function Read-ManagedManifest {
+    param([string]$ManifestPath)
+    $set = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    if (Test-Path -LiteralPath $ManifestPath) {
+        try {
+            $data = Get-Content -LiteralPath $ManifestPath -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($data -and $data.PSObject.Properties.Match("skills").Count -gt 0 -and $data.skills) {
+                foreach ($s in @($data.skills)) { [void]$set.Add([string]$s) }
+            }
+        }
+        catch {
+            Write-Warning "Could not parse manifest $ManifestPath; ignoring previous managed list."
+        }
+    }
+    return $set
+}
+
 $Stats = Get-TokenStats -Skills $SelectedSkills
 
 for ($tIdx = 0; $tIdx -lt $TargetList.Count; $tIdx++) {
@@ -276,7 +351,7 @@ for ($tIdx = 0; $tIdx -lt $TargetList.Count; $tIdx++) {
         Write-Host ("-" * 60)
     }
 
-    Write-Host ("Profile: {0} | Mode: {1} | Target: {2}" -f $Profile, $Mode, $ResolvedTarget)
+    Write-Host ("Profile: {0} | Mode: {1} | Strategy: {2} | Target: {3}" -f $Profile, $Mode, $Strategy, $ResolvedTarget)
     Write-Host ("Selected: {0} skills ({1} implicit, {2} explicit) | Estimated fixed cost: ~{3} tok/turn" -f `
         $Stats.Total, $Stats.Implicit, $Stats.Explicit, $Stats.Tokens)
     if ($DryRun) {
@@ -319,6 +394,10 @@ for ($tIdx = 0; $tIdx -lt $TargetList.Count; $tIdx++) {
         New-Item -ItemType Directory -Force -Path $SkillsDest | Out-Null
     }
 
+    $ManagedManifestPath = Join-Path $SkillsDest ".sk-toolbox-manifest.json"
+    $PreviousManaged = Read-ManagedManifest -ManifestPath $ManagedManifestPath
+    $CurrentManaged = New-Object 'System.Collections.Generic.List[string]'
+
     $CreatedCount = 0
     $UpdatedCount = 0
     $UnchangedCount = 0
@@ -330,52 +409,96 @@ for ($tIdx = 0; $tIdx -lt $TargetList.Count; $tIdx++) {
         $dst = Join-Path $SkillsDest $sk
         $existing = Get-Item -LiteralPath $dst -Force -ErrorAction SilentlyContinue
 
-        if ($null -ne $existing) {
-            $isReparse = ($existing.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0
-            if ($isReparse) {
-                $curTarget = ""
-                if ($existing.PSObject.Properties.Match("Target").Count -gt 0 -and $existing.Target) {
-                    $tVal = if ($existing.Target -is [System.Array]) { $existing.Target[0] } else { $existing.Target }
-                    $curTarget = Normalize-TargetPath -RawPath ([string]$tVal)
-                }
-                $expectedTarget = Normalize-TargetPath -RawPath $src
-                if ($curTarget -and ($curTarget.Equals($expectedTarget, [System.StringComparison]::OrdinalIgnoreCase))) {
-                    $UnchangedCount++
-                    Write-Host "[OK]     $sk"
-                }
-                else {
+        if ($Strategy -eq "copy") {
+            if ($null -ne $existing) {
+                $isReparse = ($existing.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0
+                if ($isReparse) {
                     $UpdatedCount++
-                    Write-Host "[UPDATE] $sk -> $src"
+                    Write-Host "[MIGRATE] $sk (junction -> copy)"
                     if (-not $DryRun) {
                         [System.IO.Directory]::Delete($dst)
-                        New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+                        Copy-Item -LiteralPath $src -Destination $dst -Recurse -Force
+                    }
+                    [void]$CurrentManaged.Add($sk)
+                }
+                elseif ($existing.PSIsContainer -and (Test-SkillDirEqual -SrcDir $src -DstDir $dst)) {
+                    $UnchangedCount++
+                    Write-Host "[OK]     $sk"
+                    if ($Mode -eq "plugin" -or $Force -or $PreviousManaged.Contains($sk)) {
+                        [void]$CurrentManaged.Add($sk)
                     }
                 }
-            }
-            elseif ($Force) {
-                $UpdatedCount++
-                Write-Host "[REPLACE] $sk -> $src"
-                if (-not $DryRun) {
-                    Remove-Item -LiteralPath $dst -Recurse -Force
-                    New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+                elseif ($Mode -eq "plugin" -or $Force -or $PreviousManaged.Contains($sk)) {
+                    $UpdatedCount++
+                    Write-Host "[SYNC]   $sk"
+                    if (-not $DryRun) {
+                        Remove-SkillEntrySafe -EntryPath $dst
+                        Copy-Item -LiteralPath $src -Destination $dst -Recurse -Force
+                    }
+                    [void]$CurrentManaged.Add($sk)
+                }
+                else {
+                    $SkippedCount++
+                    Write-Warning "[SKIP] $sk already exists as an unmanaged directory (use -Force to replace and sync)"
                 }
             }
             else {
-                $SkippedCount++
-                Write-Warning "[SKIP] $sk already exists as a real entry (use -Force to replace)"
+                $CreatedCount++
+                Write-Host "[COPY]   $sk"
+                if (-not $DryRun) {
+                    Copy-Item -LiteralPath $src -Destination $dst -Recurse -Force
+                }
+                [void]$CurrentManaged.Add($sk)
             }
         }
         else {
-            $CreatedCount++
-            Write-Host "[LINK]   $sk -> $src"
-            if (-not $DryRun) {
-                New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+            if ($null -ne $existing) {
+                $isReparse = ($existing.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0
+                if ($isReparse) {
+                    $curTarget = ""
+                    if ($existing.PSObject.Properties.Match("Target").Count -gt 0 -and $existing.Target) {
+                        $tVal = if ($existing.Target -is [System.Array]) { $existing.Target[0] } else { $existing.Target }
+                        $curTarget = Normalize-TargetPath -RawPath ([string]$tVal)
+                    }
+                    $expectedTarget = Normalize-TargetPath -RawPath $src
+                    if ($curTarget -and ($curTarget.Equals($expectedTarget, [System.StringComparison]::OrdinalIgnoreCase))) {
+                        $UnchangedCount++
+                        Write-Host "[OK]     $sk"
+                    }
+                    else {
+                        $UpdatedCount++
+                        Write-Host "[UPDATE] $sk -> $src"
+                        if (-not $DryRun) {
+                            [System.IO.Directory]::Delete($dst)
+                            New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+                        }
+                    }
+                }
+                elseif ($Force -or $Mode -eq "plugin" -or $PreviousManaged.Contains($sk)) {
+                    $UpdatedCount++
+                    Write-Host "[REPLACE] $sk -> $src"
+                    if (-not $DryRun) {
+                        Remove-SkillEntrySafe -EntryPath $dst
+                        New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+                    }
+                }
+                else {
+                    $SkippedCount++
+                    Write-Warning "[SKIP] $sk already exists as a real entry (use -Force to replace)"
+                }
+            }
+            else {
+                $CreatedCount++
+                Write-Host "[LINK]   $sk -> $src"
+                if (-not $DryRun) {
+                    New-Item -ItemType Junction -Path $dst -Target $src | Out-Null
+                }
             }
         }
     }
 
     if ($Prune -and (Test-Path -LiteralPath $SkillsDest)) {
-        $SelectedSet = New-Object 'System.Collections.Generic.HashSet[string]'
+        $SelectedSet = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
         foreach ($sk in $SelectedSkills) { [void]$SelectedSet.Add($sk) }
 
         Get-ChildItem -LiteralPath $SkillsDest -Force | Where-Object { $_.Name -like "sk-*" } | ForEach-Object {
@@ -388,18 +511,35 @@ for ($tIdx = 0; $tIdx -lt $TargetList.Count; $tIdx++) {
                         [System.IO.Directory]::Delete($_.FullName)
                     }
                 }
-                elseif ($Force) {
+                elseif ($Mode -eq "plugin" -or $Force -or $PreviousManaged.Contains($_.Name)) {
                     $PrunedCount++
-                    Write-Host "[PRUNE-FORCE] $($_.Name)"
+                    Write-Host "[PRUNE]  $($_.Name)"
                     if (-not $DryRun) {
-                        Remove-Item -LiteralPath $_.FullName -Recurse -Force
+                        Remove-SkillEntrySafe -EntryPath $_.FullName
                     }
                 }
                 else {
                     $SkippedCount++
-                    Write-Warning "[SKIP-PRUNE] $($_.Name) is a real directory (use -Force to remove)"
+                    Write-Warning "[SKIP-PRUNE] $($_.Name) is an unmanaged real directory (use -Force to remove)"
                 }
             }
+        }
+    }
+
+    if (-not $DryRun -and $Mode -eq "link") {
+        if ($Strategy -eq "copy" -and $CurrentManaged.Count -gt 0) {
+            $mObj = [ordered]@{
+                managedBy = "sk-engineering-toolbox"
+                profile   = $Profile
+                strategy  = $Strategy
+                skills    = [string[]]$CurrentManaged.ToArray()
+            }
+            $mJson = (($mObj | ConvertTo-Json -Depth 3) -replace "\r\n", "`n") + "`n"
+            $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+            [System.IO.File]::WriteAllText($ManagedManifestPath, $mJson, $Utf8NoBom)
+        }
+        elseif ($Strategy -eq "junction" -and (Test-Path -LiteralPath $ManagedManifestPath)) {
+            Remove-Item -LiteralPath $ManagedManifestPath -Force
         }
     }
 
