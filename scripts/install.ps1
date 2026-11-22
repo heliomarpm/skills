@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$Profile = "core",
-    [ValidateSet("claude", "antigravity", "gemini", "agents", "codex", "")]
+    [ValidateSet("claude", "antigravity", "gemini", "agents", "codex", "copilot", "")]
     [string]$Client = "",
     [string]$Target = "",
     [ValidateSet("link", "plugin")]
@@ -175,7 +175,7 @@ if ($List) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Target) -and [string]::IsNullOrWhiteSpace($Client)) {
-    Write-Error "Specify -Client <claude|antigravity|gemini|agents|codex> or -Target <path> (or run -List)."
+    Write-Error "Specify -Client <claude|antigravity|gemini|agents|codex|copilot> or -Target <path> (or run -List)."
     exit 1
 }
 
@@ -189,14 +189,20 @@ else {
                 "claude"      { $ResolvedTarget = Join-Path $HOME ".claude\skills" }
                 "antigravity" { $ResolvedTarget = Join-Path $HOME ".gemini\config\skills" }
                 "gemini"      { $ResolvedTarget = Join-Path $HOME ".gemini\config\skills" }
-                "agents"      { $ResolvedTarget = Join-Path $HOME ".agents\skills" }
                 "codex"       { $ResolvedTarget = Join-Path $HOME ".codex\skills" }
+                "copilot"     { $ResolvedTarget = Join-Path $HOME ".copilot\skills" }
+                "agents"      { $ResolvedTarget = Join-Path $HOME ".agents\skills" }
+                default       { $ResolvedTarget = Join-Path $HOME ".agents\skills" }
             }
         }
         "plugin" {
             switch ($Client) {
                 "claude"      { $ResolvedTarget = Join-Path $HOME ".claude\plugins" }
+                "antigravity" { $ResolvedTarget = Join-Path $HOME ".gemini\config\plugins" }
+                "gemini"      { $ResolvedTarget = Join-Path $HOME ".gemini\config\plugins" }
                 "codex"       { $ResolvedTarget = Join-Path $HOME ".codex\plugins" }
+                "copilot"     { $ResolvedTarget = Join-Path $HOME ".copilot\plugins" }
+                "agents"      { $ResolvedTarget = Join-Path $HOME ".agents\plugins" }
                 default       { $ResolvedTarget = Join-Path $HOME ".agents\plugins" }
             }
         }
@@ -242,13 +248,11 @@ if ($Mode -eq "plugin") {
 
     $ManifestObj = [ordered]@{
         name        = $PluginName
-        description = $Config.pluginDefaults.description
+        displayName = "SK Engineering Toolbox"
+        description = ("{0} (profile: {1})" -f $Config.pluginDefaults.description, $Profile)
         author      = $Config.pluginDefaults.author
         homepage    = $Config.pluginDefaults.homepage
         repository  = $Config.pluginDefaults.repository
-        license     = $Config.pluginDefaults.license
-        profile     = $Profile
-        skillsCount = $Stats.Total
     }
     $ManifestJson = (($ManifestObj | ConvertTo-Json -Depth 4) -replace "\r\n", "`n") + "`n"
 

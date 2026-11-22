@@ -60,6 +60,26 @@ Sem direcionamento, agentes de código tendem a pular requisitos, gerar código 
 
 Em vez de vincular todas as 39 skills globalmente, instale **apenas o perfil do seu projeto**. Isso corta mais da metade do custo fixo por turno frente ao catálogo completo e evita sobreposição entre stacks que você não está usando.
 
+**Como o instalador funciona na sua máquina:**
+
+- **Sem cópias físicas**: os scripts criam **Junctions** (Windows, sem exigir Admin) ou **symlinks** (Linux/macOS) apontando para `skills/sk-*` deste repositório. Qualquer `git pull` ou edição local reflete automaticamente no agente.
+- **Escolha apenas UM modo por cliente** (nunca ambos no mesmo cliente, para não duplicar skills):
+  - **Modo `link` (padrão — skills soltas)**: vincula apenas as skills do perfil direto na pasta `skills/` do cliente; não instala a Camada 0 ([rules/sk-core.md](rules/sk-core.md)).
+  - **Modo `plugin` (pacote único — recomendado em clientes com suporte a plugins)**: cria `plugins/sk-engineering-toolbox/` contendo `plugin.json`, a Camada 0 em `rules/AGENTS.md` e os links `skills/sk-*`. Permite ligar, atualizar ou desligar o conjunto inteiro como uma unidade. *Ao migrar de skills soltas ou cópias antigas para plugin, remova os diretórios `sk-*` antigos da pasta `skills/` do cliente.*
+- **Escopo global vs. projeto**: `-Client <nome>` (`--client`) instala na pasta global da máquina (todos os projetos); `-Target <caminho>` (`--target`, ex.: `.\.agents\skills`) instala apenas no repositório atual. `-Profile` filtra o subconjunto desejado (se omitido, usa `core`; para todas as `39` skills, passe `-Profile all`).
+
+### Destinos globais por cliente
+
+| `-Client` / `--client` | Modo `link` (padrão) | Modo `plugin` |
+| :--- | :--- | :--- |
+| `antigravity` / `gemini` | `~/.gemini/config/skills/` | `~/.gemini/config/plugins/sk-engineering-toolbox/` |
+| `copilot` *(GitHub Copilot nativo)* | `~/.copilot/skills/` | `~/.copilot/plugins/sk-engineering-toolbox/` |
+| `agents` *(padrão compartilhado / Copilot / outros)* | `~/.agents/skills/` | `~/.agents/plugins/sk-engineering-toolbox/` |
+| `claude` | `~/.claude/skills/` | `~/.claude/plugins/sk-engineering-toolbox/` |
+| `codex` | `~/.codex/skills/` | `~/.codex/plugins/sk-engineering-toolbox/` |
+
+> **Nota para GitHub Copilot:** use o modo `link` escolhendo **apenas um** destino (`-Client agents` ou `-Client copilot`) para o Copilot não enxergar cada skill em duplicidade.
+
 ### Windows (PowerShell)
 
 Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag `-Prune` remove links antigos `sk-*` fora do perfil sem tocar em nenhuma outra skill do seu diretório.
@@ -68,14 +88,15 @@ Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag
 # 1. Listar os 5 pilares, todos os perfis e o custo fixo estimado/turno
 .\scripts\install.ps1 -List
 
-# 2. Instalar o kit da sua stack (clientes: antigravity | claude | codex | agents | gemini)
-.\scripts\install.ps1 -Profile backend-java -Client antigravity -Prune
+# 2. Instalar como plugin completo para uma stack específica (ou use -Profile all para todas as 39 skills)
+.\scripts\install.ps1 -Profile backend-java -Mode plugin -Client antigravity -Prune
+.\scripts\install.ps1 -Profile all -Mode plugin -Client antigravity -Prune
 
-# 3. Compor perfis customizados (com simulacao previa via -DryRun)
-.\scripts\install.ps1 -Profile core,domains-backend,stack-node -Client claude -DryRun
+# 3. Instalar apenas como skills soltas (-Mode link, padrão — ex.: GitHub Copilot em ~/.copilot/skills ou ~/.agents/skills)
+.\scripts\install.ps1 -Profile all -Client copilot -Prune
 
-# 4. Instalar como plugin completo (inclui Camada 0 em rules/AGENTS.md + plugin.json)
-.\scripts\install.ps1 -Profile backend-java -Mode plugin -Client agents
+# 4. Compor perfis customizados ou instalar só no projeto atual (com -DryRun prévio)
+.\scripts\install.ps1 -Profile core,domains-backend,stack-node -Target .\.agents\skills -DryRun
 ```
 
 ### Linux e macOS
@@ -84,12 +105,13 @@ Usa `Junction` (não exige PowerShell elevado nem Modo de Desenvolvedor). A flag
 # 1. Listar os 5 pilares, perfis e custo fixo estimado/turno
 ./scripts/install.sh --list
 
-# 2. Instalar perfil seletivo
-./scripts/install.sh --profile backend-java --client antigravity --prune
-./scripts/install.sh --profile core,domains-backend,stack-node --client claude
+# 2. Instalar como plugin completo (por stack ou catálogo inteiro com --profile all)
+./scripts/install.sh --profile backend-java --mode plugin --client antigravity --prune
+./scripts/install.sh --profile all --mode plugin --client antigravity --prune
 
-# 3. Instalar como plugin completo (Camada 0 + plugin.json + symlinks)
-./scripts/install.sh --profile backend-java --mode plugin --client agents
+# 3. Instalar apenas como skills soltas (--mode link — ex.: GitHub Copilot ou perfis combinados)
+./scripts/install.sh --profile all --client copilot --prune
+./scripts/install.sh --profile core,domains-backend,stack-node --client claude --prune
 ```
 
 ### Perfis prontos e custo fixo estimado

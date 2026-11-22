@@ -27,7 +27,7 @@ usage() {
   cat <<'EOF'
 Usage: scripts/install.sh [options]
   --profile <name[,name2]>   Comma-separated profile(s) (default: core)
-  --client <name>            claude | antigravity | gemini | agents | codex
+  --client <name>            claude | antigravity | gemini | agents | codex | copilot
   --target <path>            Explicit destination path (overrides --client)
   --mode <link|plugin>       link (default) or plugin
   --plugin-name <name>       Plugin folder name (default: sk-engineering-toolbox)
@@ -119,8 +119,8 @@ if mode not in ("link", "plugin"):
     print(f"Invalid --mode '{mode}'. Expected 'link' or 'plugin'.", file=sys.stderr)
     sys.exit(1)
 
-if client not in ("", "claude", "antigravity", "gemini", "agents", "codex"):
-    print(f"Invalid --client '{client}'. Expected claude, antigravity, gemini, agents, or codex.", file=sys.stderr)
+if client not in ("", "claude", "antigravity", "gemini", "agents", "codex", "copilot"):
+    print(f"Invalid --client '{client}'. Expected claude, antigravity, gemini, agents, codex, or copilot.", file=sys.stderr)
     sys.exit(1)
 
 profiles_path = os.path.join(repo_root, "profiles.json")
@@ -228,7 +228,7 @@ if list_mode:
     sys.exit(0)
 
 if not target and not client:
-    print("Error: specify --client <claude|antigravity|gemini|agents|codex> or --target <path> (or --list).", file=sys.stderr)
+    print("Error: specify --client <claude|antigravity|gemini|agents|codex|copilot> or --target <path> (or --list).", file=sys.stderr)
     sys.exit(1)
 
 if target:
@@ -240,16 +240,20 @@ else:
             "claude": os.path.join(home, ".claude", "skills"),
             "antigravity": os.path.join(home, ".gemini", "config", "skills"),
             "gemini": os.path.join(home, ".gemini", "config", "skills"),
-            "agents": os.path.join(home, ".agents", "skills"),
             "codex": os.path.join(home, ".codex", "skills"),
+            "copilot": os.path.join(home, ".copilot", "skills"),
+            "agents": os.path.join(home, ".agents", "skills"),
+            "default": os.path.join(home, ".agents", "skills"),
         }
     else:
         client_dirs = {
             "claude": os.path.join(home, ".claude", "plugins"),
+            "antigravity": os.path.join(home, ".gemini", "config", "plugins"),
+            "gemini": os.path.join(home, ".gemini", "config", "plugins"),
             "codex": os.path.join(home, ".codex", "plugins"),
-            "antigravity": os.path.join(home, ".agents", "plugins"),
-            "gemini": os.path.join(home, ".agents", "plugins"),
+            "copilot": os.path.join(home, ".copilot", "plugins"),
             "agents": os.path.join(home, ".agents", "plugins"),
+            "default": os.path.join(home, ".agents", "plugins"),
         }
     resolved_target = os.path.abspath(client_dirs[client])
 
@@ -288,13 +292,11 @@ if mode == "plugin":
     defaults = config["pluginDefaults"]
     manifest = {
         "name": plugin_name,
-        "description": defaults["description"],
+        "displayName": "SK Engineering Toolbox",
+        "description": f"{defaults['description']} (profile: {profile_spec})",
         "author": defaults["author"],
         "homepage": defaults["homepage"],
         "repository": defaults["repository"],
-        "license": defaults["license"],
-        "profile": profile_spec,
-        "skillsCount": tot,
     }
     if dry_run:
         print(f"[WRITE] {plugin_json_path}")
