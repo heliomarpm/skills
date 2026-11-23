@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+# [1.15.0](https://github.com/heliomarpm/skills/compare/v1.14.1...v1.15.0) (2026-11-23)
+
+
+### Features
+
+* **sk-tasks:** adicionar seção Rascunhos e escolha inicial de organização do Backlog ([84c4efd](https://github.com/heliomarpm/skills/commit/84c4efdc583b0d2d2b4e6b0dbb3849b683bb3d47))
+
 ## [1.14.1](https://github.com/heliomarpm/skills/compare/v1.14.0...v1.14.1) (2026-11-22)
 
 
