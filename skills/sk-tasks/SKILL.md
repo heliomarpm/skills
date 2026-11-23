@@ -61,6 +61,7 @@ Procure, nesta ordem, e use o primeiro encontrado:
 - Se a skill foi chamada pelo `sk-discovery` ou pelo `sk-spec`, use o diretório dos arquivos de contexto ou da spec.
 - Senão, se existirem arquivos de contexto (`AGENTS.md`, `CONTEXT.md`) em `./.agents/`, `./agents/` ou `./docs/`, use esse diretório.
 - Senão, use `./.agents/` ou `./agents/` se a pasta existir; caso contrário, a raiz `./`.
+- **Escolha inicial de organização (única vez)**: antes de criar o primeiro `TASKS.md`, se o usuário ainda não definiu o formato nem pediu criação direta no padrão, apresente a pergunta curta com as 6 opções da seção 3.6 (modelo em [references/tasks-template.md](./references/tasks-template.md)) e informe que `## Rascunhos` entra por padrão salvo se ele preferir sem. Se o pedido exigir execução direta sem pausa ou não houver escolha, adote a opção 1 (**Prioridade simples**). Registre `Organização:` no cabeçalho para não perguntar novamente. Em arquivo existente, nunca pergunte (seção 3.1).
 
 ---
 
@@ -78,7 +79,8 @@ Use apenas os checkboxes padrão `[ ]` e `[x]`, que renderizam em qualquer visua
 | :--- | :--- | :--- |
 | Em progresso | Trabalho ativo | Limite de WIP: 2 por padrão, configurável no cabeçalho; conferir prontidão (seção 4.5) |
 | Bloqueadas | Impedimento externo ou dependência | Título com **[BLOQUEADA]** e linha `Bloqueio:` com causa e ação necessária |
-| Backlog | Pendente, ordenada por prioridade | Prioridade P0 a P3 em cada tarefa |
+| Backlog | Pendente, organizada conforme o cabeçalho | Prioridade P0 a P3 em cada tarefa, agrupada pelo modelo escolhido (seção 3.6) |
+| Rascunhos | Ideia embrionária sem escopo ou DoD fechado *(opcional)* | Fora da conta de progresso; sem ID `T-NNN` (bullet simples ou `R-NNN`); só entra no Backlog ao ser promovida ou descartada |
 | Concluídas recentemente | Feita, com evidência | `[x]`, data, arquivos e evidência |
 | Canceladas | Descartada ou substituída | Título com **[CANCELADA]** e justificativa curta |
 
@@ -90,16 +92,32 @@ Toda tarefa tem: ID, prioridade, título, **origem** (`manual`, `bug`, `spec <id
 
 - **IDs**: `T-NNN`, globais no arquivo, alocados como o maior ID existente (incluindo concluídas, canceladas e arquivadas) mais um. Nunca reutilize um ID.
 - **Links**: sempre relativos ao arquivo, com linha quando útil: `[arquivo.ts](./src/arquivo.ts#L45-L60)`. Nunca `file:///`.
+- **Rascunhos e GUT**: itens em `## Rascunhos` dispensam `T-NNN`, `P0`–`P3`, links e DoD até serem promovidos para o `Backlog` (use bullet simples ou `R-NNN` com nota curta). Quando a organização for **Matriz GUT**, registre o placar curto na linha da tarefa (ex.: `GUT 60 (4×5×3)`).
 
 ### 3.4. Cabeçalho e contador
 
-O cabeçalho traz: meta atual, status geral, progresso, limite de WIP e data da última atualização.
+O cabeçalho traz: meta atual, organização do backlog, status geral, progresso, limite de WIP e data da última atualização.
 
-**Progresso** = concluídas ÷ (total − canceladas), arredondado para baixo, recalculado a partir das seções a cada escrita. Os arquivos arquivados não entram na conta.
+**Progresso** = concluídas ÷ (total − canceladas), arredondado para baixo, recalculado a partir das seções a cada escrita. Itens em `## Rascunhos` e arquivos arquivados não entram na conta.
 
 ### 3.5. Tamanho e arquivamento
 
 Mantenha o `TASKS.md` com até ~300 linhas. Em "Concluídas recentemente" e "Canceladas", mantenha as últimas 10 entradas ou 30 dias. O excedente vai para `TASKS.archive.md` no mesmo diretório (avise ao criá-lo) ou, se o usuário preferir, é resumido em uma linha de histórico com a contagem. Nunca descarte um item sem registro.
+
+### 3.6. Organização do Backlog
+
+Todas as opções preservam `T-NNN` e `P0`–`P3` na tarefa para manter compatibilidade com o modo **Importar** das demais skills, variando apenas o agrupamento das subseções dentro de `## Backlog`:
+
+| Opção | Subseções no `## Backlog` | Quando usar |
+| :--- | :--- | :--- |
+| **1. Prioridade simples *(padrão recomendado)*** | `Alta Prioridade`, `Média Prioridade`, `Baixa Prioridade` | Menor atrito para o dia a dia |
+| **2. Matriz de Eisenhower** | `Q1 · Fazer agora`, `Q2 · Agendar`, `Q3 · Delegar / Automatizar`, `Q4 · Avaliar / Eliminar` | Quando urgência compete com importância |
+| **3. Ações Prioritárias (`Impacto × Esforço`)** | `Ganhos rápidos`, `Projetos estratégicos`, `Tarefas de apoio`, `Evitar / Reavaliar` | Priorizar retorno por esforço investido |
+| **4. Matriz GUT (`Gravidade × Urgência × Tendência`)** | `Crítico (64–125)`, `Alto (27–63)`, `Moderado (8–26)`, `Baixo (1–7)` | Filas de bugs, incidentes e manutenção |
+| **5. Now / Next / Later** | `Agora`, `Próximo`, `Depois` | Roadmaps contínuos sem prazo fixo |
+| **6. MoSCoW** | `Must`, `Should`, `Could`, `Won't` | Releases ou escopo fechado com cliente |
+
+Os modelos prontos de cada organização e o texto da pergunta inicial ficam em [references/tasks-template.md](./references/tasks-template.md).
 
 ---
 
@@ -135,6 +153,8 @@ Sem evidência de testes, pergunte ao usuário. Se ele confirmar a conclusão se
 ### 4.5. Refinamento (prontidão para construir)
 
 No modo **Refinar**, avalie cada tarefa pendente (Backlog e Bloqueadas) contra esta lista de prontidão (*Definition of Ready*):
+
+Itens em `## Rascunhos` ficam fora dessa auditoria até o usuário pedir para promovê-los ao `Backlog` (podendo amadurecer antes via `sk-challenge` ou `sk-spec`).
 
 | Critério | Pronta quando |
 | :--- | :--- |
@@ -184,6 +204,8 @@ Ao criar um `TASKS.md` novo do zero ou formatar uma atualização em diff, consu
 ## 7. Armadilhas
 
 - **Sobrescrita cega**: gerar o arquivo do zero e perder anotações e histórico. Sempre leia antes de editar.
+- **Perguntar organização em `TASKS.md` já existente**: adapte-se ao formato atual (seção 3.1) e só faça a pergunta inicial ao criar o arquivo do zero.
+- **Contar `## Rascunhos` no progresso ou alocar `T-NNN` antes da promoção**: rascunhos são ideias embrionárias; só recebem ID e entram no contador ao subir para o `Backlog`.
 - **Arquivo duplicado**: criar `./TASKS.md` quando já existia outro em `.agents/`, `agents/`, `docs/` ou com nome singular.
 - **Concluir sem evidência**: marcar `[x]` sem conferir arquivos e testes.
 - **WIP excessivo**: acima do limite configurado, o foco se perde.
