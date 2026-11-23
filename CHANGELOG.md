@@ -5,6 +5,13 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).        
 
 
+## [1.14.1](https://github.com/heliomarpm/skills/compare/v1.14.0...v1.14.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* **installer:** adotar cópia sincronizada por padrão para compatibilidade com Antigravity e Windows ([f2744d8](https://github.com/heliomarpm/skills/commit/f2744d89fcea9331a9778f08eaef01ad60e945b1))
+
 # [1.14.0](https://github.com/heliomarpm/skills/compare/v1.13.0...v1.14.0) (2026-11-22)
 
 
